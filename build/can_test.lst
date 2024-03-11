@@ -1,0 +1,535 @@
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"can_test.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.CAN_Init,"ax",%progbits
+  20              		.align	1
+  21              		.global	CAN_Init
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	CAN_Init:
+  27              	.LVL0:
+  28              	.LFB130:
+  29              		.file 1 "modules/can_test.c"
+   1:modules/can_test.c **** #include "main.h"
+   2:modules/can_test.c **** #include "can_test.h"
+   3:modules/can_test.c **** 
+   4:modules/can_test.c **** 
+   5:modules/can_test.c **** // 中科大 CAN 初始化程序
+   6:modules/can_test.c **** /**
+   7:modules/can_test.c ****  * @brief 初始化CAN总线
+   8:modules/can_test.c ****  * 
+   9:modules/can_test.c ****  * @param hcan CAN编号
+  10:modules/can_test.c ****  * @param Callback_Function 处理回调函数
+  11:modules/can_test.c ****  */
+  12:modules/can_test.c **** void CAN_Init(CAN_HandleTypeDef *hcan)
+  13:modules/can_test.c **** {
+  30              		.loc 1 13 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 13 1 is_stmt 0 view .LVU1
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40 0002 0446     		mov	r4, r0
+  14:modules/can_test.c **** HAL_CAN_Start(hcan); //打开CAN
+  41              		.loc 1 14 1 is_stmt 1 view .LVU2
+  42 0004 FFF7FEFF 		bl	HAL_CAN_Start
+  43              	.LVL1:
+  15:modules/can_test.c **** __HAL_CAN_ENABLE_IT(hcan, CAN_IT_RX_FIFO0_MSG_PENDING); //使能中断1
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 2
+
+
+  44              		.loc 1 15 1 view .LVU3
+  45 0008 2268     		ldr	r2, [r4]
+  46 000a 5369     		ldr	r3, [r2, #20]
+  47 000c 43F00203 		orr	r3, r3, #2
+  48 0010 5361     		str	r3, [r2, #20]
+  16:modules/can_test.c **** __HAL_CAN_ENABLE_IT(hcan, CAN_IT_RX_FIFO1_MSG_PENDING); //使能中断2
+  49              		.loc 1 16 1 view .LVU4
+  50 0012 2268     		ldr	r2, [r4]
+  51 0014 5369     		ldr	r3, [r2, #20]
+  52 0016 43F01003 		orr	r3, r3, #16
+  53 001a 5361     		str	r3, [r2, #20]
+  17:modules/can_test.c **** }
+  54              		.loc 1 17 1 is_stmt 0 view .LVU5
+  55 001c 10BD     		pop	{r4, pc}
+  56              		.loc 1 17 1 view .LVU6
+  57              		.cfi_endproc
+  58              	.LFE130:
+  60              		.section	.text.CAN_Send_Data,"ax",%progbits
+  61              		.align	1
+  62              		.global	CAN_Send_Data
+  63              		.syntax unified
+  64              		.thumb
+  65              		.thumb_func
+  67              	CAN_Send_Data:
+  68              	.LVL2:
+  69              	.LFB131:
+  18:modules/can_test.c **** 
+  19:modules/can_test.c **** 
+  20:modules/can_test.c **** /*-------------------------------------------------------------------------------------------------
+  21:modules/can_test.c **** /**
+  22:modules/can_test.c ****  * @brief 发送数据帧
+  23:modules/can_test.c ****  * 
+  24:modules/can_test.c ****  * @param hcan   CAN编号
+  25:modules/can_test.c ****  * @param ID     ID
+  26:modules/can_test.c ****  * @param Data   被发送数据指针
+  27:modules/can_test.c ****  * @param Length 长度
+  28:modules/can_test.c ****  * @return uint_8 执行状态
+  29:modules/can_test.c ****  */
+  30:modules/can_test.c **** 
+  31:modules/can_test.c **** uint8_t CAN_Send_Data(CAN_HandleTypeDef *hcan, uint16_t ID, uint8_t *Data, uint16_t Length)
+  32:modules/can_test.c **** {
+  70              		.loc 1 32 1 is_stmt 1 view -0
+  71              		.cfi_startproc
+  72              		@ args = 0, pretend = 0, frame = 32
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              		.loc 1 32 1 is_stmt 0 view .LVU8
+  75 0000 00B5     		push	{lr}
+  76              	.LCFI1:
+  77              		.cfi_def_cfa_offset 4
+  78              		.cfi_offset 14, -4
+  79 0002 89B0     		sub	sp, sp, #36
+  80              	.LCFI2:
+  81              		.cfi_def_cfa_offset 40
+  33:modules/can_test.c ****   CAN_TxHeaderTypeDef tx_header;
+  82              		.loc 1 33 3 is_stmt 1 view .LVU9
+  34:modules/can_test.c ****   uint32_t used_mailbox;
+  83              		.loc 1 34 3 view .LVU10
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 3
+
+
+  35:modules/can_test.c **** 
+  36:modules/can_test.c ****   // 检测关键传参
+  37:modules/can_test.c ****   assert_param(hcan != NULL);
+  84              		.loc 1 37 3 view .LVU11
+  38:modules/can_test.c **** 
+  39:modules/can_test.c ****   tx_header.StdId = ID;
+  85              		.loc 1 39 3 view .LVU12
+  86              		.loc 1 39 19 is_stmt 0 view .LVU13
+  87 0004 0291     		str	r1, [sp, #8]
+  40:modules/can_test.c ****   tx_header.ExtId = 0;
+  88              		.loc 1 40 3 is_stmt 1 view .LVU14
+  89              		.loc 1 40 19 is_stmt 0 view .LVU15
+  90 0006 0021     		movs	r1, #0
+  91              	.LVL3:
+  92              		.loc 1 40 19 view .LVU16
+  93 0008 0391     		str	r1, [sp, #12]
+  41:modules/can_test.c ****   tx_header.IDE = 0;
+  94              		.loc 1 41 3 is_stmt 1 view .LVU17
+  95              		.loc 1 41 17 is_stmt 0 view .LVU18
+  96 000a 0491     		str	r1, [sp, #16]
+  42:modules/can_test.c ****   tx_header.RTR = 0;
+  97              		.loc 1 42 3 is_stmt 1 view .LVU19
+  98              		.loc 1 42 17 is_stmt 0 view .LVU20
+  99 000c 0591     		str	r1, [sp, #20]
+  43:modules/can_test.c ****   tx_header.DLC = Length; //数据长度
+ 100              		.loc 1 43 3 is_stmt 1 view .LVU21
+ 101              		.loc 1 43 17 is_stmt 0 view .LVU22
+ 102 000e 0693     		str	r3, [sp, #24]
+  44:modules/can_test.c **** 
+  45:modules/can_test.c ****   return (HAL_CAN_AddTxMessage(hcan, &tx_header, Data, &used_mailbox));
+ 103              		.loc 1 45 3 is_stmt 1 view .LVU23
+ 104              		.loc 1 45 11 is_stmt 0 view .LVU24
+ 105 0010 01AB     		add	r3, sp, #4
+ 106              	.LVL4:
+ 107              		.loc 1 45 11 view .LVU25
+ 108 0012 02A9     		add	r1, sp, #8
+ 109 0014 FFF7FEFF 		bl	HAL_CAN_AddTxMessage
+ 110              	.LVL5:
+  46:modules/can_test.c **** }
+ 111              		.loc 1 46 1 view .LVU26
+ 112 0018 09B0     		add	sp, sp, #36
+ 113              	.LCFI3:
+ 114              		.cfi_def_cfa_offset 4
+ 115              		@ sp needed
+ 116 001a 5DF804FB 		ldr	pc, [sp], #4
+ 117              		.cfi_endproc
+ 118              	.LFE131:
+ 120              		.section	.text.CAN_Filter_Mask_Config,"ax",%progbits
+ 121              		.align	1
+ 122              		.global	CAN_Filter_Mask_Config
+ 123              		.syntax unified
+ 124              		.thumb
+ 125              		.thumb_func
+ 127              	CAN_Filter_Mask_Config:
+ 128              	.LVL6:
+ 129              	.LFB132:
+  47:modules/can_test.c **** 
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 4
+
+
+  48:modules/can_test.c **** 
+  49:modules/can_test.c **** /*-------------------------------------------------------------------------------------------------
+  50:modules/can_test.c **** /**
+  51:modules/can_test.c ****  * @brief 配置CAN过滤器
+  52:modules/can_test.c ****  * 
+  53:modules/can_test.c ****  * @param hcan         CAN编号 (hcan1, hcan2)
+  54:modules/can_test.c ****  * @param Object_Para  编号 | FIFOx | ID类型 | 帧类型  (这是使用方法，一坨或运算
+  55:modules/can_test.c ****  * @param ID           接收 ID
+  56:modules/can_test.c ****  * @param Mask_ID      屏蔽 ID (0x3ff, 0x1fffffff)
+  57:modules/can_test.c ****  */
+  58:modules/can_test.c **** 
+  59:modules/can_test.c **** void CAN_Filter_Mask_Config(CAN_HandleTypeDef *hcan, uint8_t Object_Para, uint32_t ID, uint32_t Mas
+  60:modules/can_test.c **** {
+ 130              		.loc 1 60 1 is_stmt 1 view -0
+ 131              		.cfi_startproc
+ 132              		@ args = 0, pretend = 0, frame = 40
+ 133              		@ frame_needed = 0, uses_anonymous_args = 0
+ 134              		.loc 1 60 1 is_stmt 0 view .LVU28
+ 135 0000 10B5     		push	{r4, lr}
+ 136              	.LCFI4:
+ 137              		.cfi_def_cfa_offset 8
+ 138              		.cfi_offset 4, -8
+ 139              		.cfi_offset 14, -4
+ 140 0002 8AB0     		sub	sp, sp, #40
+ 141              	.LCFI5:
+ 142              		.cfi_def_cfa_offset 48
+  61:modules/can_test.c ****   CAN_FilterTypeDef can_filter_init_structure;
+ 143              		.loc 1 61 3 is_stmt 1 view .LVU29
+  62:modules/can_test.c **** 
+  63:modules/can_test.c ****   // 检测关键传参
+  64:modules/can_test.c ****   assert_param(hcan != NULL);
+ 144              		.loc 1 64 3 view .LVU30
+  65:modules/can_test.c **** 
+  66:modules/can_test.c ****   if ((Object_Para & 0x02)) //判断是 标准帧还是扩展帧
+ 145              		.loc 1 66 3 view .LVU31
+ 146              		.loc 1 66 6 is_stmt 0 view .LVU32
+ 147 0004 11F0020F 		tst	r1, #2
+ 148 0008 1FD0     		beq	.L6
+  67:modules/can_test.c ****   {
+  68:modules/can_test.c ****     // 标准帧
+  69:modules/can_test.c ****     // 掩码后ID的高16bit
+  70:modules/can_test.c ****     can_filter_init_structure.FilterIdHigh = ID << 3 >> 16;
+ 149              		.loc 1 70 5 is_stmt 1 view .LVU33
+ 150              		.loc 1 70 54 is_stmt 0 view .LVU34
+ 151 000a C2F34F34 		ubfx	r4, r2, #13, #16
+ 152              		.loc 1 70 44 view .LVU35
+ 153 000e 0094     		str	r4, [sp]
+  71:modules/can_test.c ****     // 掩码后ID的低16bit
+  72:modules/can_test.c ****     can_filter_init_structure.FilterIdLow = ID << 3 | ((Object_Para & 0x03) << 1);
+ 154              		.loc 1 72 5 is_stmt 1 view .LVU36
+ 155              		.loc 1 72 77 is_stmt 0 view .LVU37
+ 156 0010 4FEA410C 		lsl	ip, r1, #1
+ 157 0014 0CF0060C 		and	ip, ip, #6
+ 158              		.loc 1 72 53 view .LVU38
+ 159 0018 4CEAC202 		orr	r2, ip, r2, lsl #3
+ 160              	.LVL7:
+ 161              		.loc 1 72 43 view .LVU39
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 5
+
+
+ 162 001c 0192     		str	r2, [sp, #4]
+  73:modules/can_test.c ****     // ID掩码值高16bit
+  74:modules/can_test.c ****     can_filter_init_structure.FilterMaskIdHigh = Mask_ID << 3 << 16;
+ 163              		.loc 1 74 5 is_stmt 1 view .LVU40
+ 164              		.loc 1 74 63 is_stmt 0 view .LVU41
+ 165 001e DA04     		lsls	r2, r3, #19
+ 166              		.loc 1 74 48 view .LVU42
+ 167 0020 0292     		str	r2, [sp, #8]
+  75:modules/can_test.c ****     // ID掩码值低16bit
+  76:modules/can_test.c ****     can_filter_init_structure.FilterMaskIdLow = Mask_ID << 3 | ((Object_Para & 0x03) << 1);
+ 168              		.loc 1 76 5 is_stmt 1 view .LVU43
+ 169              		.loc 1 76 62 is_stmt 0 view .LVU44
+ 170 0022 4CEAC303 		orr	r3, ip, r3, lsl #3
+ 171              	.LVL8:
+ 172              		.loc 1 76 47 view .LVU45
+ 173 0026 0393     		str	r3, [sp, #12]
+ 174              	.L7:
+  77:modules/can_test.c ****   }
+  78:modules/can_test.c ****   else
+  79:modules/can_test.c ****   {
+  80:modules/can_test.c ****     // 扩展帧
+  81:modules/can_test.c ****     // 掩码后ID的高16bit
+  82:modules/can_test.c ****     can_filter_init_structure.FilterIdHigh = ID << 5;
+  83:modules/can_test.c ****     // 掩码后ID的低16bit
+  84:modules/can_test.c ****     can_filter_init_structure.FilterIdLow = ((Object_Para & 0x03) << 1);
+  85:modules/can_test.c ****     // ID掩码值高16bit
+  86:modules/can_test.c ****     can_filter_init_structure.FilterMaskIdHigh = Mask_ID << 5;
+  87:modules/can_test.c ****     // ID掩码值低16bit
+  88:modules/can_test.c ****     can_filter_init_structure.FilterMaskIdLow = ((Object_Para & 0x03) << 1);
+  89:modules/can_test.c ****   }
+  90:modules/can_test.c **** 
+  91:modules/can_test.c ****   // 滤波器序号, 0-27, 共28个滤波器, can1是0~13, can2是14~27
+  92:modules/can_test.c ****   can_filter_init_structure.FilterBank = Object_Para >> 3;
+ 175              		.loc 1 92 3 is_stmt 1 view .LVU46
+ 176              		.loc 1 92 54 is_stmt 0 view .LVU47
+ 177 0028 CB08     		lsrs	r3, r1, #3
+ 178              		.loc 1 92 40 view .LVU48
+ 179 002a 0593     		str	r3, [sp, #20]
+  93:modules/can_test.c ****   // 滤波器绑定FIFOx, 只能绑定一个
+  94:modules/can_test.c ****   can_filter_init_structure.FilterFIFOAssignment = (Object_Para >> 2) & 0x01;
+ 180              		.loc 1 94 3 is_stmt 1 view .LVU49
+ 181              		.loc 1 94 71 is_stmt 0 view .LVU50
+ 182 002c C1F38001 		ubfx	r1, r1, #2, #1
+ 183              	.LVL9:
+ 184              		.loc 1 94 50 view .LVU51
+ 185 0030 0491     		str	r1, [sp, #16]
+  95:modules/can_test.c ****   // 使能滤波器
+  96:modules/can_test.c ****   can_filter_init_structure.FilterActivation = ENABLE;
+ 186              		.loc 1 96 3 is_stmt 1 view .LVU52
+ 187              		.loc 1 96 46 is_stmt 0 view .LVU53
+ 188 0032 0123     		movs	r3, #1
+ 189 0034 0893     		str	r3, [sp, #32]
+  97:modules/can_test.c ****   // 滤波器模式, 设置ID掩码模式
+  98:modules/can_test.c ****   can_filter_init_structure.FilterMode = CAN_FILTERMODE_IDMASK;
+ 190              		.loc 1 98 3 is_stmt 1 view .LVU54
+ 191              		.loc 1 98 40 is_stmt 0 view .LVU55
+ 192 0036 0022     		movs	r2, #0
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 6
+
+
+ 193 0038 0692     		str	r2, [sp, #24]
+  99:modules/can_test.c ****   // 32位滤波
+ 100:modules/can_test.c ****   can_filter_init_structure.FilterScale = CAN_FILTERSCALE_32BIT;
+ 194              		.loc 1 100 3 is_stmt 1 view .LVU56
+ 195              		.loc 1 100 41 is_stmt 0 view .LVU57
+ 196 003a 0793     		str	r3, [sp, #28]
+ 101:modules/can_test.c ****     //从机模式选择开始单元
+ 102:modules/can_test.c ****   can_filter_init_structure.SlaveStartFilterBank = 14;
+ 197              		.loc 1 102 3 is_stmt 1 view .LVU58
+ 198              		.loc 1 102 50 is_stmt 0 view .LVU59
+ 199 003c 0E23     		movs	r3, #14
+ 200 003e 0993     		str	r3, [sp, #36]
+ 103:modules/can_test.c **** 
+ 104:modules/can_test.c ****   HAL_CAN_ConfigFilter(hcan, &can_filter_init_structure);
+ 201              		.loc 1 104 3 is_stmt 1 view .LVU60
+ 202 0040 6946     		mov	r1, sp
+ 203 0042 FFF7FEFF 		bl	HAL_CAN_ConfigFilter
+ 204              	.LVL10:
+ 105:modules/can_test.c **** }
+ 205              		.loc 1 105 1 is_stmt 0 view .LVU61
+ 206 0046 0AB0     		add	sp, sp, #40
+ 207              	.LCFI6:
+ 208              		.cfi_remember_state
+ 209              		.cfi_def_cfa_offset 8
+ 210              		@ sp needed
+ 211 0048 10BD     		pop	{r4, pc}
+ 212              	.LVL11:
+ 213              	.L6:
+ 214              	.LCFI7:
+ 215              		.cfi_restore_state
+  82:modules/can_test.c ****     // 掩码后ID的低16bit
+ 216              		.loc 1 82 5 is_stmt 1 view .LVU62
+  82:modules/can_test.c ****     // 掩码后ID的低16bit
+ 217              		.loc 1 82 49 is_stmt 0 view .LVU63
+ 218 004a 5201     		lsls	r2, r2, #5
+ 219              	.LVL12:
+  82:modules/can_test.c ****     // 掩码后ID的低16bit
+ 220              		.loc 1 82 44 view .LVU64
+ 221 004c 0092     		str	r2, [sp]
+  84:modules/can_test.c ****     // ID掩码值高16bit
+ 222              		.loc 1 84 5 is_stmt 1 view .LVU65
+  84:modules/can_test.c ****     // ID掩码值高16bit
+ 223              		.loc 1 84 67 is_stmt 0 view .LVU66
+ 224 004e 4A00     		lsls	r2, r1, #1
+ 225 0050 02F00602 		and	r2, r2, #6
+  84:modules/can_test.c ****     // ID掩码值高16bit
+ 226              		.loc 1 84 43 view .LVU67
+ 227 0054 0192     		str	r2, [sp, #4]
+  86:modules/can_test.c ****     // ID掩码值低16bit
+ 228              		.loc 1 86 5 is_stmt 1 view .LVU68
+  86:modules/can_test.c ****     // ID掩码值低16bit
+ 229              		.loc 1 86 58 is_stmt 0 view .LVU69
+ 230 0056 5B01     		lsls	r3, r3, #5
+ 231              	.LVL13:
+  86:modules/can_test.c ****     // ID掩码值低16bit
+ 232              		.loc 1 86 48 view .LVU70
+ 233 0058 0293     		str	r3, [sp, #8]
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 7
+
+
+  88:modules/can_test.c ****   }
+ 234              		.loc 1 88 5 is_stmt 1 view .LVU71
+  88:modules/can_test.c ****   }
+ 235              		.loc 1 88 47 is_stmt 0 view .LVU72
+ 236 005a 0392     		str	r2, [sp, #12]
+ 237 005c E4E7     		b	.L7
+ 238              		.cfi_endproc
+ 239              	.LFE132:
+ 241              		.section	.text.LED_Control,"ax",%progbits
+ 242              		.align	1
+ 243              		.global	LED_Control
+ 244              		.syntax unified
+ 245              		.thumb
+ 246              		.thumb_func
+ 248              	LED_Control:
+ 249              	.LVL14:
+ 250              	.LFB134:
+ 106:modules/can_test.c **** 
+ 107:modules/can_test.c **** 
+ 108:modules/can_test.c **** 
+ 109:modules/can_test.c **** /*-------------------------------------------------------------------------------------------------
+ 110:modules/can_test.c **** /**
+ 111:modules/can_test.c ****  * @brief HAL库CAN接收FIFO1中断
+ 112:modules/can_test.c ****  *
+ 113:modules/can_test.c ****  * @param hcan CAN编号
+ 114:modules/can_test.c ****  */
+ 115:modules/can_test.c **** void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+ 116:modules/can_test.c **** {
+ 117:modules/can_test.c ****   CAN_RxHeaderTypeDef header;
+ 118:modules/can_test.c ****   uint8_t data;
+ 119:modules/can_test.c **** 
+ 120:modules/can_test.c ****   HAL_CAN_GetRxMessage(hcan, CAN_FILTER_FIFO1, &header, &data);
+ 121:modules/can_test.c ****   
+ 122:modules/can_test.c ****   LED_Control(data);
+ 123:modules/can_test.c **** }
+ 124:modules/can_test.c **** 
+ 125:modules/can_test.c **** 
+ 126:modules/can_test.c **** 
+ 127:modules/can_test.c **** /*-------------------------------------------------------------------------------------------------
+ 128:modules/can_test.c **** void LED_Control(uint8_t data)
+ 129:modules/can_test.c **** {
+ 251              		.loc 1 129 1 is_stmt 1 view -0
+ 252              		.cfi_startproc
+ 253              		@ args = 0, pretend = 0, frame = 0
+ 254              		@ frame_needed = 0, uses_anonymous_args = 0
+ 255              		.loc 1 129 1 is_stmt 0 view .LVU74
+ 256 0000 38B5     		push	{r3, r4, r5, lr}
+ 257              	.LCFI8:
+ 258              		.cfi_def_cfa_offset 16
+ 259              		.cfi_offset 3, -16
+ 260              		.cfi_offset 4, -12
+ 261              		.cfi_offset 5, -8
+ 262              		.cfi_offset 14, -4
+ 263 0002 0446     		mov	r4, r0
+ 130:modules/can_test.c ****     HAL_GPIO_WritePin(GPIOH,GPIO_PIN_10,((data & 0b0001)==0b0001) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+ 264              		.loc 1 130 5 is_stmt 1 view .LVU75
+ 265 0004 0B4D     		ldr	r5, .L11
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 8
+
+
+ 266 0006 00F00102 		and	r2, r0, #1
+ 267 000a 4FF48061 		mov	r1, #1024
+ 268 000e 2846     		mov	r0, r5
+ 269              	.LVL15:
+ 270              		.loc 1 130 5 is_stmt 0 view .LVU76
+ 271 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 272              	.LVL16:
+ 131:modules/can_test.c ****     HAL_GPIO_WritePin(GPIOH,GPIO_PIN_11,((data & 0b0010)==0b0010) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+ 273              		.loc 1 131 5 is_stmt 1 view .LVU77
+ 274 0014 C4F34002 		ubfx	r2, r4, #1, #1
+ 275 0018 4FF40061 		mov	r1, #2048
+ 276 001c 2846     		mov	r0, r5
+ 277 001e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 278              	.LVL17:
+ 132:modules/can_test.c ****     HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,((data & 0b0100)==0b0100) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+ 279              		.loc 1 132 5 view .LVU78
+ 280 0022 C4F38002 		ubfx	r2, r4, #2, #1
+ 281 0026 4FF48051 		mov	r1, #4096
+ 282 002a 2846     		mov	r0, r5
+ 283 002c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 284              	.LVL18:
+ 133:modules/can_test.c **** }
+ 285              		.loc 1 133 1 is_stmt 0 view .LVU79
+ 286 0030 38BD     		pop	{r3, r4, r5, pc}
+ 287              	.L12:
+ 288 0032 00BF     		.align	2
+ 289              	.L11:
+ 290 0034 001C0240 		.word	1073880064
+ 291              		.cfi_endproc
+ 292              	.LFE134:
+ 294              		.section	.text.HAL_CAN_RxFifo1MsgPendingCallback,"ax",%progbits
+ 295              		.align	1
+ 296              		.global	HAL_CAN_RxFifo1MsgPendingCallback
+ 297              		.syntax unified
+ 298              		.thumb
+ 299              		.thumb_func
+ 301              	HAL_CAN_RxFifo1MsgPendingCallback:
+ 302              	.LVL19:
+ 303              	.LFB133:
+ 116:modules/can_test.c ****   CAN_RxHeaderTypeDef header;
+ 304              		.loc 1 116 1 is_stmt 1 view -0
+ 305              		.cfi_startproc
+ 306              		@ args = 0, pretend = 0, frame = 32
+ 307              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116:modules/can_test.c ****   CAN_RxHeaderTypeDef header;
+ 308              		.loc 1 116 1 is_stmt 0 view .LVU81
+ 309 0000 00B5     		push	{lr}
+ 310              	.LCFI9:
+ 311              		.cfi_def_cfa_offset 4
+ 312              		.cfi_offset 14, -4
+ 313 0002 89B0     		sub	sp, sp, #36
+ 314              	.LCFI10:
+ 315              		.cfi_def_cfa_offset 40
+ 117:modules/can_test.c ****   uint8_t data;
+ 316              		.loc 1 117 3 is_stmt 1 view .LVU82
+ 118:modules/can_test.c **** 
+ 317              		.loc 1 118 3 view .LVU83
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 9
+
+
+ 120:modules/can_test.c ****   
+ 318              		.loc 1 120 3 view .LVU84
+ 319 0004 0DF10303 		add	r3, sp, #3
+ 320 0008 01AA     		add	r2, sp, #4
+ 321 000a 0121     		movs	r1, #1
+ 322 000c FFF7FEFF 		bl	HAL_CAN_GetRxMessage
+ 323              	.LVL20:
+ 122:modules/can_test.c **** }
+ 324              		.loc 1 122 3 view .LVU85
+ 325 0010 9DF80300 		ldrb	r0, [sp, #3]	@ zero_extendqisi2
+ 326 0014 FFF7FEFF 		bl	LED_Control
+ 327              	.LVL21:
+ 123:modules/can_test.c **** 
+ 328              		.loc 1 123 1 is_stmt 0 view .LVU86
+ 329 0018 09B0     		add	sp, sp, #36
+ 330              	.LCFI11:
+ 331              		.cfi_def_cfa_offset 4
+ 332              		@ sp needed
+ 333 001a 5DF804FB 		ldr	pc, [sp], #4
+ 334              		.cfi_endproc
+ 335              	.LFE133:
+ 337              		.text
+ 338              	.Letext0:
+ 339              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 340              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 341              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 342              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 343              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 344              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ARM GAS  C:\Users\12990\AppData\Local\Temp\cc7g55ue.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 can_test.c
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:20     .text.CAN_Init:00000000 $t
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:26     .text.CAN_Init:00000000 CAN_Init
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:61     .text.CAN_Send_Data:00000000 $t
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:67     .text.CAN_Send_Data:00000000 CAN_Send_Data
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:121    .text.CAN_Filter_Mask_Config:00000000 $t
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:127    .text.CAN_Filter_Mask_Config:00000000 CAN_Filter_Mask_Config
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:242    .text.LED_Control:00000000 $t
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:248    .text.LED_Control:00000000 LED_Control
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:290    .text.LED_Control:00000034 $d
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:295    .text.HAL_CAN_RxFifo1MsgPendingCallback:00000000 $t
+C:\Users\12990\AppData\Local\Temp\cc7g55ue.s:301    .text.HAL_CAN_RxFifo1MsgPendingCallback:00000000 HAL_CAN_RxFifo1MsgPendingCallback
+
+UNDEFINED SYMBOLS
+HAL_CAN_Start
+HAL_CAN_AddTxMessage
+HAL_CAN_ConfigFilter
+HAL_GPIO_WritePin
+HAL_CAN_GetRxMessage

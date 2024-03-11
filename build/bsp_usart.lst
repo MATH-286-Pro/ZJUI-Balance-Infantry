@@ -1,0 +1,279 @@
+ARM GAS  C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"bsp_usart.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.usart1_tx_dma_init,"ax",%progbits
+  20              		.align	1
+  21              		.global	usart1_tx_dma_init
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	usart1_tx_dma_init:
+  27              	.LFB130:
+  28              		.file 1 "modules/bsp_usart.c"
+   1:modules/bsp_usart.c **** #include "bsp_usart.h"
+   2:modules/bsp_usart.c **** #include "main.h"
+   3:modules/bsp_usart.c **** 
+   4:modules/bsp_usart.c **** extern UART_HandleTypeDef huart1;
+   5:modules/bsp_usart.c **** extern DMA_HandleTypeDef hdma_usart1_tx;
+   6:modules/bsp_usart.c **** void usart1_tx_dma_init(void)
+   7:modules/bsp_usart.c **** {
+  29              		.loc 1 7 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+   8:modules/bsp_usart.c ****     //enable the DMA transfer for the receiver request
+   9:modules/bsp_usart.c ****     //ʹ��DMA���ڽ���
+  10:modules/bsp_usart.c ****     SET_BIT(huart1.Instance->CR3, USART_CR3_DMAT);
+  34              		.loc 1 10 5 view .LVU1
+  35 0000 034B     		ldr	r3, .L2
+  36 0002 1A68     		ldr	r2, [r3]
+  37 0004 5369     		ldr	r3, [r2, #20]
+  38 0006 43F08003 		orr	r3, r3, #128
+  39 000a 5361     		str	r3, [r2, #20]
+  11:modules/bsp_usart.c **** }
+  40              		.loc 1 11 1 is_stmt 0 view .LVU2
+  41 000c 7047     		bx	lr
+  42              	.L3:
+  43 000e 00BF     		.align	2
+  44              	.L2:
+  45 0010 00000000 		.word	huart1
+  46              		.cfi_endproc
+  47              	.LFE130:
+ARM GAS  C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s 			page 2
+
+
+  49              		.section	.text.usart1_tx_dma_enable,"ax",%progbits
+  50              		.align	1
+  51              		.global	usart1_tx_dma_enable
+  52              		.syntax unified
+  53              		.thumb
+  54              		.thumb_func
+  56              	usart1_tx_dma_enable:
+  57              	.LVL0:
+  58              	.LFB131:
+  12:modules/bsp_usart.c **** void usart1_tx_dma_enable(uint8_t *data, uint16_t len)
+  13:modules/bsp_usart.c **** {
+  59              		.loc 1 13 1 is_stmt 1 view -0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+  63              		@ link register save eliminated.
+  64              		.loc 1 13 1 is_stmt 0 view .LVU4
+  65 0000 10B4     		push	{r4}
+  66              	.LCFI0:
+  67              		.cfi_def_cfa_offset 4
+  68              		.cfi_offset 4, -4
+  14:modules/bsp_usart.c **** 
+  15:modules/bsp_usart.c ****     //disable DMA
+  16:modules/bsp_usart.c ****     //关闭 DMA
+  17:modules/bsp_usart.c ****     __HAL_DMA_DISABLE(&hdma_usart1_tx);
+  69              		.loc 1 17 5 is_stmt 1 view .LVU5
+  70 0002 2A4B     		ldr	r3, .L16
+  71 0004 1A68     		ldr	r2, [r3]
+  72 0006 1368     		ldr	r3, [r2]
+  73 0008 23F00103 		bic	r3, r3, #1
+  74 000c 1360     		str	r3, [r2]
+  18:modules/bsp_usart.c ****     while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
+  75              		.loc 1 18 5 view .LVU6
+  76              		.loc 1 18 10 is_stmt 0 view .LVU7
+  77 000e 03E0     		b	.L5
+  78              	.L6:
+  19:modules/bsp_usart.c ****     {
+  20:modules/bsp_usart.c ****         __HAL_DMA_DISABLE(&hdma_usart1_tx);
+  79              		.loc 1 20 9 is_stmt 1 view .LVU8
+  80 0010 1A68     		ldr	r2, [r3]
+  81 0012 22F00102 		bic	r2, r2, #1
+  82 0016 1A60     		str	r2, [r3]
+  83              	.L5:
+  18:modules/bsp_usart.c ****     while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
+  84              		.loc 1 18 10 view .LVU9
+  18:modules/bsp_usart.c ****     while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
+  85              		.loc 1 18 25 is_stmt 0 view .LVU10
+  86 0018 244B     		ldr	r3, .L16
+  87 001a 1B68     		ldr	r3, [r3]
+  18:modules/bsp_usart.c ****     while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
+  88              		.loc 1 18 34 view .LVU11
+  89 001c 1A68     		ldr	r2, [r3]
+  18:modules/bsp_usart.c ****     while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
+  90              		.loc 1 18 10 view .LVU12
+  91 001e 12F0010F 		tst	r2, #1
+  92 0022 F5D1     		bne	.L6
+  21:modules/bsp_usart.c ****     }
+ARM GAS  C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s 			page 3
+
+
+  22:modules/bsp_usart.c **** 
+  23:modules/bsp_usart.c ****     //clear flag
+  24:modules/bsp_usart.c ****     //�����־λ
+  25:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_TCIF7);
+  93              		.loc 1 25 5 is_stmt 1 view .LVU13
+  94 0024 224A     		ldr	r2, .L16+4
+  95 0026 9342     		cmp	r3, r2
+  96 0028 13D9     		bls	.L7
+  97              		.loc 1 25 5 is_stmt 0 discriminator 1 view .LVU14
+  98 002a 583A     		subs	r2, r2, #88
+  99 002c 4FF00064 		mov	r4, #134217728
+ 100 0030 D460     		str	r4, [r2, #12]
+ 101              	.L8:
+  26:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_HTIF7);
+ 102              		.loc 1 26 5 is_stmt 1 view .LVU15
+ 103 0032 1F4A     		ldr	r2, .L16+4
+ 104 0034 9342     		cmp	r3, r2
+ 105 0036 22D9     		bls	.L11
+ 106              		.loc 1 26 5 is_stmt 0 discriminator 1 view .LVU16
+ 107 0038 583A     		subs	r2, r2, #88
+ 108 003a 4FF08064 		mov	r4, #67108864
+ 109 003e D460     		str	r4, [r2, #12]
+ 110              	.L12:
+  27:modules/bsp_usart.c **** 
+  28:modules/bsp_usart.c ****     //set data address
+  29:modules/bsp_usart.c ****     //�������ݵ�ַ
+  30:modules/bsp_usart.c ****     hdma_usart1_tx.Instance->M0AR = (uint32_t)(data);
+ 111              		.loc 1 30 5 is_stmt 1 view .LVU17
+ 112              		.loc 1 30 35 is_stmt 0 view .LVU18
+ 113 0040 D860     		str	r0, [r3, #12]
+  31:modules/bsp_usart.c ****     //set data length
+  32:modules/bsp_usart.c ****     //�������ݳ���
+  33:modules/bsp_usart.c ****     hdma_usart1_tx.Instance->NDTR = len;
+ 114              		.loc 1 33 5 is_stmt 1 view .LVU19
+ 115              		.loc 1 33 35 is_stmt 0 view .LVU20
+ 116 0042 5960     		str	r1, [r3, #4]
+  34:modules/bsp_usart.c **** 
+  35:modules/bsp_usart.c ****     //enable DMA
+  36:modules/bsp_usart.c ****     //ʹ��DMA
+  37:modules/bsp_usart.c ****     __HAL_DMA_ENABLE(&hdma_usart1_tx);
+ 117              		.loc 1 37 5 is_stmt 1 view .LVU21
+ 118 0044 1A68     		ldr	r2, [r3]
+ 119 0046 42F00102 		orr	r2, r2, #1
+ 120 004a 1A60     		str	r2, [r3]
+  38:modules/bsp_usart.c **** }
+ 121              		.loc 1 38 1 is_stmt 0 view .LVU22
+ 122 004c 5DF8044B 		ldr	r4, [sp], #4
+ 123              	.LCFI1:
+ 124              		.cfi_remember_state
+ 125              		.cfi_restore 4
+ 126              		.cfi_def_cfa_offset 0
+ 127 0050 7047     		bx	lr
+ 128              	.L7:
+ 129              	.LCFI2:
+ 130              		.cfi_restore_state
+  25:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_HTIF7);
+ 131              		.loc 1 25 5 discriminator 2 view .LVU23
+ARM GAS  C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s 			page 4
+
+
+ 132 0052 184A     		ldr	r2, .L16+8
+ 133 0054 9342     		cmp	r3, r2
+ 134 0056 05D9     		bls	.L9
+  25:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_HTIF7);
+ 135              		.loc 1 25 5 discriminator 3 view .LVU24
+ 136 0058 02F55272 		add	r2, r2, #840
+ 137 005c 4FF00064 		mov	r4, #134217728
+ 138 0060 9460     		str	r4, [r2, #8]
+ 139 0062 E6E7     		b	.L8
+ 140              	.L9:
+  25:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_HTIF7);
+ 141              		.loc 1 25 5 discriminator 4 view .LVU25
+ 142 0064 144A     		ldr	r2, .L16+12
+ 143 0066 9342     		cmp	r3, r2
+ 144 0068 04D9     		bls	.L10
+  25:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_HTIF7);
+ 145              		.loc 1 25 5 discriminator 6 view .LVU26
+ 146 006a 583A     		subs	r2, r2, #88
+ 147 006c 4FF00064 		mov	r4, #134217728
+ 148 0070 D460     		str	r4, [r2, #12]
+ 149 0072 DEE7     		b	.L8
+ 150              	.L10:
+  25:modules/bsp_usart.c ****     __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_HISR_HTIF7);
+ 151              		.loc 1 25 5 discriminator 7 view .LVU27
+ 152 0074 114A     		ldr	r2, .L16+16
+ 153 0076 4FF00064 		mov	r4, #134217728
+ 154 007a 9460     		str	r4, [r2, #8]
+ 155 007c D9E7     		b	.L8
+ 156              	.L11:
+  26:modules/bsp_usart.c **** 
+ 157              		.loc 1 26 5 discriminator 2 view .LVU28
+ 158 007e 0D4A     		ldr	r2, .L16+8
+ 159 0080 9342     		cmp	r3, r2
+ 160 0082 05D9     		bls	.L13
+  26:modules/bsp_usart.c **** 
+ 161              		.loc 1 26 5 discriminator 3 view .LVU29
+ 162 0084 02F55272 		add	r2, r2, #840
+ 163 0088 4FF08064 		mov	r4, #67108864
+ 164 008c 9460     		str	r4, [r2, #8]
+ 165 008e D7E7     		b	.L12
+ 166              	.L13:
+  26:modules/bsp_usart.c **** 
+ 167              		.loc 1 26 5 discriminator 4 view .LVU30
+ 168 0090 094A     		ldr	r2, .L16+12
+ 169 0092 9342     		cmp	r3, r2
+ 170 0094 04D9     		bls	.L14
+  26:modules/bsp_usart.c **** 
+ 171              		.loc 1 26 5 discriminator 6 view .LVU31
+ 172 0096 583A     		subs	r2, r2, #88
+ 173 0098 4FF08064 		mov	r4, #67108864
+ 174 009c D460     		str	r4, [r2, #12]
+ 175 009e CFE7     		b	.L12
+ 176              	.L14:
+  26:modules/bsp_usart.c **** 
+ 177              		.loc 1 26 5 discriminator 7 view .LVU32
+ 178 00a0 064A     		ldr	r2, .L16+16
+ 179 00a2 4FF08064 		mov	r4, #67108864
+ARM GAS  C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s 			page 5
+
+
+ 180 00a6 9460     		str	r4, [r2, #8]
+ 181 00a8 CAE7     		b	.L12
+ 182              	.L17:
+ 183 00aa 00BF     		.align	2
+ 184              	.L16:
+ 185 00ac 00000000 		.word	hdma_usart1_tx
+ 186 00b0 58640240 		.word	1073898584
+ 187 00b4 B8600240 		.word	1073897656
+ 188 00b8 58600240 		.word	1073897560
+ 189 00bc 00600240 		.word	1073897472
+ 190              		.cfi_endproc
+ 191              	.LFE131:
+ 193              		.text
+ 194              	.Letext0:
+ 195              		.file 2 "modules/struct_typedef.h"
+ 196              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 197              		.file 4 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 198              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 199              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 200              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 201              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ARM GAS  C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_usart.c
+C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s:20     .text.usart1_tx_dma_init:00000000 $t
+C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s:26     .text.usart1_tx_dma_init:00000000 usart1_tx_dma_init
+C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s:45     .text.usart1_tx_dma_init:00000010 $d
+C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s:50     .text.usart1_tx_dma_enable:00000000 $t
+C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s:56     .text.usart1_tx_dma_enable:00000000 usart1_tx_dma_enable
+C:\Users\12990\AppData\Local\Temp\ccDfAB2n.s:185    .text.usart1_tx_dma_enable:000000ac $d
+
+UNDEFINED SYMBOLS
+huart1
+hdma_usart1_tx
