@@ -65,7 +65,13 @@ void Error_Handler(void);
 #define LED_B_GPIO_Port GPIOH
 
 /* USER CODE BEGIN Private defines */
-
+// 以下定义用于485通信
+#define RS485_DIR1_Pin GPIO_PIN_15
+#define RS485_DIR1_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_0
+#define LED_GPIO_Port GPIOC
+#define RS485_DIR2_Pin GPIO_PIN_3
+#define RS485_DIR2_GPIO_Port GPIOB
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

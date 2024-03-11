@@ -64,6 +64,8 @@ modules/remote_control.c \
 modules/bsp_usart.c \
 modules/bsp_rc.c \
 modules/OLED.c \
+modules/motor_A1/motor_A1.c \
+modules/motor_A1/CRC.c \
 Core/Src/usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 Core/Src/dma.c \
@@ -131,7 +133,8 @@ C_INCLUDES =  \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
--Imodules
+-Imodules \
+-Imodules/motor_A1 
 
 
 # compile gcc flags

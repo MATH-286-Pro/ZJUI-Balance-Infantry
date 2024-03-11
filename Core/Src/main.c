@@ -148,9 +148,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    uint8_t data = 0x10 ; // 例如，你想发送这四个字节
-    HAL_UART_Transmit_IT(&huart1,&data,4); //发送遥控器数据到电脑
-    
+    // 测试 USART1 是否正常
+    char msg[] = "Hello World\n";
+    HAL_UART_Transmit_IT(&huart1,(uint8_t *)msg, strlen(msg)); //发送遥控器数据到电脑
+    //A1_Motor_Speed_Control(1,3.0f);
 
     MI_motor_SpeedControl(&MI_Motor_ID1,speed,1);
     MI_motor_SpeedControl(&MI_Motor_ID2,DT7_pram->rc.ch[3]/33,1);

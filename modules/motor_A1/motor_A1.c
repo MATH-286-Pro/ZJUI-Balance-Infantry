@@ -1,4 +1,4 @@
-#include "motor.h"
+#include "motor_A1.h"
 #include "CRC.h" 
 #include "usart.h"
 
@@ -95,7 +95,7 @@ void A1_Motor_Multiple_Control(int ID,int mode,float Torque,float W,float Positi
 		return;
 	}
 	Mode_Control(ID,10);
-	// ¦Ó = ¦Óf f + kp ¡¤ (pdes ? p) + kd ¡¤ (¦Ødes ? ¦Ø)
+	// ï¿½ï¿½ = ï¿½ï¿½f f + kp ï¿½ï¿½ (pdes ? p) + kd ï¿½ï¿½ (ï¿½ï¿½des ? ï¿½ï¿½)
 	float kp = 0.2f;
 	float kd = 0.5f;
 
