@@ -149,6 +149,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     // 测试 USART1 是否正常
+    // 128000 正常
+    // 256000 正常
+    // 460800 正常
+    // 480000 失败       神奇的是接收端调整为 512000 就可以正常接收
     char msg[] = "Hello World\n";
     HAL_UART_Transmit_IT(&huart1,(uint8_t *)msg, strlen(msg)); //发送遥控器数据到电脑
     //A1_Motor_Speed_Control(1,3.0f);
