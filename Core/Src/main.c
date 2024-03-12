@@ -106,6 +106,7 @@ int main(void)
   // MX_CAN1_Init() 功能：配置CAN1参数 + 打开NVIC + 打开GPIO
 
   //自定义 初始化 开始 ----------------------------------------------------------------
+  HAL_Delay(1000);       // 延时1s 防止电机没上电先初始化现象
   int i = 0;
   OLED_init();           // OLED初始化
   OLED_clear();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // OLED清屏
@@ -118,8 +119,6 @@ int main(void)
   MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_2，2传入小米结构体 
   MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
   MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
-
-  float speed = 2;//设定运行速度为 2rad/s
   OLED_clear();
   //自定义 初始化 结束 ----------------------------------------------------------------
 
@@ -134,17 +133,13 @@ int main(void)
   while (1)
   {
     DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
-    speed = DT7_pram->rc.ch[1]/660.0;      // 通过遥控器控制电机速度 //数据类型 = int16_t
-    speed = speed*5; //加权
 
     // 跟踪遥控器4个通道参数
     OLED_show_signednum(0,6,DT7_pram->rc.ch[0],3);
     OLED_show_signednum(1,6,DT7_pram->rc.ch[1],3);
     OLED_show_signednum(2,6,DT7_pram->rc.ch[2],3);
     OLED_show_signednum(3,6,DT7_pram->rc.ch[3],3);
-    OLED_show_signednum(4,6,DT7_pram->rc.ch[3]/33,3); //这里除出来的是整数，导致电机没法连贯变速
     OLED_refresh_gram();
-    //注意：这里speed定义为float，但是遥控器返回的是int16_t，可能需要进行类型转换
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -155,10 +150,10 @@ int main(void)
     // 480000 失败       神奇的是接收端调整为 512000 就可以正常接收
     char msg[] = "Hello World\n";
     HAL_UART_Transmit_IT(&huart1,(uint8_t *)msg, strlen(msg)); //发送遥控器数据到电脑
-    //A1_Motor_Speed_Control(1,3.0f);
+    A1_Motor_Speed_Control(1,3.0f);
 
-    MI_motor_SpeedControl(&MI_Motor_ID1,speed,1);
-    MI_motor_SpeedControl(&MI_Motor_ID2,DT7_pram->rc.ch[3]/33,1);
+    MI_motor_SpeedControl(&MI_Motor_ID1,(float) DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
+    MI_motor_SpeedControl(&MI_Motor_ID2,(float) DT7_pram->rc.ch[3]/33,1);
     //HAL_Delay(1000);
 
 

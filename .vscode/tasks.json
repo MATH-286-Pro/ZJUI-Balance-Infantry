@@ -12,6 +12,21 @@
                 "-j16"
             ],
             "group": "build",
-        }
+        },
+        {
+            "label": "Download to STM",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f", "interface/stlink-v2.cfg",
+                "-f", "target/stm32f4x.cfg",
+                "-c", "program ${workspaceRoot}/build/0.Test_CAN.hex verify reset exit"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        }    
     ]
 }
