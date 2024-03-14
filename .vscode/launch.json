@@ -4,7 +4,7 @@
       "showDevDebugOutput": "parsed",
       "cwd": "${workspaceRoot}",
       "executable": "./build/0.Test_CAN.elf",
-      "name": "Debug STM32",
+      "name": "STM32 Debug",
       "request": "launch",
       "preLaunchTask": "buildEmbeddedTargets",
       "type": "cortex-debug",
