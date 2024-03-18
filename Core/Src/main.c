@@ -21,6 +21,7 @@
 #include "can.h"
 #include "dma.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -102,6 +103,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_I2C2_Init();
   MX_USART6_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
   // MX_CAN1_Init() 功能：配置CAN1参数 + 打开NVIC + 打开GPIO
@@ -113,6 +115,14 @@ int main(void)
   OLED_clear();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // OLED清屏
   remote_control_init(); OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1
+
+  // TIM4 已经设置 50% 占空比
+  // PSC=0 Reload=21000-1 => f=4KHz
+  HAL_TIM_Base_Start(&htim4);               // 开启TIM4
+  HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);  // 开启TIM4 PWM 蜂鸣器
+  __HAL_TIM_PRESCALER(&htim4, 8);           // 设置TIM4 预分频 调整音色
+  HAL_Delay(100);                           // 延时0.1s
+  HAL_TIM_PWM_Stop(&htim4,TIM_CHANNEL_3);   // 关闭TIM4 PWM
 
   MI_Motor_s MI_Motor_ID1;                  // 定义小米电机结构体1
   MI_Motor_s MI_Motor_ID2;                  // 定义小米电机结构体2
@@ -145,23 +155,23 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     // 测试 USART1 是否正常
-    // 128000 正常
-    // 256000 正常
-    // 460800 正常
-    // 480000 失败       神奇的是接收端调整为 512000 就可以正常接收
+    // 128000  正常
+    // 256000  正常
+    // 460800  正常
+    // 480000  失败      但是 512000 可以正常接收
+    // 4000000 示波器有信号 UART6
+    // 4800000 示波器有信号 UART1
     char msg[] = "Hello World\n";
-    HAL_UART_Transmit_IT(&huart1,(uint8_t *)msg, strlen(msg)); //发送遥控器数据到电脑
-    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[1]/660*50);
+    //HAL_UART_Transmit_IT(&huart1,(uint8_t *)msg, strlen(msg)); //UART1 发送数据
+    HAL_UART_Transmit_IT(&huart6,(uint8_t *)msg, strlen(msg)); //UART6 发送数据
+    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[1]/660*50); // 该函数使用 UART1 发送
     //A1_Motor_Speed_Control(1,3.0f);
-    //添加用于 Gitgraph 测试
 
     MI_motor_SpeedControl(&MI_Motor_ID1,(float) DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
     MI_motor_SpeedControl(&MI_Motor_ID2,(float) DT7_pram->rc.ch[3]/33,1);
 
-    HAL_Delay(500);
-    HAL_GPIO_TogglePin(GPIOH,GPIO_PIN_10);
-
-    //HAL_Delay(1000);
+    // HAL_Delay(1);
+    // HAL_GPIO_TogglePin(GPIOH,GPIO_PIN_10);
 
 
   }

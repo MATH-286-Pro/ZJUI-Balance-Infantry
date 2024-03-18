@@ -73,7 +73,7 @@ void Control_Message_Send(int ID)
 	
 	flag_IDD = ID;
 	HAL_GPIO_WritePin(GPIOC, RS485_DIR1_Pin, GPIO_PIN_SET);
-   HAL_UART_Transmit_IT(&huart1,Data_Box[ID],34);
+    HAL_UART_Transmit_IT(&huart1,Data_Box[ID],34);
 	//HAL_GPIO_WritePin(GPIOC, RS485_DIR1_Pin, GPIO_PIN_RESET);
 }
 
