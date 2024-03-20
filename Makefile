@@ -22,7 +22,7 @@ TARGET = 0.Test_CAN
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -O0 # -Og
+OPT = -Og # Once modified to -O0
 
 
 #######################################

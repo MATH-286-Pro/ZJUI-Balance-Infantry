@@ -110,16 +110,14 @@ void A1_Motor_Multiple_Control(int ID,int mode,float Torque,float W,float Positi
 //电机速度控制
 void A1_Motor_Speed_Control(int ID,float W)
 {	
-	float* xiaomei = &W;
 	Mode_Control(ID,10);
 	Motor_Tx_u.Tx_Message.T = 0;
-	// Motor_Tx_u.Tx_Message.W = 	(uint16_t)(W * 128.0f * 9.1f); // 这里已经算过减速比了
-	Motor_Tx_u.Tx_Message.W = 	(uint16_t)(W * 9.1f); // 这里已经算过减速比了
-	// Motor_Tx_u.Tx_Message.W = 	(uint16_t)(5 * 9.1f); // 直接测试
+	Motor_Tx_u.Tx_Message.W = 	(uint16_t)(W * 128.0f * 9.1f); // 这里已经算过减速比了
+	// Motor_Tx_u.Tx_Message.W = 	(uint16_t)(W * 9.1f); // 这里已经算过减速比了
 	Motor_Tx_u.Tx_Message.Pos = 0;
-	// Motor_Tx_u.Tx_Message.kw = (uint16_t)(3.0f * 1024.0f);
 	Motor_Tx_u.Tx_Message.kp = (uint16_t)(0.0f);
-	Motor_Tx_u.Tx_Message.kw = (uint16_t)(3.0f);
+	// Motor_Tx_u.Tx_Message.kw = (uint16_t)(3.0f);
+	Motor_Tx_u.Tx_Message.kw = (uint16_t)(3.0f * 1024.0f);
 	Control_Message_Send(ID);
 }
 
