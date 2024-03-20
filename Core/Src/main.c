@@ -171,10 +171,6 @@ int main(void)
     MI_motor_SpeedControl(&MI_Motor_ID1,(float) DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
     MI_motor_SpeedControl(&MI_Motor_ID2,(float) DT7_pram->rc.ch[3]/33,1);
 
-    // HAL_Delay(1);
-    // HAL_GPIO_TogglePin(GPIOH,GPIO_PIN_10);
-
-
   }
   /* USER CODE END 3 */
 }
