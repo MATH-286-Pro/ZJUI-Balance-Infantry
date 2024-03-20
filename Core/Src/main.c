@@ -161,12 +161,16 @@ int main(void)
     // 480000  失败      但是 512000 可以正常接收
     // 4000000 示波器有信号 UART6
     // 4800000 示波器有信号 UART1
-    char msg[] = "Hello World\n";
+    //char msg[] = "Hello World\n";
     //HAL_UART_Transmit_IT(&huart1,(uint8_t *)msg, strlen(msg)); //UART1 发送数据
-    HAL_UART_Transmit_IT(&huart6,(uint8_t *)msg, strlen(msg)); //UART6 发送数据
-    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[1]/660*50); // 该函数使用 UART1 发送
-    //A1_Motor_Speed_Control(1,3.0f);
+    //HAL_UART_Transmit_IT(&huart6,(uint8_t *)msg, strlen(msg)); //UART6 发送数据
 
+
+    // A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[3]/660*5); // 该函数使用 UART1 发送
+    // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[3]/660*5); // 该函数使用 UART1 发送
+    A1_Motor_Speed_Control(1,3.0f);
+
+    // 小米电机控制
     MI_motor_SpeedControl(&MI_Motor_ID1,(float) DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
     MI_motor_SpeedControl(&MI_Motor_ID2,(float) DT7_pram->rc.ch[3]/33,1);
 
