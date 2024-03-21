@@ -138,39 +138,38 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-      OLED_show_string(0,1,"CH0 = "); 
-      OLED_show_string(1,1,"CH1 = ");
-      OLED_show_string(2,1,"CH2 = ");
-      OLED_show_string(3,1,"CH3 = ");
+      OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = "); 
+      OLED_show_string(2,0,"CH2= ");   OLED_show_string(2,10,"CH1= ");
+      OLED_show_string(3,0,"CH3= ");   OLED_show_string(3,10,"CH0= ");
+
   while (1)
   {
     DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
+    uint8_t STOP = DT7_pram->rc.s[1]/2;    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+                                           
 
     // 跟踪遥控器4个通道参数
-    OLED_show_signednum(0,6,DT7_pram->rc.ch[0],3);
-    OLED_show_signednum(1,6,DT7_pram->rc.ch[1],3);
-    OLED_show_signednum(2,6,DT7_pram->rc.ch[2],3);
-    OLED_show_signednum(3,6,DT7_pram->rc.ch[3],3);
+    OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);  OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);
+    OLED_show_signednum(2,5,DT7_pram->rc.ch[2],3);       OLED_show_signednum(2,15,DT7_pram->rc.ch[0],3);
+    OLED_show_signednum(3,5,DT7_pram->rc.ch[3],3);       OLED_show_signednum(3,15,DT7_pram->rc.ch[1],3);
     OLED_refresh_gram();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // 测试 USART1 是否正常
-    // 128000  正常
-    // 256000  正常
-    // 460800  正常
-    // 480000  失败      但是 512000 可以正常接收
-    // 4000000 示波器有信号 UART6
-    // 4800000 示波器有信号 UART1
 
     // 宇树A1电机控制
-    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[3]/660*10); // 该函数使用 UART1 发送
-    A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[1]/660*10); // 该函数使用 UART1 发送
+    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[1]/660*10); // 该函数使用 UART1 发送
+    HAL_Delay(2); 
+    A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[3]/660*10); // 该函数使用 UART1 发送
+    HAL_Delay(2); 
+    // A1_Motor_Position_Control(0,(float) STOP*DT7_pram->rc.ch[3]/660); // 该函数使用 UART1 发送
+    // HAL_Delay(1);
+    // A1_Motor_Position_Control(1,(float) DT7_pram->rc.ch[1]/660); // 该函数使用 UART1 发送
+    // HAL_Delay(1);
 
     // 小米电机控制
-    MI_motor_SpeedControl(&MI_Motor_ID1,(float) DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
-    MI_motor_SpeedControl(&MI_Motor_ID2,(float) DT7_pram->rc.ch[3]/33,1);
-
+    MI_motor_SpeedControl(&MI_Motor_ID1,(float) STOP*DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
+    MI_motor_SpeedControl(&MI_Motor_ID2,(float) STOP*DT7_pram->rc.ch[3]/33,1);
   }
   /* USER CODE END 3 */
 }
