@@ -30,7 +30,11 @@ int flag_IDD;
 //    HAL_UART_Transmit_IT(&huart1,tmp_data_1,34);
 //}
 
-// 联合体
+
+
+/*-------------------------数据发送部分--------------------------*/
+
+// 发送数据 联合体
 union Motor_Tx{
 		uint8_t data[24];      // 发送的
 		Send_Data Tx_Message;  // 配置的
@@ -67,8 +71,6 @@ uint32_t crc32_core(uint32_t *ptr, uint32_t len) {
 
 
 
-/*-------------------------数据发送部分--------------------------*/
-
 void Control_Message_Send(int ID)
 {
 	uint32_t crc = crc32_core((uint32_t *) Data_Box[ID], 7);
@@ -78,7 +80,7 @@ void Control_Message_Send(int ID)
 	for (int i=30;i<34;i++){Data_Box[ID][i] = CRC_u.data[cnt++];}
 	
 	flag_IDD = ID;
-    HAL_UART_Transmit_IT(&huart1,Data_Box[ID],34);              //这个是用UART
+    HAL_UART_Transmit_IT(&huart1,Data_Box[ID],34);               //这个是用UART
 	// HAL_GPIO_WritePin(GPIOC, RS485_DIR1_Pin, GPIO_PIN_SET);
 	// HAL_GPIO_WritePin(GPIOC, RS485_DIR1_Pin, GPIO_PIN_RESET); //这个是用RS485
 }
@@ -113,14 +115,14 @@ void A1_Motor_Multiple_Control(int ID,int mode,float Torque,float W,float Positi
 	Control_Message_Send(ID);
 }
 
-//电机速度控制
+//电机速度控制 (关于为什么要乘256 1024详见A1电机使用手册)
 void A1_Motor_Speed_Control(int ID,float W)
 {	
 	Mode_Control(ID,10);
-	Motor_Tx_u.Tx_Message.T  = 0;
-	Motor_Tx_u.Tx_Message.W   = (int16_t)(W * 128.0f * 9.1f); // 这里已经算过减速比了
-	Motor_Tx_u.Tx_Message.Pos = 0;
-	Motor_Tx_u.Tx_Message.kp  = (int16_t)(0.0f);
+	Motor_Tx_u.Tx_Message.T   = (int16_t)(0.0f * 256.0f);
+	Motor_Tx_u.Tx_Message.W   = (int16_t)(W * 128.0f * 9.1f);  // 这里已经算过减速比了
+	Motor_Tx_u.Tx_Message.Pos = (int32_t)(0.0f);
+	Motor_Tx_u.Tx_Message.kp  = (int16_t)(0.0f * 2048.0f);
 	Motor_Tx_u.Tx_Message.kw  = (int16_t)(3.0f * 1024.0f);
 	Control_Message_Send(ID);
 }
@@ -131,9 +133,33 @@ void A1_Motor_Position_Control(int ID,float Position)
 	Mode_Control(ID,10);
 	Motor_Tx_u.Tx_Message.T   = 0;
 	Motor_Tx_u.Tx_Message.W   = 0;
-	Motor_Tx_u.Tx_Message.Pos = (int32_t)(Position * (16384.0f / (2.0f * PI)) * 9.1f);
+	Motor_Tx_u.Tx_Message.Pos = (int32_t)(Position * (16384.0f / (2.0f * PI)));
 	Motor_Tx_u.Tx_Message.kp  = (int16_t)(0.2f * 2048.0f);
 	Motor_Tx_u.Tx_Message.kw  = (int16_t)(3.0f * 1024.0f);
+	Control_Message_Send(ID);
+}
+
+//电机力矩控制
+void A1_Motor_Torque_Control(int ID,float Torque)
+{
+	Mode_Control(ID,10);
+	Motor_Tx_u.Tx_Message.T   = (int16_t) Torque * 256.0f;
+	Motor_Tx_u.Tx_Message.W   = (int16_t)(0.0f * 128.0f);
+	Motor_Tx_u.Tx_Message.Pos = (int32_t)(0.0f * (16384.0f / (2.0f * PI)));
+	Motor_Tx_u.Tx_Message.kp  = (int16_t)(0.0f * 2048.0f);
+	Motor_Tx_u.Tx_Message.kw  = (int16_t)(0.0f * 1024.0f);
+	Control_Message_Send(ID);
+}
+
+//电机零力矩模式
+void A1_Motor_0Torque_Control(int ID)
+{
+	Mode_Control(ID,10);
+	Motor_Tx_u.Tx_Message.T   = (int16_t)(0.0f * 256.0f);
+	Motor_Tx_u.Tx_Message.W   = (int16_t)(0.0f * 128.0f);
+	Motor_Tx_u.Tx_Message.Pos = (int32_t)(0.0f * (16384.0f / (2.0f * PI)));
+	Motor_Tx_u.Tx_Message.kp  = (int16_t)(0.0f * 2048.0f);
+	Motor_Tx_u.Tx_Message.kw  = (int16_t)(0.0f * 1024.0f);
 	Control_Message_Send(ID);
 }
 
@@ -143,15 +169,19 @@ void A1_Motor_Position_Control(int ID,float Position)
 
 
 
+
 /*-------------------------数据接收部分--------------------------*/
+/*----------------------------没写完-----------------------------*/
 
+// 这个没用到过
 #define SBUS_RX_BUF_NUM 99u
-
 uint8_t A1_Motor_Rx_Data[2][SBUS_RX_BUF_NUM];
 
+
+// 接收数据 联合体
 union Motor_Rx{
-		uint8_t data[12];
-		Rx_Data Received_data;
+		uint8_t data[12];        // 原数据 ?
+		Recv_Data Received_data; // 处理过的接收数据 ?
 }Motor_Rx_u;
 
 Motor_State A1_State; // 电机回传状态
@@ -159,6 +189,7 @@ Motor_State A1_State; // 电机回传状态
 // 电机接收数据 处理函数
 void Received_Data_Dealer(const uint8_t *sbus_buf)
 {
+	// 传入数据
 	int ID = sbus_buf[2];
 	Motor_Rx_u.data[0] = sbus_buf[4];
 	Motor_Rx_u.data[1] = sbus_buf[6];
@@ -172,11 +203,21 @@ void Received_Data_Dealer(const uint8_t *sbus_buf)
 	Motor_Rx_u.data[9] = sbus_buf[31];
 	Motor_Rx_u.data[10] = sbus_buf[32];
 	Motor_Rx_u.data[11] = sbus_buf[33];
-	A1_State.Mode = Motor_Rx_u.Received_data.mode;
-	A1_State.Temp = Motor_Rx_u.Received_data.Temp;
-	A1_State.Torque = ((float)Motor_Rx_u.Received_data.T)/256.0f;
-	A1_State.Omega  = ((float)Motor_Rx_u.Received_data.W)/128.0f;
-	A1_State.Acc = Motor_Rx_u.Received_data.Acc;
+
+	// 接收数据处理
+	A1_State.Mode     = Motor_Rx_u.Received_data.mode;
+	A1_State.Temp     = Motor_Rx_u.Received_data.Temp;
+	A1_State.Torque   = ((float)Motor_Rx_u.Received_data.T)/256.0f;
+	A1_State.Omega    = ((float)Motor_Rx_u.Received_data.W)/128.0f;
 	A1_State.Position = ((float)Motor_Rx_u.Received_data.Pos*2.0f*PI)/(16384.0f);
+
+	A1_State.Acc      = Motor_Rx_u.Received_data.Acc;
+
 }
 
+
+// 接收数据处理函数 
+void extract_data()
+{
+	
+}

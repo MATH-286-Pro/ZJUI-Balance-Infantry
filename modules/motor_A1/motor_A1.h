@@ -176,21 +176,25 @@ void Chassis_UART_TX(void);
 //    float acc[3];
 //};
 
+
+// 该结构体定义与 A1电机使用手册一致
 typedef struct{
-		uint8_t start[2];
-		uint8_t Motor_ID;
-		uint8_t reserved_a;
-		uint8_t mode;
-		uint8_t ModifyBit;
-		uint8_t ReadBit;
-		uint8_t reserved_b;
-		uint32_t Modify;
-		int16_t T;   // 原先为 uint16_t
-		int16_t W;   // 原先为 uint16_t  在GO1案例中发现应该是int16_t
-		int32_t Pos; // 原先为 uint32_t
-		int16_t kp;  // 原先为 uint16_t
-		int16_t kw;  // 原先为 uint16_t
+		uint8_t start[2];   // 包头1 固定为0xFE 包头2 固定为0xEE
+		uint8_t Motor_ID;   // 电机ID，可以为0,1,2,0xBB，0xBB表示向所有电机广播
+		uint8_t reserved;   // 可忽略
+
+		uint8_t mode;		// 电机运行模式，可为0(停转),5(开环),10(闭环),11(修改ID模式，不建议在这里开启)
+		uint8_t ModifyBit;  // 可忽略
+		uint8_t ReadBit;    // 可忽略
+		uint8_t reserved_b; // 可忽略
+		uint32_t Modify;    // 可忽略
+		int16_t T;          // 电机前馈力矩，×256倍描述         |T|<128      (乘倍率前) 单位：Nm
+		int16_t W;          // 电机速度命令，×128倍描述         |W|<256      (乘倍率前) 单位：rad/s
+		int32_t Pos;        // 电机位置命令，×16384/pi倍描述    |Pos|<823549 (乘倍率前) 单位：rad
+		int16_t kp;         // 电机位置刚度，×2048倍描述         0<K_P<16    (乘倍率前)
+		int16_t kw;         // 电机速度刚度，×1024倍描述         0<K_W<32    (乘倍率前)
 }Send_Data;
+
 
 typedef struct{
 		uint8_t mode;
@@ -199,7 +203,10 @@ typedef struct{
 		uint16_t W;    //这里原先为uint16_t
 		uint16_t Acc;
 		uint32_t Pos;
-}Rx_Data;
+}Recv_Data;
+
+
+
 
 typedef struct{
 		uint8_t Mode;
@@ -210,11 +217,15 @@ typedef struct{
 		float Position;
 }Motor_State;
 
+
+
 uint32_t crc32_core(uint32_t *ptr, uint32_t len);
 void Control_Message_Send(int ID);
 void Mode_Control(int ID,int Mode);
 void A1_Motor_Multiple_Control(int ID,int mode,float Torque,float W,float Position);
 void A1_Motor_Position_Control(int ID,float Position);
+void A1_Motor_Torque_Control(int ID,float Torque);
+void A1_Motor_0Torque_Control(int ID);
 void Received_Data_Dealer(const uint8_t *sbus_buf);
 void A1_Motor_Speed_Control(int ID,float W);
 /* USER CODE END Private defines */
