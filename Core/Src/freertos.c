@@ -25,13 +25,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "MI_motor_drive.h"
 #include "can_test.h"
 #include "remote_control.h"
 #include "bsp_usart.h"
 #include "bsp_rc.h"
 #include "OLED.h"
 #include "motor_A1.h"
+#include "MI_motor_drive.h"
 #include "can.h"
 #include "tim.h"
 #include "usart.h"
@@ -57,11 +57,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-const RC_ctrl_t* DT7_pram; //遥控器控制结构体
 
-MI_Motor_s MI_Motor_ID1;                  // 定义小米电机结构体1
-MI_Motor_s MI_Motor_ID2;                  // 定义小米电机结构体1
-uint8_t STOP;
+//定义全局变量
+uint8_t STOP; //急停按键
+const RC_ctrl_t* DT7_pram; //遥控器控制结构体
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -104,7 +103,6 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-// MX_CAN1_Init() 功能：配置CAN1参数 + 打开NVIC + 打开GPIO
 
   //自定义 初始化 开始 ----------------------------------------------------------------
   HAL_Delay(1000);       // 延时1s 防止电机没上电先初始化现象
@@ -113,6 +111,7 @@ void MX_FREERTOS_Init(void) {
   OLED_clear();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // OLED清屏
   remote_control_init(); OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1
+  // MX_CAN1_Init() 功能：配置CAN1参数 + 打开NVIC + 打开GPIO
 
   // TIM4 已经设置 50% 占空比
   // PSC=0 Reload=21000-1 => f=4KHz
@@ -125,8 +124,8 @@ void MX_FREERTOS_Init(void) {
   OLED_clear();
 
   OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = "); 
-  OLED_show_string(2,0,"CH2= ");   OLED_show_string(2,10,"CH1= ");
-  OLED_show_string(3,0,"CH3= ");   OLED_show_string(3,10,"CH0= ");
+  OLED_show_string(2,0,"CH2= ");   OLED_show_string(2,10,"CH0= ");
+  OLED_show_string(3,0,"CH3= ");   OLED_show_string(3,10,"CH1= ");
   //自定义 初始化 结束 ----------------------------------------------------------------
 
   /* USER CODE END Init */
@@ -264,8 +263,9 @@ void OLED_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+    // 任务 OLED + 遥控器接收
     DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
-    uint8_t STOP = DT7_pram->rc.s[1]/2;    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+    STOP = DT7_pram->rc.s[1]/2;    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
                                            
     // 跟踪遥控器4个通道参数
     OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);  OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);

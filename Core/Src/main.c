@@ -28,13 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "MI_motor_drive.h"
-#include "can_test.h"
-#include "remote_control.h"
-#include "bsp_usart.h"
-#include "bsp_rc.h"
-#include "OLED.h"
-#include "motor_A1.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,9 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// 宏定义 不要加";" 要不然会报错
-#define PI 3.1415926535f
-#define DGR2RAD PI/180
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
