@@ -1,13 +1,13 @@
 /**
   ****************************(C) COPYRIGHT 2016 DJI****************************
   * @file       remote_control.c/h
-  * @brief      ң����������ң������ͨ������SBUS��Э�鴫�䣬����DMA���䷽ʽ��ԼCPU
-  *             ��Դ�����ô��ڿ����ж���������������ͬʱ�ṩһЩ��������DMA������
-  *             �ķ�ʽ��֤�Ȳ�ε��ȶ��ԡ�
+  * @brief      遥控器处理，遥控器是通过类似SBUS的协议传输，利用DMA传输方式节约CPU
+  *             资源，利用串口空闲中断来拉起处理函数，同时提供一些掉线重启DMA，串口
+  *             的方式保证热插拔的稳定性。
   * @note       
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Dec-26-2018     RM              1. ���
+  *  V1.0.0     Dec-26-2018     RM              1. 完成
   *
   @verbatim
   ==============================================================================
@@ -54,28 +54,6 @@
 #define KEY_PRESSED_OFFSET_V            ((uint16_t)1 << 14)
 #define KEY_PRESSED_OFFSET_B            ((uint16_t)1 << 15)
 /* ----------------------- Data Struct ------------------------------------- */
-// typedef __packed struct
-// {
-//         __packed struct
-//         {
-//                 int16_t ch[5];
-//                 char s[2];
-//         } rc;
-//         __packed struct
-//         {
-//                 int16_t x;
-//                 int16_t y;
-//                 int16_t z;
-//                 uint8_t press_l;
-//                 uint8_t press_r;
-//         } mouse;
-//         __packed struct
-//         {
-//                 uint16_t v;
-//         } key;
-
-// } RC_ctrl_t;
-
 typedef struct 
 {
   struct
@@ -107,7 +85,7 @@ typedef struct
   * @retval         none
   */
 /**
-  * @brief          ң������ʼ��
+  * @brief          遥控器初始化
   * @param[in]      none
   * @retval         none
   */
@@ -118,10 +96,11 @@ extern void remote_control_init(void);
   * @retval         remote control data point
   */
 /**
-  * @brief          ��ȡң��������ָ��
+  * @brief          获取遥控器数据指针
   * @param[in]      none
-  * @retval         ң��������ָ��
+  * @retval         遥控器数据指针
   */
 extern const RC_ctrl_t *get_remote_control_point(void);
 
 #endif
+

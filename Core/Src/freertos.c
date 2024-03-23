@@ -230,9 +230,9 @@ void Motor_A1_task(void const * argument)
   for(;;)
   {
     // 宇树A1电机 速度模式
-    // A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[0]/660*10); // 该函数使用 UART1 发送
+    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[0]/660*10); // 该函数使用 UART1 发送
     // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[2]/660*10); // 该函数使用 UART1 发送
-    A1_Motor_Speed_Control(0,(float) 5.0f); // 该函数使用 UART1 发送
+    // A1_Motor_Speed_Control(0,(float) 5.0f); // 该函数使用 UART1 发送
 
     // 宇树A1电机 位置模式
     // 输入(1)*360*DGR2RAD*9.1f = 减速后 360°
@@ -246,7 +246,7 @@ void Motor_A1_task(void const * argument)
 
     // 宇树A1电机 0力矩模式
     // A1_Motor_0Torque_Control(0xBB); 
-    osDelay(500);
+    osDelay(10);
   }
   /* USER CODE END Motor_A1_task */
 }
