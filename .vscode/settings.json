@@ -4,6 +4,7 @@
     "main.h": "c",
     "freertos.h": "c",
     "can_test.h": "c",
-    "bsp_usart.h": "c"
+    "bsp_usart.h": "c",
+    "callback.h": "c"
   }
 }

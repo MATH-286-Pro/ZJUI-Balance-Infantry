@@ -3,6 +3,7 @@
 #include "can.h"
 #include "Callback.h"
 #include "MI_motor_drive.h"
+#include "freeRTOS.h"
 
 /**
   * @brief          hal库CAN回调函数,接收电机数据
@@ -29,8 +30,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         memcpy(&RxCAN_info_type_2,&rx_header.ExtId,4);//将扩展标识符的内容解码成通信类型2的对应内容
         MI_motor_RxDecode(&RxCAN_info_type_2,rx_data);//通信类型2的数据解码
         if (RxCAN_info_type_2.motor_id == 1){
-            MI_Motor.RxCAN_info = RxCAN_info_type_2;
-            MI_Motor.motor_mode_state = RxCAN_info_type_2.mode_state;
+            // 注意设置 MI_Motor_ID
+            MI_Motor_ID1.RxCAN_info = RxCAN_info_type_2;
+            MI_Motor_ID1.motor_mode_state = RxCAN_info_type_2.mode_state;
         }
     }else if(RxCAN_info.communication_type == 17){//通信类型17的反馈帧解码
         RxCAN_info_type_17_s RxCAN_info_type_17;

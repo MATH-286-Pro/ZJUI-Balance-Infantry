@@ -59,6 +59,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Core/Src/system_stm32f4xx.c \
 modules/MI_motor_drive.c \
+modules/Callback.c \
 modules/can_test.c \
 modules/remote_control.c \
 modules/bsp_usart.c \

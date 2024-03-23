@@ -101,6 +101,7 @@ int main(void)
   MX_USART6_UART_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+  // MX_CAN1_Init() 功能：配置CAN1参数 + 打开NVIC + 打开GPIO
 
   
   /* USER CODE END 2 */
