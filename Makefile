@@ -58,15 +58,15 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Core/Src/system_stm32f4xx.c \
-modules/MI_Motor/MI_motor_drive.c \
-modules/MI_Motor/Callback.c \
+modules/Motor_MI/MI_motor_drive.c \
+modules/Motor_MI/Callback.c \
+modules/Motor_A1/motor_A1.c \
+modules/Motor_A1/CRC.c \
 modules/can_test.c \
 modules/remote_control.c \
 modules/bsp_usart.c \
 modules/bsp_rc.c \
-modules/OLED.c \
-modules/motor_A1/motor_A1.c \
-modules/motor_A1/CRC.c \
+modules/OLED/OLED.c \
 modules/Buzzer/buzzer.c \
 Core/Src/usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
@@ -148,9 +148,10 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
 -Imodules \
+-Imodules/OLED \
 -Imodules/Buzzer \
--Imodules/MI_Motor \
--Imodules/motor_A1 \
+-Imodules/Motor_MI \
+-Imodules/Motor_A1 \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F

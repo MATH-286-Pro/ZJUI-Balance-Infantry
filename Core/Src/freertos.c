@@ -124,7 +124,7 @@ void MX_FREERTOS_Init(void) {
 
   OLED_clear();
 
-  OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = "); 
+  OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = ");
   OLED_show_string(1,0,"CH2= ");   OLED_show_string(1,10,"CH0= ");
   OLED_show_string(2,0,"CH3= ");   OLED_show_string(2,10,"CH1= ");
   OLED_show_string(3,0,"MI1= ");   OLED_show_string(3,10,"MI2= ");
