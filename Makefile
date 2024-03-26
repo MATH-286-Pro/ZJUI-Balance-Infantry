@@ -58,6 +58,9 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Core/Src/system_stm32f4xx.c \
+bsp/bsp_delay.c \
+bsp/bsp_imu_pwm.c \
+bsp/bsp_spi.c \
 modules/Motor_MI/MI_motor_drive.c \
 modules/Motor_MI/Callback.c \
 modules/Motor_A1/motor_A1.c \
@@ -68,6 +71,10 @@ modules/bsp_usart.c \
 modules/bsp_rc.c \
 modules/OLED/OLED.c \
 modules/Buzzer/buzzer.c \
+modules/BMI088_DJI/BMI088driver.c \
+modules/BMI088_DJI/BMI088Middleware.c \
+modules/IST8310_DJI/ist8310driver_middleware.c \
+modules/IST8310_DJI/ist8310driver.c \
 Core/Src/usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 Core/Src/dma.c \
@@ -149,11 +156,14 @@ C_INCLUDES =  \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
+-Ibsp \
 -Imodules \
 -Imodules/OLED \
 -Imodules/Buzzer \
 -Imodules/Motor_MI \
 -Imodules/Motor_A1 \
+-Imodules/BMI088_DJI \
+-Imodules/IST8310_DJI \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
