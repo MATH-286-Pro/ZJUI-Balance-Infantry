@@ -72,6 +72,7 @@ osThreadId Motor_MIHandle;
 osThreadId Motor_A1Handle;
 osThreadId OLEDHandle;
 osThreadId Motor_A1_TestHandle;
+osThreadId INSHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -83,6 +84,7 @@ void Motor_MI_task(void const * argument);
 void Motor_A1_task(void const * argument);
 void OLED_task(void const * argument);
 void Motor_A1_Test_task(void const * argument);
+void INS_task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -168,6 +170,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of Motor_A1_Test */
   osThreadDef(Motor_A1_Test, Motor_A1_Test_task, osPriorityIdle, 0, 128);
   Motor_A1_TestHandle = osThreadCreate(osThread(Motor_A1_Test), NULL);
+
+  /* definition and creation of INS */
+  osThreadDef(INS, INS_task, osPriorityIdle, 0, 128);
+  INSHandle = osThreadCreate(osThread(INS), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -308,6 +314,24 @@ void Motor_A1_Test_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END Motor_A1_Test_task */
+}
+
+/* USER CODE BEGIN Header_INS_task */
+/**
+* @brief Function implementing the INS thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_INS_task */
+void INS_task(void const * argument)
+{
+  /* USER CODE BEGIN INS_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END INS_task */
 }
 
 /* Private application code --------------------------------------------------*/
