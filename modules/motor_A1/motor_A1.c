@@ -2,11 +2,6 @@
 #include "CRC.h" 
 #include "usart.h"
 
-//uint64_t tmp_data_1[34];
-//COMHead comhead;
-//MasterComdV3 comdv3;
-//ServoComdDataV3 CRC32;
-
 #define PI 3.1415926535f
 int flag_IDD;
 //void Chassis_UART_TX(void)

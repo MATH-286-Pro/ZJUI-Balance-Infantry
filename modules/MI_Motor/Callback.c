@@ -34,6 +34,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
             MI_Motor_ID1.RxCAN_info = RxCAN_info_type_2;
             MI_Motor_ID1.motor_mode_state = RxCAN_info_type_2.mode_state;
         }
+        else if (RxCAN_info_type_2.motor_id == 2){
+            // 注意设置 MI_Motor_ID
+            MI_Motor_ID2.RxCAN_info = RxCAN_info_type_2;
+            MI_Motor_ID2.motor_mode_state = RxCAN_info_type_2.mode_state;
+        }
     }else if(RxCAN_info.communication_type == 17){//通信类型17的反馈帧解码
         RxCAN_info_type_17_s RxCAN_info_type_17;
         memcpy(&RxCAN_info_type_17,&rx_header.ExtId,4);//将扩展标识符的内容解码成通信类型17的对应内容

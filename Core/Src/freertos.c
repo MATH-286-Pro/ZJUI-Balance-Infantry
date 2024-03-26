@@ -120,21 +120,14 @@ void MX_FREERTOS_Init(void) {
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器
   
-
-  // TIM4 已经设置 50% 占空比
-  // PSC=0 Reload=21000-1 => f=4KHz
-  HAL_TIM_Base_Start(&htim4);               // 开启TIM4
-  HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);  // 开启TIM4 PWM 蜂鸣器
-  __HAL_TIM_PRESCALER(&htim4, 8);           // 设置TIM4 预分频 调整音色
-  HAL_Delay(100);                           // 延时0.1s
-  HAL_TIM_PWM_Stop(&htim4,TIM_CHANNEL_3);   // 关闭TIM4 PWM
+  Buzzer_start(); // 蜂鸣器叫一声
 
   OLED_clear();
 
   OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = "); 
   OLED_show_string(1,0,"CH2= ");   OLED_show_string(1,10,"CH0= ");
   OLED_show_string(2,0,"CH3= ");   OLED_show_string(2,10,"CH1= ");
-  OLED_show_string(3,0,"MI1= ");
+  OLED_show_string(3,0,"MI1= ");   OLED_show_string(3,10,"MI2= ");
   //自定义 初始化 结束 ----------------------------------------------------------------
 
   /* USER CODE END Init */
@@ -218,8 +211,8 @@ void Motor_MI_task(void const * argument)
   for(;;)
   {
     // 小米电机控制
-    MI_motor_SpeedControl(&MI_Motor_ID1,(float) STOP*DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
-    MI_motor_SpeedControl(&MI_Motor_ID2,(float) STOP*DT7_pram->rc.ch[3]/33,1);
+    MI_motor_SpeedControl(&MI_Motor_ID1,(float) STOP*DT7_pram->rc.ch[3]/33,1); // 使用 (float) 强制转换
+    MI_motor_SpeedControl(&MI_Motor_ID2,(float) STOP*DT7_pram->rc.ch[1]/33,1);
 
     // 小米电机模式
     // 力矩模式 MI_motor_TorqueControl()
@@ -286,10 +279,10 @@ void OLED_task(void const * argument)
     STOP = DT7_pram->rc.s[1]/2;    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
                                            
     // 跟踪遥控器4个通道参数
-    OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);  OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);
-    OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);       OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
-    OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);       OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
-    OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3);
+    OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);       OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);
+    OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);            OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
+    OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);            OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
+    OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3); OLED_show_signednum(3,15,MI_Motor_ID2.RxCAN_info.speed,3);
     OLED_refresh_gram();
 
     osDelay(1);
