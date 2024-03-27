@@ -37,6 +37,8 @@
 #include "usart.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "A1_control.h"
+#include "unitreeA1_cmd.h"
 #include <string.h>
 /* USER CODE END Includes */
 
@@ -234,29 +236,19 @@ void Motor_MI_task(void const * argument)
 void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
+  extern motor_send_t cmd_left;  // 左腿一号电机数据体
+  extern motor_send_t cmd_right; // 右腿一号电机数据体
+
   /* Infinite loop */
   for(;;)
   {
     // 宇树A1电机 速度模式
-    // A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[2]/660*-10); // 该函数使用 UART1 发送
-    // osDelay(10);
-    A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[0]/660*-10); // 该函数使用 UART1 发送
+    // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[0]/660*-10); // A1控制代码V1.0 该函数使用 UART1 发送
+    // UintreeA1_control(1,10,0,(float) DT7_pram->rc.ch[0]/660*-10,0,0,3.0f);
+    modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660,0.005,0.5);
+    unitreeA1_rxtx(&huart1);
     osDelay(10);
-    // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[2]/660*10); // 该函数使用 UART1 发送
-    // A1_Motor_Speed_Control(0,(float) 5.0f); // 该函数使用 UART1 发送
 
-    // 宇树A1电机 位置模式
-    // 输入(1)*360*DGR2RAD*9.1f = 减速后 360°
-    // A1_Motor_Position_Control(0,(float) STOP*DT7_pram->rc.ch[2]/660*360*DGR2RAD*9.1f); // 该函数使用 UART1 发送
-
-    // 宇树A1电机 力矩模式
-    // 官方建议开始值 0.05f
-    // 发热非常明显
-    // A1_Motor_Torque_Control(1,(float) STOP*DT7_pram->rc.ch[2]/660*10); // 该函数使用 UART1 发送
-    // A1_Motor_Torque_Control(1,(float) 0.05f); // 该函数使用 UART1 发送
-
-    // 宇树A1电机 0力矩模式
-    // A1_Motor_0Torque_Control(0xBB); 
   }
   /* USER CODE END Motor_A1_task */
 }

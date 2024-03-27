@@ -39,14 +39,17 @@ uint8_t UintreeA1_Cmd01[34] = {0};
 
 /*—————————————————————————————————————————数据发送————————————————————————————————————————————————————————*/
 // 宇树 A1 电机混合控制代码
+// UnitreeA1_Cmd
+// UnitreeA1_Cmd01
+// UnitreeA1_Cmd02
 void UintreeA1_control(uint8_t ID , uint8_t Mode, double T , double W , double Pos1 , double Kp, double Kd)
 {	
 	// 数据处理
-	UintreeA1.T_256 = T;
-	uint16_t W_128 = W * 128;
+	UintreeA1.T_256    = T;
+	uint16_t W_128     = W * 128;
 	uint32_t Pos_16384 = Pos1 * 16384 / 6.2831;
-	uint16_t Kp_2048 = Kp * 2048;
-	uint16_t Kd_1024 = Kd * 1024;
+	uint16_t Kp_2048   = Kp * 2048;
+	uint16_t Kd_1024   = Kd * 1024;
 
 	
 	// 数据包头 //
@@ -56,6 +59,7 @@ void UintreeA1_control(uint8_t ID , uint8_t Mode, double T , double W , double P
 	UintreeA1_Cmd01[3] = 0x00;
 
 	UintreeA1_Cmd[0] = (uint32_t)(UintreeA1_Cmd01[0] << 24 |  (uint32_t)UintreeA1_Cmd01[1] << 16 |(uint32_t)UintreeA1_Cmd01[2] << 8 |(uint32_t)UintreeA1_Cmd01[3] << 0 );
+
 	// 数据体 //
 	UintreeA1_Cmd01[4] = Mode ;     //mode
 	UintreeA1_Cmd01[5] = 0x00 ;
@@ -71,16 +75,16 @@ void UintreeA1_control(uint8_t ID , uint8_t Mode, double T , double W , double P
 	//参数//
 
 	//电机前馈力矩 τff，×256 倍描述//
-	UintreeA1_Cmd01[12] = (uint8_t)(UintreeA1.T_256>>8) ; 
-	UintreeA1_Cmd01[13] = (uint8_t)UintreeA1.T_256 ; 
+	UintreeA1_Cmd01[12] = (uint8_t)(UintreeA1.T_256 >> 8) ; 
+	UintreeA1_Cmd01[13] = (uint8_t)(UintreeA1.T_256) ; 
 	//电机速度命令 ωdes，×128 倍描述//
 	UintreeA1_Cmd01[14] = (uint8_t)(W_128 >> 8); 
 	UintreeA1_Cmd01[15] = (uint8_t)W_128 ;
 	//电机位置命令 pdes，×16384/2π 倍描述//
-	UintreeA1_Cmd01[16] =  (uint8_t)(Pos_16384 >> 24);
-	UintreeA1_Cmd01[17] =  (uint8_t)(Pos_16384 >> 16);
-	UintreeA1_Cmd01[18] =  (uint8_t)(Pos_16384 >> 8);
-	UintreeA1_Cmd01[19] =  (uint8_t)Pos_16384;
+	UintreeA1_Cmd01[16] = (uint8_t)(Pos_16384 >> 24);
+	UintreeA1_Cmd01[17] = (uint8_t)(Pos_16384 >> 16);
+	UintreeA1_Cmd01[18] = (uint8_t)(Pos_16384 >> 8);
+	UintreeA1_Cmd01[19] = (uint8_t)Pos_16384;
 
 	UintreeA1_Cmd[3] = (uint32_t)(UintreeA1_Cmd01[12] << 24 |(uint32_t)UintreeA1_Cmd01[13] << 16 | (uint32_t)UintreeA1_Cmd01[14] << 8 | (uint32_t)UintreeA1_Cmd01[15] << 0) ;
 	UintreeA1_Cmd[4] = (uint32_t)(UintreeA1_Cmd01[16] << 24 |(uint32_t)UintreeA1_Cmd01[17] << 16 | (uint32_t)UintreeA1_Cmd01[18] << 8 | (uint32_t)UintreeA1_Cmd01[19] << 0) ;
@@ -117,7 +121,7 @@ void UintreeA1_control(uint8_t ID , uint8_t Mode, double T , double W , double P
 	
 	// 发送数据
 	HAL_UART_Transmit(&huart1,UintreeA1_Cmd01,34,0xff);
-	HAL_UART_Transmit(&huart6,UintreeA1_Cmd01,34,0xff);
+	// HAL_UART_Transmit(&huart6,UintreeA1_Cmd01,34,0xff);
 }
 
 

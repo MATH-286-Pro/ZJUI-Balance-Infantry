@@ -19,7 +19,7 @@ motor_recv_t id01_right_date; // 右腿01号电机接收数据体
 motor_recv_t id02_right_date; // 右腿02号电机接收数据体
 
 // CRC校验位的代码
-uint32_t crc32_core(uint32_t *ptr, uint32_t len)
+uint32_t crc32_core_Ver3(uint32_t *ptr, uint32_t len)
 {
     uint32_t bits;
     uint32_t i;
@@ -49,7 +49,7 @@ uint32_t crc32_core(uint32_t *ptr, uint32_t len)
     return CRC32;
 }
 
-// 电机发送数据处理 (位置模式？)
+// 电机位置位置修改
 void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW)
 {
 
@@ -95,7 +95,7 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         cmd_left.motor_send_data.Mdata.LowHzMotorCmdByte  = 0;
         cmd_left.motor_send_data.Mdata.Res[0] = cmd_left.Res;
 
-        cmd_left.motor_send_data.CRCdata.u32 = crc32_core((uint32_t *)(&cmd_left.motor_send_data), 7); // CRC校验
+        cmd_left.motor_send_data.CRCdata.u32 = crc32_core_Ver3((uint32_t *)(&cmd_left.motor_send_data), 7); // CRC校验
 
         memcpy(A1cmd_left, &cmd_left.motor_send_data, 34);
         
@@ -167,7 +167,7 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         cmd_right.motor_send_data.Mdata.LowHzMotorCmdByte  = 0;
         cmd_right.motor_send_data.Mdata.Res[0] = cmd_right.Res;
 
-        cmd_right.motor_send_data.CRCdata.u32 = crc32_core((uint32_t *)(&cmd_right.motor_send_data), 7); // CRC校验
+        cmd_right.motor_send_data.CRCdata.u32 = crc32_core_Ver3((uint32_t *)(&cmd_right.motor_send_data), 7); // CRC校验
 
         memcpy(A1cmd_right, &cmd_right.motor_send_data, 34);
 

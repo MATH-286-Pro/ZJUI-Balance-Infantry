@@ -12,7 +12,7 @@ extern	uint32_t Pos ;
 
 void UintreeA1_control(uint8_t ID , uint8_t Mode, double T , double W , double Pos , double Kp, double Kd);
 void UintreeA1_Receive (void);
-uint32_t crc32_core(uint32_t* ptr, uint32_t len);
+uint32_t crc32_core_Ver2(uint32_t* ptr, uint32_t len);
 
 
 typedef struct

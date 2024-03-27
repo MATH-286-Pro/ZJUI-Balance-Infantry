@@ -82,17 +82,16 @@
 |C板 FreeRTOS|0力矩模式|✔|❌|有|无|
 
  - 2024.3.27 
-   - 先测试 A1_control.c (当前makefile 不包含 unitreeA1_cmd.c)
+   - 测试 A1_control.c 与 unitreeA1_cmd.c
+   - 注意 unitreeA1_cmd.c 需要使用 uart DMA
+   - A1_control.c 测试失败
+   - unitreeA1_cmd.c 测试成功
+   - A1 电机使用 unitreeA1_cmd.c 驱动成功，没有咔咔声
 
 现阶段存在问题：
-- C板控制A1会有抖动问题
-  - 转换器发送信号电平较低
-  - 不清楚A1电机接口函数是否存在问题
-  - 
   - CAN中断没有进入
   - 确认 FIFO0 FIFO1打开
   - 会不会是CAN过滤器没配置的问题
   - 确实是CAN过滤器没配置的问题
   - 
-  - 一个0号电机转轴位置模式逆时针有问题
   - FreeRTOS 单独控制电机 解决 延迟问题
