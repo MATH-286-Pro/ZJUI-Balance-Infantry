@@ -62,7 +62,6 @@ modules/Motor_MI/MI_motor_drive.c \
 modules/Motor_MI/Callback.c \
 modules/Motor_A1/motor_A1.c \
 modules/Motor_A1/CRC.c \
-modules/Motor_A1_New/A1_control.c \
 modules/Motor_A1_New/unitreeA1_cmd.c \
 modules/can_test.c \
 modules/remote_control.c \

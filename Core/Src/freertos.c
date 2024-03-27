@@ -37,7 +37,6 @@
 #include "usart.h"
 #include "gpio.h"
 #include "i2c.h"
-#include "A1_control.h"
 #include "unitreeA1_cmd.h"
 #include <string.h>
 /* USER CODE END Includes */
@@ -138,7 +137,7 @@ void MX_FREERTOS_Init(void) {
   OLED_show_string(1,0,"CH2= ");   OLED_show_string(1,10,"CH0= ");
   OLED_show_string(2,0,"CH3= ");   OLED_show_string(2,10,"CH1= ");
   OLED_show_string(3,0,"MI1= ");   OLED_show_string(3,10,"MI2= ");
-  OLED_show_string(4,0,"Input");   OLED_show_string(4,10,"Output");
+  OLED_show_string(4,0,"In =");    OLED_show_string(4,10,"Out=");
   //自定义 初始化 结束 ----------------------------------------------------------------
 
   /* USER CODE END Init */
@@ -252,11 +251,11 @@ void Motor_A1_task(void const * argument)
     // 宇树A1电机 速度模式
     // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[0]/660*-10); // A1控制代码V1.0 该函数使用 UART1 发送
     // UintreeA1_control(1,10,0,(float) DT7_pram->rc.ch[0]/660*-10,0,0,3.0f);
-    // modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-2,0.005,0.5);
+    // modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-4,0.005,0.5);  // A1控制代码V2.0
     // modfiy_torque_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660);
-    modfiy_speed_cmd(&cmd_left,1,(float) 20.0f);
+    modfiy_speed_cmd(&cmd_left,1,(float) (float) DT7_pram->rc.ch[0]/660*20.0f);
     unitreeA1_rxtx(&huart1);
-    osDelay(10);
+    osDelay(5);
 
   }
   /* USER CODE END Motor_A1_task */
@@ -284,8 +283,10 @@ void OLED_task(void const * argument)
     OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);            OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
     OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);            OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
     OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3); OLED_show_signednum(3,15,MI_Motor_ID2.RxCAN_info.speed,3);
-    OLED_show_signednum(4,5,cmd_left.W,3);                    OLED_show_signednum(4,15,id01_left_date.W,3);
+    // OLED_show_signednum(4,5,Date_left.W,3);                   OLED_show_signednum(4,15,id01_left_date.Pos,3);
     OLED_refresh_gram();
+
+  // id01_left_date.T 电机输出力矩 没有问题
 
     osDelay(1);
   }
@@ -305,8 +306,6 @@ void Motor_A1_Test_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    A1_Motor_Speed_Control(0,(float) DT7_pram->rc.ch[2]/660*-10); // 该函数使用 UART1 发送
-    osDelay(10);
     osDelay(1);
   }
   /* USER CODE END Motor_A1_Test_task */

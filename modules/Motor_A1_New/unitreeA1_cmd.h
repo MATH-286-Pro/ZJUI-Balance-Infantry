@@ -21,7 +21,7 @@ extern motor_recv_t id02_right_date;  // 右腿02号电机接收数据体
 /**
  @brief 对应电机参数修改
  @param send 为cmd_left或cmd_right，分别控制左右侧腿部
- @param id 发送接收目标电机的id
+ @param id   发送接收目标电机的id
  @param pos  为电机旋转圈数，1为一圈
  @param KP   电机刚度系数
  @param KW   电机速度系数
