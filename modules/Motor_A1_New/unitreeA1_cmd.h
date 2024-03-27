@@ -28,6 +28,9 @@ extern motor_recv_t id02_right_date;  // 右腿02号电机接收数据体
 */
 void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW);
 
+void A1_Motor_Speed_Control(int ID,float Omega);
+
+
 /// @brief 用来和电机通讯的代码，将获取的数据存入对应结构体中
 /// @param huart 需要使用的串口，huart1为左侧，6为右侧
 

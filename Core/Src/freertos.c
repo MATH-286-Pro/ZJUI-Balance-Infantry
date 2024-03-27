@@ -68,6 +68,9 @@ const RC_ctrl_t* DT7_pram; //遥控器控制结构体
 MI_Motor_s MI_Motor_ID1;                  // 定义小米电机结构体1
 MI_Motor_s MI_Motor_ID2;                  // 定义小米电机结构体2
 
+extern motor_send_t cmd_left;  // 左腿一号电机数据体
+extern motor_send_t cmd_right; // 右腿一号电机数据体
+
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 osThreadId Motor_MIHandle;
@@ -236,8 +239,6 @@ void Motor_MI_task(void const * argument)
 void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
-  extern motor_send_t cmd_left;  // 左腿一号电机数据体
-  extern motor_send_t cmd_right; // 右腿一号电机数据体
 
   /* Infinite loop */
   for(;;)
@@ -245,7 +246,8 @@ void Motor_A1_task(void const * argument)
     // 宇树A1电机 速度模式
     // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[0]/660*-10); // A1控制代码V1.0 该函数使用 UART1 发送
     // UintreeA1_control(1,10,0,(float) DT7_pram->rc.ch[0]/660*-10,0,0,3.0f);
-    modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660,0.005,0.5);
+    modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-2,0.005,0.5);
+    // modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-100);
     unitreeA1_rxtx(&huart1);
     osDelay(10);
 

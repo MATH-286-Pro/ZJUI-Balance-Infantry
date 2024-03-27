@@ -49,7 +49,7 @@ uint32_t crc32_core_Ver3(uint32_t *ptr, uint32_t len)
     return CRC32;
 }
 
-// 电机位置位置修改
+// 电机位置修改
 void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW)
 {
 
@@ -63,6 +63,22 @@ void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW)
     send->T    = 0.0;
     send->K_P  = KP;
     send->K_W  = KW;
+}
+
+// 电机速度修改
+void modfiy_speed_cmd(motor_send_t *send,uint8_t id, float Omega)
+{
+
+    send->hex_len = 34;
+
+    send->mode = 10;
+	send->id   = id;
+
+    send->Pos  = 0;
+    send->W    = Omega;
+    send->T    = 0.0;
+    send->K_P  = 0.0;
+    send->K_W  = 3.0;
 }
 
 // 电机发送接收函数
