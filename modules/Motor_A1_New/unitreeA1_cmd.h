@@ -28,7 +28,11 @@ extern motor_recv_t id02_right_date;  // 右腿02号电机接收数据体
 */
 void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW);
 
-void A1_Motor_Speed_Control(int ID,float Omega);
+// 速度模式
+void modfiy_speed_cmd(motor_send_t *send,uint8_t id, float Omega);
+
+// 力矩模式
+void modfiy_torque_cmd(motor_send_t *send,uint8_t id, float torque);
 
 
 /// @brief 用来和电机通讯的代码，将获取的数据存入对应结构体中

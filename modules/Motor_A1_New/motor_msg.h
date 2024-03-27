@@ -175,8 +175,8 @@ typedef struct
         float T;                // 当前实际电机输出力矩
         float W;                // 当前实际电机速度（高速）
         float Pos;              // 当前电机位置
-        float LW;      // 当前实际电机速度（低速）
-        int Acc;       // 电机转子加速度
+        float LW;               // 当前实际电机速度（低速）
+        int Acc;                // 电机转子加速度
 	
         float gyro[3]; // 电机驱动板6轴传感器数据
         float acc[3];

@@ -81,6 +81,21 @@ void modfiy_speed_cmd(motor_send_t *send,uint8_t id, float Omega)
     send->K_W  = 3.0;
 }
 
+void modfiy_torque_cmd(motor_send_t *send,uint8_t id, float torque)
+{
+
+    send->hex_len = 34;
+
+    send->mode = 10;
+	send->id   = id;
+
+    send->Pos  = 0.0;
+    send->W    = 0.0;
+    send->T    = torque;
+    send->K_P  = 0.0;
+    send->K_W  = 0.0;
+}
+
 // 电机发送接收函数
 void unitreeA1_rxtx(UART_HandleTypeDef *huart)
 {
@@ -124,11 +139,13 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         Date_left.motor_recv_data.head.motorID = Date[2];
         Date_left.motor_recv_data.Mdata.MError = Date[7];
         Date_left.motor_recv_data.Mdata.T      = Date[12] << 8  | Date[13];
+        Date_left.motor_recv_data.Mdata.W      = Date[14] << 8  | Date[15]; // 添加测试
         Date_left.motor_recv_data.Mdata.Pos2   = Date[30] << 24 | Date[31] << 16 | Date[32] << 8 | Date[33];
 
         Date_left.motor_id = Date_left.motor_recv_data.head.motorID;
         Date_left.MError   = Date_left.motor_recv_data.Mdata.MError;
         Date_left.T        = Date_left.motor_recv_data.Mdata.T / 256;
+        Date_left.W        = Date_left.motor_recv_data.Mdata.W / 128;  // 添加测试
         Date_left.Pos      = (int)((Date_left.motor_recv_data.Mdata.Pos2 / 16384.0f) * 6.2832f);
 
         if (Date_left.motor_id == 0x00)
@@ -144,6 +161,7 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             id01_left_date.motor_id = Date_left.motor_id;
             id01_left_date.MError   = Date_left.MError;
             id01_left_date.T        = Date_left.T;
+            id01_left_date.W        = Date_left.W;   // 添加测试
             id01_left_date.Pos      = Date_left.Pos;
         }
 

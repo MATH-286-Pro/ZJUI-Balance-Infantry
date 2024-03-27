@@ -71,6 +71,11 @@ MI_Motor_s MI_Motor_ID2;                  // 定义小米电机结构体2
 extern motor_send_t cmd_left;  // 左腿一号电机数据体
 extern motor_send_t cmd_right; // 右腿一号电机数据体
 
+extern motor_recv_t Date_left;        // 左腿电机接收数据体
+extern motor_recv_t id00_left_date;   // 左腿00号电机接收数据体
+extern motor_recv_t id01_left_date;   // 左腿01号电机接收数据体
+extern motor_recv_t id02_left_date;   // 左腿02号电机接收数据体
+
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 osThreadId Motor_MIHandle;
@@ -133,6 +138,7 @@ void MX_FREERTOS_Init(void) {
   OLED_show_string(1,0,"CH2= ");   OLED_show_string(1,10,"CH0= ");
   OLED_show_string(2,0,"CH3= ");   OLED_show_string(2,10,"CH1= ");
   OLED_show_string(3,0,"MI1= ");   OLED_show_string(3,10,"MI2= ");
+  OLED_show_string(4,0,"Input");   OLED_show_string(4,10,"Output");
   //自定义 初始化 结束 ----------------------------------------------------------------
 
   /* USER CODE END Init */
@@ -246,8 +252,9 @@ void Motor_A1_task(void const * argument)
     // 宇树A1电机 速度模式
     // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[0]/660*-10); // A1控制代码V1.0 该函数使用 UART1 发送
     // UintreeA1_control(1,10,0,(float) DT7_pram->rc.ch[0]/660*-10,0,0,3.0f);
-    modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-2,0.005,0.5);
-    // modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-100);
+    // modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-2,0.005,0.5);
+    // modfiy_torque_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660);
+    modfiy_speed_cmd(&cmd_left,1,(float) 20.0f);
     unitreeA1_rxtx(&huart1);
     osDelay(10);
 
@@ -277,6 +284,7 @@ void OLED_task(void const * argument)
     OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);            OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
     OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);            OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
     OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3); OLED_show_signednum(3,15,MI_Motor_ID2.RxCAN_info.speed,3);
+    OLED_show_signednum(4,5,cmd_left.W,3);                    OLED_show_signednum(4,15,id01_left_date.W,3);
     OLED_refresh_gram();
 
     osDelay(1);
