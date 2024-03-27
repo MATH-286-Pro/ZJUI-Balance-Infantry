@@ -16,7 +16,7 @@ int flag_IDD;
 //	  comdv3.W = 1280;
 //	  tmp_data_1[14]= comdv3.W >> 8;
 //	  tmp_data_1[15]= comdv3.W;
-//	  crc32_core((uint32_t*)tmp_data_1,7);
+//	  crc32_core_Ver1((uint32_t*)tmp_data_1,7);
 //	  tmp_data_1[30]=(comdv3.COMData32.u32>> 32);
 //	  tmp_data_1[31]=(comdv3.COMData32.u32>> 16);
 //	  tmp_data_1[32]=(comdv3.COMData32.u32>> 8);
@@ -42,7 +42,7 @@ union CRCC{
 
 uint8_t Data_Box[3][34];  //发送数据 [3]代表三个电机 ID
 
-uint32_t crc32_core(uint32_t *ptr, uint32_t len) {
+uint32_t crc32_core_Ver1(uint32_t *ptr, uint32_t len) {
 	uint32_t xbit = 0;
 	uint32_t data = 0;
 	uint32_t CRC32 = 0xFFFFFFFF;
@@ -68,7 +68,7 @@ uint32_t crc32_core(uint32_t *ptr, uint32_t len) {
 
 void Control_Message_Send(int ID)
 {
-	uint32_t crc = crc32_core((uint32_t *) Data_Box[ID], 7);
+	uint32_t crc = crc32_core_Ver1((uint32_t *) Data_Box[ID], 7);
 	CRC_u.crc = crc;
 	for (int i=0;i<24;i++) {Data_Box[ID][i] = Motor_Tx_u.data[i];}  //发送 Motor_Tx_u.data
 	int cnt = 0;
