@@ -30,13 +30,12 @@
 #include "bsp_usart.h"
 #include "bsp_rc.h"
 #include "OLED.h"
-#include "motor_A1.h"
-#include "MI_motor_drive.h"
 #include "can.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "MI_motor_drive.h"
 #include "unitreeA1_cmd.h"
 #include <string.h>
 /* USER CODE END Includes */
@@ -244,19 +243,36 @@ void Motor_MI_task(void const * argument)
 void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
+  /*———————————————————————————————————左腿控制代码————————————————————————————————————————*/
+  // 防止电机上电发疯
+  osDelay(1000);
 
   /* Infinite loop */
   for(;;)
   {
-    // 宇树A1电机 速度模式
-    // A1_Motor_Speed_Control(1,(float) DT7_pram->rc.ch[0]/660*-10); // A1控制代码V1.0 该函数使用 UART1 发送
-    // UintreeA1_control(1,10,0,(float) DT7_pram->rc.ch[0]/660*-10,0,0,3.0f);
-    // modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-4,0.005,0.5);  // A1控制代码V2.0
+    // modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-4,0.005,0.5); 
     // modfiy_torque_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660);
-    modfiy_speed_cmd(&cmd_left,1,(float) (float) DT7_pram->rc.ch[0]/660*20.0f);
-    unitreeA1_rxtx(&huart1);
-    osDelay(5);
 
+    if (STOP == 0) // 急停 0力矩模式
+    {
+      modfiy_torque_cmd(&cmd_left,0,0);
+      unitreeA1_rxtx(&huart1);
+      osDelay(5);
+
+      modfiy_torque_cmd(&cmd_left,1,0);
+      unitreeA1_rxtx(&huart1);
+      osDelay(5);
+    }
+
+    if (STOP != 0) // 运行
+    {
+      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*30.0f);
+      unitreeA1_rxtx(&huart1);
+      osDelay(5);
+      modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-30.0f);
+      unitreeA1_rxtx(&huart1);
+      osDelay(5);
+    }
   }
   /* USER CODE END Motor_A1_task */
 }
@@ -283,7 +299,7 @@ void OLED_task(void const * argument)
     OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);            OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
     OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);            OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
     OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3); OLED_show_signednum(3,15,MI_Motor_ID2.RxCAN_info.speed,3);
-    // OLED_show_signednum(4,5,Date_left.W,3);                   OLED_show_signednum(4,15,id01_left_date.Pos,3);
+    OLED_show_signednum(4,5,id00_left_date.T,3);              OLED_show_signednum(4,15,id01_left_date.T,3);
     OLED_refresh_gram();
 
   // id01_left_date.T 电机输出力矩 没有问题
@@ -303,6 +319,8 @@ void OLED_task(void const * argument)
 void Motor_A1_Test_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_Test_task */
+  // 防止电机上电发疯
+  osDelay(1000); 
   /* Infinite loop */
   for(;;)
   {

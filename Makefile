@@ -60,9 +60,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Core/Src/system_stm32f4xx.c \
 modules/Motor_MI/MI_motor_drive.c \
 modules/Motor_MI/Callback.c \
-modules/Motor_A1/motor_A1.c \
-modules/Motor_A1/CRC.c \
-modules/Motor_A1_New/unitreeA1_cmd.c \
+modules/Motor_A1/unitreeA1_cmd.c \
 modules/can_test.c \
 modules/remote_control.c \
 modules/bsp_usart.c \
@@ -153,7 +151,6 @@ C_INCLUDES =  \
 -Imodules/Buzzer \
 -Imodules/Motor_MI \
 -Imodules/Motor_A1 \
--Imodules/Motor_A1_New \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F

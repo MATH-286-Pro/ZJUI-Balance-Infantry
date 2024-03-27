@@ -110,7 +110,7 @@ typedef struct
     uint8_t Ftemp; // 8位表示的温度  7位（-28~100度）  1位0.5度分辨率
 
     int16_t Force16; // 力传感器高16位数据
-    int8_t Force8;   // 力传感器低8位数据
+    int8_t  Force8;   // 力传感器低8位数据
 
     uint8_t FError; //  足端传感器错误标识
 
