@@ -49,6 +49,10 @@
 /* USER CODE BEGIN PD */
 #define PI 3.1415926535f
 #define DGR2RAD PI/180
+
+#define UP 1
+#define MID 3
+#define DOWN 2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -132,11 +136,6 @@ void MX_FREERTOS_Init(void) {
 
   OLED_clear();
 
-  OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = ");
-  OLED_show_string(1,0,"CH2= ");   OLED_show_string(1,10,"CH0= ");
-  OLED_show_string(2,0,"CH3= ");   OLED_show_string(2,10,"CH1= ");
-  OLED_show_string(3,0,"MI1= ");   OLED_show_string(3,10,"MI2= ");
-  OLED_show_string(4,0,"In =");    OLED_show_string(4,10,"Out=");
   //自定义 初始化 结束 ----------------------------------------------------------------
 
   /* USER CODE END Init */
@@ -245,15 +244,16 @@ void Motor_A1_task(void const * argument)
   /* USER CODE BEGIN Motor_A1_task */
   /*———————————————————————————————————左腿控制代码————————————————————————————————————————*/
   // 防止电机上电发疯
-  osDelay(1000);
-
+  STOP = UP;
+  osDelay(100);
+  modfiy_torque_cmd(&cmd_left,0,0);
+  osDelay(5);
+  modfiy_torque_cmd(&cmd_left,1,0);
+  osDelay(5);
   /* Infinite loop */
   for(;;)
   {
-    // modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-4,0.005,0.5); 
-    // modfiy_torque_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660);
-
-    if (STOP == 0) // 急停 0力矩模式
+    if (STOP == UP) // 急停 0力矩模式
     {
       modfiy_torque_cmd(&cmd_left,0,0);
       unitreeA1_rxtx(&huart1);
@@ -264,12 +264,22 @@ void Motor_A1_task(void const * argument)
       osDelay(5);
     }
 
-    if (STOP != 0) // 运行
+    else if (STOP == MID) // 运行速度模式
     {
-      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*30.0f);
+      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-30.0f);
       unitreeA1_rxtx(&huart1);
       osDelay(5);
       modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-30.0f);
+      unitreeA1_rxtx(&huart1);
+      osDelay(5);
+    }
+
+    else if (STOP == DOWN) // 运行速度模式
+    {
+      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660/-8, 0.005, 0.5);
+      unitreeA1_rxtx(&huart1);
+      osDelay(5);
+      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-8, 0.005, 0.5);
       unitreeA1_rxtx(&huart1);
       osDelay(5);
     }
@@ -287,24 +297,42 @@ void Motor_A1_task(void const * argument)
 void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
+  // OLED_show_string(0,0,"S1 = ");   OLED_show_string(0,10,"S0 = ");
+  // OLED_show_string(1,0,"CH2= ");   OLED_show_string(1,10,"CH0= ");
+  // OLED_show_string(2,0,"CH3= ");   OLED_show_string(2,10,"CH1= ");
+  // OLED_show_string(3,0,"MI1= ");   OLED_show_string(3,10,"MI2= ");
+  // OLED_show_string(4,0,"T1 =");    OLED_show_string(4,10,"T0 =");
+
+  uint8_t i = 0;
+  OLED_show_string(i,0,"ID0= ");   OLED_show_string(i,12,"ID1= "); i++;
+  OLED_show_string(i,0,"TP0= ");   OLED_show_string(i,12,"TP1= "); i++;
+  OLED_show_string(i,0,"T0 = ");   OLED_show_string(i,12,"T1 = "); i++;
+  OLED_show_string(i,0,"P0 = ");   //OLED_show_string(i,12,"P1 = "); i++;
+  i++;
+  OLED_show_string(i,0,"W0 = ");   OLED_show_string(i,12,"W1 = "); i++;
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
     DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
-    STOP = DT7_pram->rc.s[1]/2;    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+    STOP = DT7_pram->rc.s[1];    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
                                            
     // 跟踪遥控器4个通道参数
-    OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);       OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);
-    OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);            OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
-    OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);            OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
-    OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3); OLED_show_signednum(3,15,MI_Motor_ID2.RxCAN_info.speed,3);
-    OLED_show_signednum(4,5,id00_left_date.T,3);              OLED_show_signednum(4,15,id01_left_date.T,3);
+    // OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);       OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);
+    // OLED_show_signednum(1,5,DT7_pram->rc.ch[2],3);            OLED_show_signednum(1,15,DT7_pram->rc.ch[0],3);
+    // OLED_show_signednum(2,5,DT7_pram->rc.ch[3],3);            OLED_show_signednum(2,15,DT7_pram->rc.ch[1],3);
+    // OLED_show_signednum(3,5,MI_Motor_ID1.RxCAN_info.speed,3); OLED_show_signednum(3,15,MI_Motor_ID2.RxCAN_info.speed,3);
+    // OLED_show_signednum(4,5,id01_left_date.T,3);              OLED_show_signednum(4,15,id00_left_date.T,3);
+
+    uint8_t i = 0;
+    OLED_show_signednum(i,5,id00_left_date.motor_id,3);     OLED_show_signednum(i,17,id01_left_date.motor_id,3); i++;
+    OLED_show_signednum(i,5,id00_left_date.Temp,3);         OLED_show_signednum(i,17,id01_left_date.Temp,3);      i++;
+    OLED_show_signednum(i,5,id00_left_date.T,3);            OLED_show_signednum(i,17,id01_left_date.T,3);        i++;
+    OLED_show_signednum(i,5,(int)(id00_left_date.Pos*1000),5);          //OLED_show_signednum(i,17,id01_left_date.Pos,3);      i++;
+    i++;
+    OLED_show_signednum(i,5,id00_left_date.W,3);            OLED_show_signednum(i,17,id01_left_date.W,3);        i++;
     OLED_refresh_gram();
-
-  // id01_left_date.T 电机输出力矩 没有问题
-
-    osDelay(1);
+    osDelay(5);
   }
   /* USER CODE END OLED_task */
 }
@@ -319,8 +347,7 @@ void OLED_task(void const * argument)
 void Motor_A1_Test_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_Test_task */
-  // 防止电机上电发疯
-  osDelay(1000); 
+
   /* Infinite loop */
   for(;;)
   {

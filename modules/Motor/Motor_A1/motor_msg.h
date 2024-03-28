@@ -181,7 +181,7 @@ typedef struct
         float gyro[3]; // 电机驱动板6轴传感器数据
         float acc[3];
 		
-} motor_recv_t;
+} motor_recv_t; // 定义 Date_left Date_right
 
 
 typedef struct

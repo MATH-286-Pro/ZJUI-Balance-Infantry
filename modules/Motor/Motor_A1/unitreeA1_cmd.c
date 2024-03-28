@@ -5,6 +5,8 @@
 #include "usart.h"
 #include "unitreeA1_cmd.h"
 
+#define PI 3.14159
+
 motor_send_t cmd_left;  // 左腿一号电机数据体
 motor_send_t cmd_right; // 右腿一号电机数据体
 
@@ -137,43 +139,61 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         HAL_UART_Receive_DMA(&huart1, Date, 78);
 
         // 接受数据处理
-        Date_left.motor_recv_data.head.motorID = Date[2];
-        Date_left.motor_recv_data.Mdata.MError = Date[7];
+        // 1.没有处理温度数据
+        // 2.Acc 角加速度没处理
+        Date_left.motor_recv_data.head.motorID = Date[2];  
+        Date_left.motor_recv_data.Mdata.mode   = Date[4];  
+        Date_left.motor_recv_data.Mdata.Temp   = Date[6];
+        Date_left.motor_recv_data.Mdata.MError = Date[7]; 
         Date_left.motor_recv_data.Mdata.T      = Date[12] << 8  | Date[13]; // 似乎没问题
         Date_left.motor_recv_data.Mdata.W      = Date[14] << 8  | Date[15]; // 一直在跳动
-        Date_left.motor_recv_data.Mdata.Pos2   = Date[30] << 24 | Date[31] << 16 | Date[32] << 8 | Date[33]; // 一直在跳动
+        Date_left.motor_recv_data.Mdata.Acc    = Date[26] << 8  | Date[27]; // 添加测试
+        // Date_left.motor_recv_data.Mdata.Pos    = Date[30] << 24 | Date[31] << 16 | Date[32] << 8 | Date[33]; // 一直在跳动
+        Date_left.motor_recv_data.Mdata.Pos    = Date[33] << 24 | Date[32] << 16 | Date[31] << 8 | Date[30]; // 一直在跳动
 
-        Date_left.motor_id = Date_left.motor_recv_data.head.motorID;
+        Date_left.motor_id = Date_left.motor_recv_data.head.motorID; // ID 正确
+        Date_left.mode     = Date_left.motor_recv_data.Mdata.mode;   // mode 正确
+        Date_left.Temp     = Date_left.motor_recv_data.Mdata.Temp;   // Temp 正确
         Date_left.MError   = Date_left.motor_recv_data.Mdata.MError;
-        Date_left.T        = Date_left.motor_recv_data.Mdata.T / 256;
-        Date_left.W        = Date_left.motor_recv_data.Mdata.W / 128;       // 添加测试
-        Date_left.Pos      = (int)((Date_left.motor_recv_data.Mdata.Pos2 / 16384.0f) * 6.2832f);
+        Date_left.T        = (float) Date_left.motor_recv_data.Mdata.T / 256;                      // 力矩跳动
+        Date_left.Pos      = (float) (Date_left.motor_recv_data.Mdata.Pos / (16384.0f/2/PI));      // 位置不跳动？
+        Date_left.W        = (float) Date_left.motor_recv_data.Mdata.W / 128;                      // 角速度跳动
+        Date_left.Acc      = Date_left.motor_recv_data.Mdata.Acc / 1;                              // 加速度跳动
 
         if (Date_left.motor_id == 0x00)
         {
             id00_left_date.motor_id = Date_left.motor_id;
+            id00_left_date.mode     = Date_left.mode; 
+            id00_left_date.Temp     = Date_left.Temp;
             id00_left_date.MError   = Date_left.MError;
             id00_left_date.T        = Date_left.T;
             id00_left_date.W        = Date_left.W;   // 添加测试
             id00_left_date.Pos      = Date_left.Pos;
+            id00_left_date.Acc      = Date_left.Acc; // 添加测试
         }
 
         if (Date_left.motor_id == 0x01)
         {
             id01_left_date.motor_id = Date_left.motor_id;
+            id01_left_date.mode     = Date_left.mode; 
+            id01_left_date.Temp     = Date_left.Temp;
             id01_left_date.MError   = Date_left.MError;
             id01_left_date.T        = Date_left.T;
             id01_left_date.W        = Date_left.W;   // 添加测试
             id01_left_date.Pos      = Date_left.Pos;
+            id01_left_date.Acc      = Date_left.Acc; // 添加测试
         }
 
         if (Date_left.motor_id == 0x02)
         {
             id02_left_date.motor_id = Date_left.motor_id;
+            id02_left_date.mode     = Date_left.mode; 
+            id02_left_date.Temp     = Date_left.Temp;
             id02_left_date.MError   = Date_left.MError;
             id02_left_date.T        = Date_left.T;
             id02_left_date.W        = Date_left.W;   // 添加测试
             id02_left_date.Pos      = Date_left.Pos;
+            id02_left_date.Acc      = Date_left.Acc; // 添加测试
         }
     }
 
@@ -216,12 +236,12 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         Date_right.motor_recv_data.head.motorID = Date[2];
         Date_right.motor_recv_data.Mdata.MError = Date[7];
         Date_right.motor_recv_data.Mdata.T      = Date[12] << 8  | Date[13];
-        Date_right.motor_recv_data.Mdata.Pos2   = Date[30] << 24 | Date[31] << 16 | Date[32] << 8 | Date[33];
+        Date_right.motor_recv_data.Mdata.Pos    = Date[30] << 24 | Date[31] << 16 | Date[32] << 8 | Date[33];
 
         Date_right.motor_id = Date_right.motor_recv_data.head.motorID;
         Date_right.MError   = Date_right.motor_recv_data.Mdata.MError;
         Date_right.T        = Date_right.motor_recv_data.Mdata.T / 256;
-        Date_right.Pos      = (int)((Date_right.motor_recv_data.Mdata.Pos2 / 16384.0f) * 6.2832f);
+        Date_right.Pos      = (int)((Date_right.motor_recv_data.Mdata.Pos / 16384.0f) * 6.2832f);
 
         if (Date_right.motor_id == 0x00)
         {

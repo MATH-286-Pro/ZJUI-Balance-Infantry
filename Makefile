@@ -58,9 +58,9 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Core/Src/system_stm32f4xx.c \
-modules/Motor_MI/MI_motor_drive.c \
-modules/Motor_MI/Callback.c \
-modules/Motor_A1/unitreeA1_cmd.c \
+modules/Motor/Motor_MI/MI_motor_drive.c \
+modules/Motor/Motor_MI/Callback.c \
+modules/Motor/Motor_A1/unitreeA1_cmd.c \
 modules/can_test.c \
 modules/remote_control.c \
 modules/bsp_usart.c \
@@ -85,6 +85,8 @@ Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+# modules/Motor/Motor_A1_DGUT/Unitree_motor.c \
+
 
 # ASM sources
 ASM_SOURCES =  \
@@ -149,11 +151,14 @@ C_INCLUDES =  \
 -Imodules \
 -Imodules/OLED \
 -Imodules/Buzzer \
--Imodules/Motor_MI \
--Imodules/Motor_A1 \
+-Imodules/algorithm \
+-Imodules/Motor \
+-Imodules/Motor/Motor_MI \
+-Imodules/Motor/Motor_A1 \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+# -Imodules/Motor/Motor_A1_DGUT \
 
 
 # compile gcc flags
