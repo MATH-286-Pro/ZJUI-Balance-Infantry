@@ -22,8 +22,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/Core/Src",
-      "program": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/Core/Src/build/Debug/outDebug",
+      "cwd": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/modules/Motor/Motor_A1",
+      "program": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/modules/Motor/Motor_A1/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

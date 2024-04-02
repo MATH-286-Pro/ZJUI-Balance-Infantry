@@ -166,17 +166,17 @@ typedef struct
 
 		//bool correct;   //接收数据是否完整（true完整，false不完整）
 		//uint8_t right_Date[MOTOR_RX_LENGTH];
-	
-	    unsigned char motor_id; //电机ID
-        unsigned char mode;     // 0:空闲, 5:开环转动, 10:闭环FOC控制
-        int Temp;               //温度
-        int MError;             //错误码
+	 
+	    unsigned char motor_id; // 1Byte 电机ID
+        unsigned char mode;     // 1Byte 0:空闲, 5:开环转动, 10:闭环FOC控制
+        int Temp;               // 1Byte 温度
+        int MError;             // 1Byte 错误码
 
-        float T;                // 当前实际电机输出力矩
-        float W;                // 当前实际电机速度（高速）
-        float Pos;              // 当前电机位置
-        float LW;               // 当前实际电机速度（低速）
-        int Acc;                // 电机转子加速度
+        float T;                // 2Byte 当前实际电机输出力矩
+        float W;                // 2Byte 当前实际电机速度（高速）
+        float Pos;              // 4Byte 当前电机位置
+        float LW;               // 4Byte 当前实际电机速度（低速）
+        int Acc;                // 2Byte 电机转子加速度
 	
         float gyro[3]; // 电机驱动板6轴传感器数据
         float acc[3];
@@ -199,8 +199,8 @@ typedef struct
 	        float T;                // 电机输出力矩
 			float W;                // 电机速度
 			float Pos;              // 电机位置
-	        float K_P;           //关节刚度系数
-	        float K_W;           //关节速度系数
+	        float K_P;              //关节刚度系数
+	        float K_W;              //关节速度系数
 	
 }motor_control_t;
 

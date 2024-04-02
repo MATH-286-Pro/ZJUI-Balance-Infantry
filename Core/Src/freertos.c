@@ -67,11 +67,11 @@
 uint8_t STOP; //急停按键
 const RC_ctrl_t* DT7_pram; //遥控器控制结构体
 
-MI_Motor_s MI_Motor_ID1;                  // 定义小米电机结构体1
-MI_Motor_s MI_Motor_ID2;                  // 定义小米电机结构体2
+MI_Motor_s MI_Motor_ID1;              // 定义小米电机结构体1
+MI_Motor_s MI_Motor_ID2;              // 定义小米电机结构体2
 
-extern motor_send_t cmd_left;  // 左腿一号电机数据体
-extern motor_send_t cmd_right; // 右腿一号电机数据体
+extern motor_send_t cmd_left;         // 左腿一号电机数据体
+extern motor_send_t cmd_right;        // 右腿一号电机数据体
 
 extern motor_recv_t Date_left;        // 左腿电机接收数据体
 extern motor_recv_t id00_left_date;   // 左腿00号电机接收数据体
@@ -276,7 +276,7 @@ void Motor_A1_task(void const * argument)
 
     else if (STOP == DOWN) // 运行速度模式
     {
-      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660/-8, 0.005, 0.5);
+      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660/-8, 0.005, 0.5); // 0.005 0.5
       unitreeA1_rxtx(&huart1);
       osDelay(5);
       modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-8, 0.005, 0.5);
@@ -304,12 +304,13 @@ void OLED_task(void const * argument)
   // OLED_show_string(4,0,"T1 =");    OLED_show_string(4,10,"T0 =");
 
   uint8_t i = 0;
-  OLED_show_string(i,0,"ID0= ");   OLED_show_string(i,12,"ID1= "); i++;
-  OLED_show_string(i,0,"TP0= ");   OLED_show_string(i,12,"TP1= "); i++;
-  OLED_show_string(i,0,"T0 = ");   OLED_show_string(i,12,"T1 = "); i++;
-  OLED_show_string(i,0,"P0 = ");   //OLED_show_string(i,12,"P1 = "); i++;
-  i++;
-  OLED_show_string(i,0,"W0 = ");   OLED_show_string(i,12,"W1 = "); i++;
+  OLED_show_string(i,0,"ID0= ");   OLED_show_string(i,11,"ID1= "); i++;
+  // OLED_show_string(i,0,"TP0= ");   OLED_show_string(i,11,"TP1= "); i++;
+  OLED_show_string(i,0,"T0 = ");   OLED_show_string(i,11,"T1 = "); i++;
+  OLED_show_string(i,0,"P0 = ");   OLED_show_string(i,11,"P1 = "); i++;
+  OLED_show_string(i,0,"W0 = ");   OLED_show_string(i,11,"W1 = "); i++;
+  OLED_show_string(i,0,"A0 = ");   OLED_show_string(i,11,"A1 = "); i++;
+
   /* Infinite loop */
   for(;;)
   {
@@ -325,12 +326,12 @@ void OLED_task(void const * argument)
     // OLED_show_signednum(4,5,id01_left_date.T,3);              OLED_show_signednum(4,15,id00_left_date.T,3);
 
     uint8_t i = 0;
-    OLED_show_signednum(i,5,id00_left_date.motor_id,3);     OLED_show_signednum(i,17,id01_left_date.motor_id,3); i++;
-    OLED_show_signednum(i,5,id00_left_date.Temp,3);         OLED_show_signednum(i,17,id01_left_date.Temp,3);      i++;
-    OLED_show_signednum(i,5,id00_left_date.T,3);            OLED_show_signednum(i,17,id01_left_date.T,3);        i++;
-    OLED_show_signednum(i,5,(int)(id00_left_date.Pos*1000),5);          //OLED_show_signednum(i,17,id01_left_date.Pos,3);      i++;
-    i++;
-    OLED_show_signednum(i,5,id00_left_date.W,3);            OLED_show_signednum(i,17,id01_left_date.W,3);        i++;
+    OLED_show_signednum(i,5,id00_left_date.motor_id,3);        OLED_show_signednum(i,16,id01_left_date.motor_id,3);  i++;
+    // OLED_show_signednum(i,5,id00_left_date.Temp,3);            OLED_show_signednum(i,16,id01_left_date.Temp,3);      i++;
+    OLED_show_signednum(i,5,id00_left_date.T*100,3);           OLED_show_signednum(i,16,id01_left_date.T*100,3);     i++;
+    OLED_show_signednum(i,5,(int)(id00_left_date.Pos*1000),4); OLED_show_signednum(i,16,id01_left_date.Pos*1000,4);  i++;
+    OLED_show_signednum(i,5,id00_left_date.W,3);               OLED_show_signednum(i,16,id01_left_date.W,3);         i++;
+    OLED_show_signednum(i,5,id00_left_date.Acc,3);             OLED_show_signednum(i,16,id01_left_date.Acc,3);       i++;
     OLED_refresh_gram();
     osDelay(5);
   }
