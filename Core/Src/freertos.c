@@ -49,6 +49,7 @@
 /* USER CODE BEGIN PD */
 #define PI 3.1415926535f
 #define DGR2RAD PI/180
+#define RAD2DGR 180/PI
 
 #define UP 1
 #define MID 3
@@ -64,7 +65,8 @@
 /* USER CODE BEGIN Variables */
 
 //定义全局变量
-uint8_t STOP; //急停按键
+uint8_t STOP;  //急停按键
+uint8_t STATE; //状态按键 (A1电机)
 const RC_ctrl_t* DT7_pram; //遥控器控制结构体
 
 MI_Motor_s MI_Motor_ID1;              // 定义小米电机结构体1
@@ -219,8 +221,8 @@ void Motor_MI_task(void const * argument)
   for(;;)
   {
     // 小米电机控制
-    MI_motor_SpeedControl(&MI_Motor_ID1,(float) STOP*DT7_pram->rc.ch[3]/33,1); // 使用 (float) 强制转换
-    MI_motor_SpeedControl(&MI_Motor_ID2,(float) STOP*DT7_pram->rc.ch[1]/33,1);
+    MI_motor_SpeedControl(&MI_Motor_ID1,(float) STOP*DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
+    MI_motor_SpeedControl(&MI_Motor_ID2,(float) STOP*DT7_pram->rc.ch[3]/-33,1);
 
     // 小米电机模式
     // 力矩模式 MI_motor_TorqueControl()
@@ -244,37 +246,39 @@ void Motor_A1_task(void const * argument)
   /* USER CODE BEGIN Motor_A1_task */
   /*———————————————————————————————————左腿控制代码————————————————————————————————————————*/
   // 防止电机上电发疯
-  STOP = UP;
+  STATE = UP;
   osDelay(100);
   modfiy_torque_cmd(&cmd_left,0,0);
+  modfiy_torque_cmd(&cmd_right,0,0);
   osDelay(5);
   modfiy_torque_cmd(&cmd_left,1,0);
+  modfiy_torque_cmd(&cmd_right,1,0);
   osDelay(5);
   /* Infinite loop */
   for(;;)
   {
-    if (STOP == UP) // 急停 0力矩模式
+    if (STATE == UP) // 急停 0力矩模式
     {
-      modfiy_torque_cmd(&cmd_left,0,0);
-      unitreeA1_rxtx(&huart1);
+      modfiy_torque_cmd(&cmd_left,0,0);      modfiy_torque_cmd(&cmd_right,0,0);
+      unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
       osDelay(5);
 
-      modfiy_torque_cmd(&cmd_left,1,0);
-      unitreeA1_rxtx(&huart1);
+      modfiy_torque_cmd(&cmd_left,1,0);      modfiy_torque_cmd(&cmd_right,1,0);
+      unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
       osDelay(5);
     }
 
-    else if (STOP == MID) // 运行速度模式
+    else if (STATE == MID) // 运行速度模式
     {
-      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-30.0f);
-      unitreeA1_rxtx(&huart1);
+      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*30.0f);
+      unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(5);
-      modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-30.0f);
-      unitreeA1_rxtx(&huart1);
+      modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*30.0f);
+      unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(5);
     }
 
-    else if (STOP == DOWN) // 运行速度模式
+    else if (STATE == DOWN) // 运行位置模式
     {
       modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660/-8, 0.005, 0.5); // 0.005 0.5
       unitreeA1_rxtx(&huart1);
@@ -305,18 +309,19 @@ void OLED_task(void const * argument)
 
   uint8_t i = 0;
   OLED_show_string(i,0,"ID0= ");   OLED_show_string(i,11,"ID1= "); i++;
-  // OLED_show_string(i,0,"TP0= ");   OLED_show_string(i,11,"TP1= "); i++;
   OLED_show_string(i,0,"T0 = ");   OLED_show_string(i,11,"T1 = "); i++;
   OLED_show_string(i,0,"P0 = ");   OLED_show_string(i,11,"P1 = "); i++;
   OLED_show_string(i,0,"W0 = ");   OLED_show_string(i,11,"W1 = "); i++;
   OLED_show_string(i,0,"A0 = ");   OLED_show_string(i,11,"A1 = "); i++;
+
 
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
     DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
-    STOP = DT7_pram->rc.s[1];    // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+    STOP  = DT7_pram->rc.s[1]/2; // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+    STATE = DT7_pram->rc.s[0];   // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
                                            
     // 跟踪遥控器4个通道参数
     // OLED_show_num(0,5,(uint8_t) DT7_pram->rc.s[1]/2,1);       OLED_show_num(0,15,(uint8_t) DT7_pram->rc.s[0]/2,1);
@@ -326,12 +331,11 @@ void OLED_task(void const * argument)
     // OLED_show_signednum(4,5,id01_left_date.T,3);              OLED_show_signednum(4,15,id00_left_date.T,3);
 
     uint8_t i = 0;
-    OLED_show_signednum(i,5,id00_left_date.motor_id,3);        OLED_show_signednum(i,16,id01_left_date.motor_id,3);  i++;
-    // OLED_show_signednum(i,5,id00_left_date.Temp,3);            OLED_show_signednum(i,16,id01_left_date.Temp,3);      i++;
-    OLED_show_signednum(i,5,id00_left_date.T*100,3);           OLED_show_signednum(i,16,id01_left_date.T*100,3);     i++;
-    OLED_show_signednum(i,5,(int)(id00_left_date.Pos*1000),4); OLED_show_signednum(i,16,id01_left_date.Pos*1000,4);  i++;
-    OLED_show_signednum(i,5,id00_left_date.W,3);               OLED_show_signednum(i,16,id01_left_date.W,3);         i++;
-    OLED_show_signednum(i,5,id00_left_date.Acc,3);             OLED_show_signednum(i,16,id01_left_date.Acc,3);       i++;
+    OLED_show_signednum(i,5,id00_left_date.motor_id,3);                OLED_show_signednum(i,16,id01_left_date.motor_id,3);          i++;
+    OLED_show_signednum(i,5,id00_left_date.T*100,3);                   OLED_show_signednum(i,16,id01_left_date.T*100,3);             i++;
+    OLED_show_signednum(i,5,id00_left_date.Pos*RAD2DGR/9.1f,4);        OLED_show_signednum(i,16,id01_left_date.Pos*RAD2DGR/9.1f,4);  i++;
+    OLED_show_signednum(i,5,id00_left_date.W,3);                       OLED_show_signednum(i,16,id01_left_date.W,3);                 i++;
+    OLED_show_signednum(i,5,id00_left_date.Acc,3);                     OLED_show_signednum(i,16,id01_left_date.Acc,3);               i++;
     OLED_refresh_gram();
     osDelay(5);
   }

@@ -177,6 +177,8 @@ typedef struct
         float Pos;              // 4Byte 当前电机位置
         float LW;               // 4Byte 当前实际电机速度（低速）
         int Acc;                // 2Byte 电机转子加速度
+
+        float Pos2;             // 添加测试
 	
         float gyro[3]; // 电机驱动板6轴传感器数据
         float acc[3];

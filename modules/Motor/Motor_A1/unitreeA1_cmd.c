@@ -7,8 +7,8 @@
 
 #define PI 3.14159
 
-motor_send_t cmd_left;  // 左腿一号电机数据体
-motor_send_t cmd_right; // 右腿一号电机数据体
+motor_send_t cmd_left;        // 左腿一号电机数据体
+motor_send_t cmd_right;       // 右腿一号电机数据体
 
 motor_recv_t Date_left;       // 左腿电机接收数据体
 motor_recv_t id00_left_date;  // 左腿00号电机接收数据体
@@ -181,6 +181,7 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             id01_left_date.W        = Date_left.W;   
             id01_left_date.Pos      = Date_left.Pos;
             id01_left_date.Acc      = Date_left.Acc; 
+
         }
 
         if (Date_left.motor_id == 0x02)
@@ -232,38 +233,58 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         HAL_Delay(10);
         HAL_UART_Receive_DMA(&huart6, Date, 78);
 
-        Date_right.motor_recv_data.head.motorID = Date[2];
-        Date_right.motor_recv_data.Mdata.MError = Date[7];
-        Date_right.motor_recv_data.Mdata.T      = Date[12] << 8  | Date[13];
-        Date_right.motor_recv_data.Mdata.Pos    = Date[30] << 24 | Date[31] << 16 | Date[32] << 8 | Date[33];
+        Date_right.motor_recv_data.head.motorID = Date[2];  
+        Date_right.motor_recv_data.Mdata.mode   = Date[4];  
+        Date_right.motor_recv_data.Mdata.Temp   = Date[6];
+        Date_right.motor_recv_data.Mdata.MError = Date[7]; 
+        Date_right.motor_recv_data.Mdata.T      = Date[13] << 8  | Date[12]; 
+        Date_right.motor_recv_data.Mdata.W      = Date[15] << 8  | Date[14]; 
+        Date_right.motor_recv_data.Mdata.Acc    = Date[27] << 8  | Date[26]; 
+        Date_right.motor_recv_data.Mdata.Pos    = Date[33] << 24 | Date[32] << 16 | Date[31] << 8 | Date[30];  
 
-        Date_right.motor_id = Date_right.motor_recv_data.head.motorID;
-        Date_right.MError   = Date_right.motor_recv_data.Mdata.MError;
-        Date_right.T        = Date_right.motor_recv_data.Mdata.T / 256;
-        Date_right.Pos      = (int)((Date_right.motor_recv_data.Mdata.Pos / 16384.0f) * 6.2832f);
+        Date_right.motor_id = Date_right.motor_recv_data.head.motorID;                           
+        Date_right.mode     = Date_right.motor_recv_data.Mdata.mode;                               
+        Date_right.Temp     = Date_right.motor_recv_data.Mdata.Temp;                                
+        Date_right.MError   = Date_right.motor_recv_data.Mdata.MError;                               
+        Date_right.T        = (float) Date_right.motor_recv_data.Mdata.T / 256;                     
+        Date_right.Pos      = (float) (Date_right.motor_recv_data.Mdata.Pos / (16384.0f/2/PI));      
+        Date_right.W        = (float) Date_right.motor_recv_data.Mdata.W / 128;                      
+        Date_right.Acc      = (float) Date_right.motor_recv_data.Mdata.Acc;                          
 
         if (Date_right.motor_id == 0x00)
         {
             id00_right_date.motor_id = Date_right.motor_id;
-            id00_right_date.MError = Date_right.MError;
-            id00_right_date.T = Date_right.T;
-            id00_right_date.Pos = Date_right.Pos;
+            id00_right_date.mode     = Date_right.mode; 
+            id00_right_date.Temp     = Date_right.Temp;
+            id00_right_date.MError   = Date_right.MError;
+            id00_right_date.T        = Date_right.T;
+            id00_right_date.W        = Date_right.W;   
+            id00_right_date.Pos      = Date_right.Pos;
+            id00_right_date.Acc      = Date_right.Acc; 
         }
 
         if (Date_right.motor_id == 0x01)
         {
             id01_right_date.motor_id = Date_right.motor_id;
-            id01_right_date.MError = Date_right.MError;
-            id01_right_date.T = Date_right.T;
-            id01_right_date.Pos = Date_right.Pos;
+            id01_right_date.mode     = Date_right.mode; 
+            id01_right_date.Temp     = Date_right.Temp;
+            id01_right_date.MError   = Date_right.MError;
+            id01_right_date.T        = Date_right.T;
+            id01_right_date.W        = Date_right.W;   
+            id01_right_date.Pos      = Date_right.Pos;
+            id01_right_date.Acc      = Date_right.Acc; 
         }
 
         if (Date_right.motor_id == 0x02)
         {
             id02_right_date.motor_id = Date_right.motor_id;
-            id02_right_date.MError = Date_right.MError;
-            id02_right_date.T = Date_right.T;
-            id02_right_date.Pos = Date_right.Pos;
+            id02_right_date.mode     = Date_right.mode; 
+            id02_right_date.Temp     = Date_right.Temp;
+            id02_right_date.MError   = Date_right.MError;
+            id02_right_date.T        = Date_right.T;
+            id02_right_date.W        = Date_right.W;   
+            id02_right_date.Pos      = Date_right.Pos;
+            id02_right_date.Acc      = Date_right.Acc; 
         }
     }
 }
