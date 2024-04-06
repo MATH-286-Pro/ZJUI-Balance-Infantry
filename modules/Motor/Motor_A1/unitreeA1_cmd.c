@@ -60,7 +60,7 @@ void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW)
     send->mode = 10;
 	send->id   = id;
 
-    send->Pos  = 6.2832*9.1*2*Pos;  // 6.2832 = 2 PI
+    send->Pos  = 2*PI/360*9.1*Pos;  // 6.2832 = 2 PI // 原先为 6.2832*9.1*2*Pos
     send->W    = 0;
     send->T    = 0.0;
     send->K_P  = KP;
@@ -121,7 +121,7 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         cmd_left.motor_send_data.Mdata.Modify.F  = 0;
         cmd_left.motor_send_data.Mdata.T         = cmd_left.T * 256;
         cmd_left.motor_send_data.Mdata.W         = cmd_left.W * 128;
-        cmd_left.motor_send_data.Mdata.Pos       = (int)((cmd_left.Pos / 6.2832f) * 16384.0f);
+        cmd_left.motor_send_data.Mdata.Pos       = (int)((cmd_left.Pos / 6.2832f) * 16384.0f); // 单位 rad
         cmd_left.motor_send_data.Mdata.K_P       = cmd_left.K_P * 2048;
         cmd_left.motor_send_data.Mdata.K_W       = cmd_left.K_W * 1024;
 
@@ -288,3 +288,5 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
         }
     }
 }
+
+// 电机0位函数

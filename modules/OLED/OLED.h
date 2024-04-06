@@ -260,4 +260,5 @@ extern uint32_t OLED_Pow(uint32_t X, uint32_t Y);
 extern void OLED_show_num(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length);
 
 extern void OLED_show_signednum(uint8_t Line, uint8_t Column, int32_t Number, uint8_t Length);
+
 #endif

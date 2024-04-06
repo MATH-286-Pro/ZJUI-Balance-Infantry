@@ -80,6 +80,12 @@ extern motor_recv_t id00_left_date;   // 左腿00号电机接收数据体
 extern motor_recv_t id01_left_date;   // 左腿01号电机接收数据体
 extern motor_recv_t id02_left_date;   // 左腿02号电机接收数据体
 
+// 默认电机零位
+float zero_left_ID0 = 1000.0f;
+float zero_left_ID1 = 1000.0f;
+float zero_right_ID0 = 1000.0f;
+float zero_right_ID1 = 1000.0f;
+
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 osThreadId Motor_MIHandle;
@@ -248,12 +254,37 @@ void Motor_A1_task(void const * argument)
   // 防止电机上电发疯
   STATE = UP;
   osDelay(100);
-  modfiy_torque_cmd(&cmd_left,0,0);
-  modfiy_torque_cmd(&cmd_right,0,0);
-  osDelay(5);
-  modfiy_torque_cmd(&cmd_left,1,0);
-  modfiy_torque_cmd(&cmd_right,1,0);
-  osDelay(5);
+
+  // 电机零位 默认为1000，为了循环判断所以这么写 
+  // 电机零位 定义在最上面
+  // 使用while循环确保0位正确
+  int continue_loop = 1; 
+  while (continue_loop) {
+
+      // 检查所有零位是否都在(-180, 180)范围内
+      if ((zero_left_ID0 > -180 && zero_left_ID0 < 180) &&
+          (zero_right_ID0 > -180 && zero_right_ID0 < 180) &&
+          (zero_left_ID1 > -180 && zero_left_ID1 < 180) &&
+          (zero_right_ID1 > -180 && zero_right_ID1 < 180)) {
+          continue_loop = 0;  // 如果所有零位都在范围内，则结束循环
+      }
+
+      modfiy_torque_cmd(&cmd_left, 0, 0);    modfiy_torque_cmd(&cmd_right, 0, 0);
+      unitreeA1_rxtx(&huart1);                unitreeA1_rxtx(&huart6);
+      zero_left_ID0 = (float) id00_left_date.Pos * RAD2DGR / 9.1f;
+      zero_right_ID0 = (float) id00_right_date.Pos * RAD2DGR / 9.1f;
+
+      osDelay(5);
+
+      modfiy_torque_cmd(&cmd_left, 1, 0);    modfiy_torque_cmd(&cmd_right, 1, 0);
+      unitreeA1_rxtx(&huart1);                unitreeA1_rxtx(&huart6);
+      zero_left_ID1 = (float) id01_left_date.Pos * RAD2DGR / 9.1f;
+      zero_right_ID1 = (float) id01_right_date.Pos * RAD2DGR / 9.1f;
+
+      osDelay(5);
+  }
+
+
   /* Infinite loop */
   for(;;)
   {
@@ -268,7 +299,7 @@ void Motor_A1_task(void const * argument)
       osDelay(5);
     }
 
-    else if (STATE == MID) // 运行速度模式
+    else if (STATE == MID)  // 速度模式
     {
       modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
@@ -278,13 +309,17 @@ void Motor_A1_task(void const * argument)
       osDelay(5);
     }
 
-    else if (STATE == DOWN) // 运行位置模式
+    else if (STATE == DOWN) // 位置模式
     {
-      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660/-8, 0.005, 0.5); // 0.005 0.5
-      unitreeA1_rxtx(&huart1);
+      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-70 + zero_left_ID0, 0.005, 0.5);   
+      modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*70 + zero_right_ID0, 0.005, 0.5); 
+      unitreeA1_rxtx(&huart1); 
+      unitreeA1_rxtx(&huart6);
       osDelay(5);
-      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660/-8, 0.005, 0.5);
+      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-70 + zero_left_ID1, 0.005, 0.5);   
+      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*70 + zero_right_ID0, 0.005, 0.5);
       unitreeA1_rxtx(&huart1);
+      unitreeA1_rxtx(&huart6);
       osDelay(5);
     }
   }
@@ -335,7 +370,8 @@ void OLED_task(void const * argument)
     OLED_show_signednum(i,5,id00_left_date.T*100,3);                   OLED_show_signednum(i,16,id01_left_date.T*100,3);             i++;
     OLED_show_signednum(i,5,id00_left_date.Pos*RAD2DGR/9.1f,4);        OLED_show_signednum(i,16,id01_left_date.Pos*RAD2DGR/9.1f,4);  i++;
     OLED_show_signednum(i,5,id00_left_date.W,3);                       OLED_show_signednum(i,16,id01_left_date.W,3);                 i++;
-    OLED_show_signednum(i,5,id00_left_date.Acc,3);                     OLED_show_signednum(i,16,id01_left_date.Acc,3);               i++;
+    // OLED_show_signednum(i,5,id00_left_date.Acc/9.1f,3);                OLED_show_signednum(i,16,id01_left_date.Acc/9.1f,3);          i++;
+    OLED_show_signednum(i,5,id00_left_date.Acc/9.1f,3);                OLED_show_signednum(i,16,id01_left_date.Acc/9.1f,3);          i++;
     OLED_refresh_gram();
     osDelay(5);
   }
