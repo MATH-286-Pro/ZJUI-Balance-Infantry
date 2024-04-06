@@ -309,7 +309,7 @@ void Motor_A1_task(void const * argument)
       osDelay(5);
     }
 
-    else if (STATE == DOWN) // 位置模式
+    else if (STATE == DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
       modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-70 + zero_left_ID0, 0.005, 0.5);   
       modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*70 + zero_right_ID0, 0.005, 0.5); 
@@ -317,7 +317,7 @@ void Motor_A1_task(void const * argument)
       unitreeA1_rxtx(&huart6);
       osDelay(5);
       modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-70 + zero_left_ID1, 0.005, 0.5);   
-      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*70 + zero_right_ID0, 0.005, 0.5);
+      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*70 + zero_right_ID1, 0.005, 0.5);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(5);
