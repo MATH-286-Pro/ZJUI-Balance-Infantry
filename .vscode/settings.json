@@ -5,7 +5,12 @@
     "freertos.h": "c",
     "can_test.h": "c",
     "bsp_usart.h": "c",
-    "callback.h": "c"
+    "callback.h": "c",
+    "a1_control.h": "c",
+    "usart.h": "c",
+    "unitreea1_cmd.h": "c",
+    "memory.h": "c",
+    "stdlib.h": "c"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",
