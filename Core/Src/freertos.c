@@ -274,14 +274,14 @@ void Motor_A1_task(void const * argument)
       zero_left_ID0 = (float) id00_left_date.Pos * RAD2DGR / 9.1f;
       zero_right_ID0 = (float) id00_right_date.Pos * RAD2DGR / 9.1f;
 
-      osDelay(5);
+      osDelay(2);
 
       modfiy_torque_cmd(&cmd_left, 1, 0);    modfiy_torque_cmd(&cmd_right, 1, 0);
       unitreeA1_rxtx(&huart1);                unitreeA1_rxtx(&huart6);
       zero_left_ID1 = (float) id01_left_date.Pos * RAD2DGR / 9.1f;
       zero_right_ID1 = (float) id01_right_date.Pos * RAD2DGR / 9.1f;
 
-      osDelay(5);
+      osDelay(2);
   }
 
 
@@ -292,35 +292,35 @@ void Motor_A1_task(void const * argument)
     {
       modfiy_torque_cmd(&cmd_left,0,0);      modfiy_torque_cmd(&cmd_right,0,0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      osDelay(5);
+      osDelay(2);
 
       modfiy_torque_cmd(&cmd_left,1,0);      modfiy_torque_cmd(&cmd_right,1,0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      osDelay(5);
+      osDelay(2);
     }
 
     else if (STATE == MID)  // 速度模式
     {
       modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
-      osDelay(5);
+      osDelay(2);
       modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
-      osDelay(5);
+      osDelay(2);
     }
 
     else if (STATE == DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-70 + zero_left_ID0, 0.005, 0.5);   
-      modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*70 + zero_right_ID0, 0.005, 0.5); 
+      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
-      osDelay(5);
-      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-70 + zero_left_ID1, 0.005, 0.5);   
-      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*70 + zero_right_ID1, 0.005, 0.5);
+      osDelay(2);
+      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-70 + zero_left_ID1, 0.006, 1.0);   
+      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
-      osDelay(5);
+      osDelay(2);
     }
   }
   /* USER CODE END Motor_A1_task */
