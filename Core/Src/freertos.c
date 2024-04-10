@@ -38,6 +38,7 @@
 #include "MI_motor_drive.h"
 #include "unitreeA1_cmd.h"
 #include <string.h>
+#include "joint.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,10 +82,10 @@ extern motor_recv_t id01_left_date;   // 左腿01号电机接收数据体
 extern motor_recv_t id02_left_date;   // 左腿02号电机接收数据体
 
 // 默认电机零位
-float zero_left_ID0 = 1000.0f;
-float zero_left_ID1 = 1000.0f;
-float zero_right_ID0 = 1000.0f;
-float zero_right_ID1 = 1000.0f;
+extern float zero_left_ID0;
+extern float zero_left_ID1;
+extern float zero_right_ID0;
+extern float zero_right_ID1;
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -255,39 +256,8 @@ void Motor_A1_task(void const * argument)
   STATE = UP;
   osDelay(100);
 
-  // 电机零位 默认为1000，为了循环判断所以这么写 
-  // 电机零位 定义在最上面
-  // 使用while循环确保0位正确
-  int continue_loop = 1; 
-  HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_SET); //
-  while (continue_loop) {
-
-      modfiy_torque_cmd(&cmd_left, 0, 0);    modfiy_torque_cmd(&cmd_right, 0, 0);
-      unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      zero_left_ID0  = (float) id00_left_date.Pos * RAD2DGR / 9.1f;
-      zero_right_ID0 = (float) id00_right_date.Pos * RAD2DGR / 9.1f;
-
-      osDelay(2);
-
-      modfiy_torque_cmd(&cmd_left, 1, 0);    modfiy_torque_cmd(&cmd_right, 1, 0);
-      unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      zero_left_ID1  = (float) id01_left_date.Pos * RAD2DGR / 9.1f;
-      zero_right_ID1 = (float) id01_right_date.Pos * RAD2DGR / 9.1f;
-
-      osDelay(2);
-
-      // 检查所有零位是否都在(-180, 180)范围内
-      // 一般来说 left_ID0 零位不可能等于 right_ID0 零位
-      if ((zero_left_ID0 > -180 && zero_left_ID0 < 180) &&
-          (zero_right_ID0 > -180 && zero_right_ID0 < 180) &&
-          (zero_left_ID1 > -180 && zero_left_ID1 < 180) &&
-          (zero_right_ID1 > -180 && zero_right_ID1 < 180) &&
-          (zero_left_ID0 != zero_right_ID0) &&
-          (zero_left_ID1 != zero_right_ID1)) {
-          continue_loop = 0;  // 如果所有零位都在范围内，则结束循环
-      }
-  }
-  HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
+  // 电机零位初始化
+  Joint_Zero_init();
 
   /* Infinite loop */
   for(;;)
@@ -305,23 +275,23 @@ void Motor_A1_task(void const * argument)
 
     else if (STATE == MID)  // 速度模式
     {
-      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*30.0f);
+      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[0]/660*30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[0]/660*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*30.0f);
+      modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[2]/660*30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[2]/660*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
     else if (STATE == DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[2]/660*-70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[2]/660*70 + zero_right_ID0, 0.006,1.0); 
+      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[0]/660*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[0]/660*-70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[0]/660*-70 + zero_left_ID1, 0.006, 1.0);   
-      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[0]/660*70 + zero_right_ID1, 0.006, 1.0);
+      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[2]/660*70 + zero_left_ID1, 0.006, 1.0);   
+      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[2]/660*-70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(2);
@@ -347,9 +317,9 @@ void OLED_task(void const * argument)
   // OLED_show_string(4,0,"T1 =");    OLED_show_string(4,10,"T0 =");
 
   uint8_t i = 0;
-  OLED_show_string(i,0,"ID0= ");   OLED_show_string(i,11,"ID1= "); i++;
-  OLED_show_string(i,0,"T0 = ");   OLED_show_string(i,11,"T1 = "); i++;
-  OLED_show_string(i,0,"P0 = ");   OLED_show_string(i,11,"P1 = "); i++;
+  OLED_show_string(i,0,"TR1= ");   OLED_show_string(i,11,"TL1= "); i++;
+  OLED_show_string(i,0,"TR0= ");   OLED_show_string(i,11,"TL0= "); i++;
+  OLED_show_string(i,0,"PL0= ");   OLED_show_string(i,11,"PL1= "); i++;
   OLED_show_string(i,0,"R1 = ");   OLED_show_string(i,11,"L1 = "); i++;
   OLED_show_string(i,0,"R0 = ");   OLED_show_string(i,11,"L0 = "); i++;
 
@@ -370,11 +340,11 @@ void OLED_task(void const * argument)
     // OLED_show_signednum(4,5,id01_left_date.T,3);              OLED_show_signednum(4,15,id00_left_date.T,3);
 
     uint8_t i = 0;
-    OLED_show_signednum(i,5,id00_left_date.motor_id,3);                OLED_show_signednum(i,16,id01_left_date.motor_id,3);          i++;
-    OLED_show_signednum(i,5,id00_left_date.T*100,3);                   OLED_show_signednum(i,16,id01_left_date.T*100,3);             i++;
-    OLED_show_signednum(i,5,id00_left_date.Pos*RAD2DGR/9.1f,4);        OLED_show_signednum(i,16,id01_left_date.Pos*RAD2DGR/9.1f,4);  i++;
-    OLED_show_signednum(i,5,zero_right_ID1,3);                         OLED_show_signednum(i,16,zero_left_ID1,3);                    i++;
-    OLED_show_signednum(i,5,zero_right_ID0,3);                         OLED_show_signednum(i,16,zero_left_ID0,3);                    i++;
+    OLED_show_signednum(i,5,id01_right_date.T*9.1f,3);                  OLED_show_signednum(i,16,id01_left_date.T*9.1f,3);             i++;
+    OLED_show_signednum(i,5,id00_right_date.T*9.1f,3);                  OLED_show_signednum(i,16,id00_left_date.T*9.1f,3);             i++;
+    OLED_show_signednum(i,5,id00_left_date.Pos*RAD2DGR/9.1f,4);         OLED_show_signednum(i,16,id01_left_date.Pos*RAD2DGR/9.1f,4);   i++;
+    OLED_show_signednum(i,5,zero_right_ID1,3);                          OLED_show_signednum(i,16,zero_left_ID1,3);                     i++;
+    OLED_show_signednum(i,5,zero_right_ID0,3);                          OLED_show_signednum(i,16,zero_left_ID0,3);                     i++;
     // OLED_show_signednum(i,5,id00_left_date.W,3);                       OLED_show_signednum(i,16,id01_left_date.W,3);                 i++;
     // OLED_show_signednum(i,5,id00_left_date.Acc/9.1f,3);                OLED_show_signednum(i,16,id01_left_date.Acc/9.1f,3);          i++;
     OLED_refresh_gram();
