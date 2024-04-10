@@ -257,7 +257,7 @@ void Motor_A1_task(void const * argument)
   osDelay(100);
 
   // 电机零位初始化
-  Joint_Zero_init();
+  Joint_Zero_init_Type1();
 
   /* Infinite loop */
   for(;;)
