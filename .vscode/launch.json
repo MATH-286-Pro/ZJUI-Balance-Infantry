@@ -3,7 +3,7 @@
     {
       "showDevDebugOutput": "parsed",
       "cwd": "${workspaceRoot}",
-      "executable": "./build/0.Test_CAN.elf",
+      "executable": "./build/ZJUI-Infantry.elf",
       "name": "STM32 Debug",
       "request": "launch",
       "preLaunchTask": "buildEmbeddedTargets",

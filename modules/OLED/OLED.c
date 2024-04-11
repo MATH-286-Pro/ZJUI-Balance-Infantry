@@ -24,7 +24,6 @@
 #include "main.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include <math.h> // 引入math.h库来使用round()函数
 
 extern I2C_HandleTypeDef hi2c2;
 
@@ -640,8 +639,4 @@ void OLED_show_signednum(uint8_t Line, uint8_t Column, int32_t Number, uint8_t L
 		OLED_show_char(Line, Column + i + 1, Number1 / OLED_Pow(10, Length - i - 1) % 10 + '0');
 	}
 }
-
-
-
-
 

@@ -2,7 +2,7 @@
 
 `tasks.json` 文件中有 2 个任务：
   - `buildEmbeddedTargets` 任务作为 `lanuch.json` 中的 Prelaunchtask，在调试前先行编译文件，更方便
-  - `Download to STM` 任务用于烧录程序，使用方法为在终端输入 `openocd -c 烧录.hex文件`
+  - `Download to STM` 任务用于烧录程序，使用方法为在终端输入 `openocd -c` 烧录.hex文件
 
 
 **开启的外设：**
@@ -22,6 +22,17 @@
 |OLED_Task     |显示OLED + 接收遥控器|
 |Motor_A1_Task |控制A1电机|
 |Motor_MI_Task |控制MI电机|
+|INS_task      |姿态解算 (DJI原程序)|
+
+
+<div align="center">
+  <img src="Picture/DT7.png" width="50%" height="auto">
+</div>
+
+<div align="center">
+  <img src="Picture/Config.png" width="50%" height="auto">
+</div>
+
 
 
 测试日志
@@ -101,18 +112,12 @@
  - 2024.4.7
    - A1电机下面那两个空闲接口不对外开放
    - 需要采用限位归零
-
-
-任务清单  
- - BMI088 移植
-
-现阶段存在问题：
-  - CAN中断没有进入
-  - 确认 FIFO0 FIFO1打开
-  - 会不会是CAN过滤器没配置的问题
-  - 确实是CAN过滤器没配置的问题
-  - 
-  - FreeRTOS 单独控制电机 解决 延迟问题
+  - 2024.4.11
+    - 开始反向移植控制程序
+    - [x] 移植 Motor_MI
+    - [x] 移植 Motor_A1
+    - [x] 移植 遥控器
+    - Debug: USART3 Baud Rate 多打了个0 麻了
 
 ## 结尾致谢
 - 感谢 night8858 开源的 A1 电机控制代码
