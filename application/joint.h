@@ -33,6 +33,6 @@ int Joint_Zero_OK(void);
 // 电机零点获取 (零点位置 = 上电位置)
 void Joint_Zero_init_Type1(void);
 
-void Joint_Zero_init_Type2(void);
+// void Joint_Zero_init_Type2(void);
 
 #endif // !JOINT_H

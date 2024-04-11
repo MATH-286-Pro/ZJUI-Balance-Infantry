@@ -51,8 +51,8 @@ void Joint_Zero_init_Type1()
 
 }
 
-// 电机零位获取 (初始位置 = 上限位位置)
-void Jpint_Zero_Init_Type2()
-{
+// // 电机零位获取 (初始位置 = 上限位位置)
+// void Jpint_Zero_Init_Type2()
+// {
 
-}
+// }
