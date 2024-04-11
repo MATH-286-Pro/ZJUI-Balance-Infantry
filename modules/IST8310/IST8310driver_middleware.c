@@ -1,12 +1,12 @@
 /**
   ****************************(C) COPYRIGHT 2016 DJI****************************
   * @file       IST8310middleware.c/h
-  * @brief      IST8310�������м�㣬���IST8310��IICͨ��,��Ϊ����MPU6500��SPIͨ��
-  *             �������õ���ͨ��mpu6500��IIC_SLV0��ɶ�ȡ��IIC_SLV4���д�롣
-  * @note       IST8310ֻ֧��IIC��ȡ
+  * @brief      IST8310磁力计中间层，完成IST8310的IIC通信,因为设置MPU6500的SPI通信
+  *             所以设置的是通过mpu6500的IIC_SLV0完成读取，IIC_SLV4完成写入。
+  * @note       IST8310只支持IIC读取
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Dec-26-2018     RM              1. ���
+  *  V1.0.0     Dec-26-2018     RM              1. 完成
   *
   @verbatim
   ==============================================================================

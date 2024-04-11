@@ -1,11 +1,11 @@
 /**
   ****************************(C) COPYRIGHT 2016 DJI****************************
   * @file       pid.c/h
-  * @brief      pidÊµÏÖº¯Êı£¬°üÀ¨³õÊ¼»¯£¬PID¼ÆËãº¯Êı£¬
+  * @brief      pidå®ç°å‡½æ•°ï¼ŒåŒ…æ‹¬åˆå§‹åŒ–ï¼ŒPIDè®¡ç®—å‡½æ•°ï¼Œ
   * @note       
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Dec-26-2018     RM              1. Íê³É
+  *  V1.0.0     Dec-26-2018     RM              1. å®Œæˆ
   *
   @verbatim
   ==============================================================================
@@ -26,13 +26,13 @@ enum PID_MODE
 typedef struct
 {
     uint8_t mode;
-    //PID Èı²ÎÊı
+    //PID ä¸‰å‚æ•°
     fp32 Kp;
     fp32 Ki;
     fp32 Kd;
 
-    fp32 max_out;  //×î´óÊä³ö
-    fp32 max_iout; //×î´ó»ı·ÖÊä³ö
+    fp32 max_out;  //æœ€å¤§è¾“å‡º
+    fp32 max_iout; //æœ€å¤§ç§¯åˆ†è¾“å‡º
 
     fp32 set;
     fp32 fdb;
@@ -41,8 +41,8 @@ typedef struct
     fp32 Pout;
     fp32 Iout;
     fp32 Dout;
-    fp32 Dbuf[3];  //Î¢·ÖÏî 0×îĞÂ 1ÉÏÒ»´Î 2ÉÏÉÏ´Î
-    fp32 error[3]; //Îó²îÏî 0×îĞÂ 1ÉÏÒ»´Î 2ÉÏÉÏ´Î
+    fp32 Dbuf[3];  //å¾®åˆ†é¡¹ 0æœ€æ–° 1ä¸Šä¸€æ¬¡ 2ä¸Šä¸Šæ¬¡
+    fp32 error[3]; //è¯¯å·®é¡¹ 0æœ€æ–° 1ä¸Šä¸€æ¬¡ 2ä¸Šä¸Šæ¬¡
 
 } pid_type_def;
 /**
@@ -57,12 +57,12 @@ typedef struct
   */
 /**
   * @brief          pid struct data init
-  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
-  * @param[in]      mode: PID_POSITION:ÆÕÍ¨PID
-  *                 PID_DELTA: ²î·ÖPID
+  * @param[out]     pid: PIDç»“æ„æ•°æ®æŒ‡é’ˆ
+  * @param[in]      mode: PID_POSITION:æ™®é€šPID
+  *                 PID_DELTA: å·®åˆ†PID
   * @param[in]      PID: 0: kp, 1: ki, 2:kd
-  * @param[in]      max_out: pid×î´óÊä³ö
-  * @param[in]      max_iout: pid×î´ó»ı·ÖÊä³ö
+  * @param[in]      max_out: pidæœ€å¤§è¾“å‡º
+  * @param[in]      max_iout: pidæœ€å¤§ç§¯åˆ†è¾“å‡º
   * @retval         none
   */
 extern void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, fp32 max_iout);
@@ -75,11 +75,11 @@ extern void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 ma
   * @retval         pid out
   */
 /**
-  * @brief          pid¼ÆËã
-  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
-  * @param[in]      ref: ·´À¡Êı¾İ
-  * @param[in]      set: Éè¶¨Öµ
-  * @retval         pidÊä³ö
+  * @brief          pidè®¡ç®—
+  * @param[out]     pid: PIDç»“æ„æ•°æ®æŒ‡é’ˆ
+  * @param[in]      ref: åé¦ˆæ•°æ®
+  * @param[in]      set: è®¾å®šå€¼
+  * @retval         pidè¾“å‡º
   */
 extern fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set);
 
@@ -89,8 +89,8 @@ extern fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set);
   * @retval         none
   */
 /**
-  * @brief          pid Êä³öÇå³ı
-  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @brief          pid è¾“å‡ºæ¸…é™¤
+  * @param[out]     pid: PIDç»“æ„æ•°æ®æŒ‡é’ˆ
   * @retval         none
   */
 extern void PID_clear(pid_type_def *pid);

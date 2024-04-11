@@ -1,14 +1,14 @@
 /**
   ****************************(C) COPYRIGHT 2016 DJI****************************
   * @file       IST8310.c/h
-  * @brief      IST8310´ÅÁ¦¼ÆÇý¶¯º¯Êý£¬°üÀ¨³õÊ¼»¯º¯Êý£¬´¦ÀíÊý¾Ýº¯Êý£¬Í¨ÐÅ¶ÁÈ¡º¯Êý
-  *             ±¾¹¤³ÌÊÇ½«MPU6500 IIC_SLV0ÉèÖÃÎª×Ô¶¯¶ÁÈ¡IST8310Êý¾Ý£¬¶ÁÈ¡
-  *             MPU_EXT_SENS_DATA_00±£´æÁËIST8310µÄStatus£¬Í¨¹ýÅÐ¶Ï±êÖ¾Î»£¬À´¸üÐÂ
-  *             Êý¾Ý¡£
-  * @note       IST8310Ö»Ö§³ÖIIC¶ÁÈ¡
+  * @brief      IST8310ç£åŠ›è®¡é©±åŠ¨å‡½æ•°ï¼ŒåŒ…æ‹¬åˆå§‹åŒ–å‡½æ•°ï¼Œå¤„ç†æ•°æ®å‡½æ•°ï¼Œé€šä¿¡è¯»å–å‡½æ•°
+  *             æœ¬å·¥ç¨‹æ˜¯å°†MPU6500 IIC_SLV0è®¾ç½®ä¸ºè‡ªåŠ¨è¯»å–IST8310æ•°æ®ï¼Œè¯»å–
+  *             MPU_EXT_SENS_DATA_00ä¿å­˜äº†IST8310çš„Statusï¼Œé€šè¿‡åˆ¤æ–­æ ‡å¿—ä½ï¼Œæ¥æ›´æ–°
+  *             æ•°æ®ã€‚
+  * @note       IST8310åªæ”¯æŒIICè¯»å–
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Dec-26-2018     RM              1. Íê³É
+  *  V1.0.0     Dec-26-2018     RM              1. å®Œæˆ
   *
   @verbatim
   ==============================================================================

@@ -1,11 +1,11 @@
 /**
   ****************************(C) COPYRIGHT 2019 DJI****************************
   * @file       pid.c/h
-  * @brief      pidÊµÏÖº¯Êı£¬°üÀ¨³õÊ¼»¯£¬PID¼ÆËãº¯Êı£¬
+  * @brief      pidå®ç°å‡½æ•°ï¼ŒåŒ…æ‹¬åˆå§‹åŒ–ï¼ŒPIDè®¡ç®—å‡½æ•°ï¼Œ
   * @note       
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Dec-26-2018     RM              1. Íê³É
+  *  V1.0.0     Dec-26-2018     RM              1. å®Œæˆ
   *
   @verbatim
   ==============================================================================
@@ -42,12 +42,12 @@
   */
 /**
   * @brief          pid struct data init
-  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
-  * @param[in]      mode: PID_POSITION:ÆÕÍ¨PID
-  *                 PID_DELTA: ²î·ÖPID
+  * @param[out]     pid: PIDç»“æ„æ•°æ®æŒ‡é’ˆ
+  * @param[in]      mode: PID_POSITION:æ™®é€šPID
+  *                 PID_DELTA: å·®åˆ†PID
   * @param[in]      PID: 0: kp, 1: ki, 2:kd
-  * @param[in]      max_out: pid×î´óÊä³ö
-  * @param[in]      max_iout: pid×î´ó»ı·ÖÊä³ö
+  * @param[in]      max_out: pidæœ€å¤§è¾“å‡º
+  * @param[in]      max_iout: pidæœ€å¤§ç§¯åˆ†è¾“å‡º
   * @retval         none
   */
 void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, fp32 max_iout)
@@ -74,11 +74,11 @@ void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, 
   * @retval         pid out
   */
 /**
-  * @brief          pid¼ÆËã
-  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
-  * @param[in]      ref: ·´À¡Êı¾İ
-  * @param[in]      set: Éè¶¨Öµ
-  * @retval         pidÊä³ö
+  * @brief          pidè®¡ç®—
+  * @param[out]     pid: PIDç»“æ„æ•°æ®æŒ‡é’ˆ
+  * @param[in]      ref: åé¦ˆæ•°æ®
+  * @param[in]      set: è®¾å®šå€¼
+  * @retval         pidè¾“å‡º
   */
 fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set)
 {
@@ -124,8 +124,8 @@ fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set)
   * @retval         none
   */
 /**
-  * @brief          pid Êä³öÇå³ı
-  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @brief          pid è¾“å‡ºæ¸…é™¤
+  * @param[out]     pid: PIDç»“æ„æ•°æ®æŒ‡é’ˆ
   * @retval         none
   */
 void PID_clear(pid_type_def *pid)

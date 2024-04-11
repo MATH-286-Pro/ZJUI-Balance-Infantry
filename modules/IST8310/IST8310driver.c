@@ -1,14 +1,14 @@
 /**
   ****************************(C) COPYRIGHT 2016 DJI****************************
   * @file       IST8310.c/h
-  * @brief      IST8310´ÅÁ¦¼ÆÇý¶¯º¯Êý£¬°üÀ¨³õÊ¼»¯º¯Êý£¬´¦ÀíÊý¾Ýº¯Êý£¬Í¨ÐÅ¶ÁÈ¡º¯Êý
-  *             ±¾¹¤³ÌÊÇ½«MPU6500 IIC_SLV0ÉèÖÃÎª×Ô¶¯¶ÁÈ¡IST8310Êý¾Ý£¬¶ÁÈ¡
-  *             MPU_EXT_SENS_DATA_00±£´æÁËIST8310µÄStatus£¬Í¨¹ýÅÐ¶Ï±êÖ¾Î»£¬À´¸üÐÂ
-  *             Êý¾Ý¡£
-  * @note       IST8310Ö»Ö§³ÖIIC¶ÁÈ¡
+  * @brief      IST8310ç£åŠ›è®¡é©±åŠ¨å‡½æ•°ï¼ŒåŒ…æ‹¬åˆå§‹åŒ–å‡½æ•°ï¼Œå¤„ç†æ•°æ®å‡½æ•°ï¼Œé€šä¿¡è¯»å–å‡½æ•°
+  *             æœ¬å·¥ç¨‹æ˜¯å°†MPU6500 IIC_SLV0è®¾ç½®ä¸ºè‡ªåŠ¨è¯»å–IST8310æ•°æ®ï¼Œè¯»å–
+  *             MPU_EXT_SENS_DATA_00ä¿å­˜äº†IST8310çš„Statusï¼Œé€šè¿‡åˆ¤æ–­æ ‡å¿—ä½ï¼Œæ¥æ›´æ–°
+  *             æ•°æ®ã€‚
+  * @note       IST8310åªæ”¯æŒIICè¯»å–
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Dec-26-2018     RM              1. Íê³É
+  *  V1.0.0     Dec-26-2018     RM              1. å®Œæˆ
   *
   @verbatim
   ==============================================================================
@@ -21,12 +21,12 @@
 #include "ist8310driver.h"
 #include "ist8310driver_middleware.h"
 
-#define MAG_SEN 0.3f //×ª»»³É uT
+#define MAG_SEN 0.3f //è½¬æ¢æˆ uT
 
-#define IST8310_WHO_AM_I 0x00       //ist8310 who am I ¼Ä´æÆ÷
-#define IST8310_WHO_AM_I_VALUE 0x10 //Éè±¸ ID
+#define IST8310_WHO_AM_I 0x00       //ist8310 who am I å¯„å­˜å™¨
+#define IST8310_WHO_AM_I_VALUE 0x10 //è®¾å¤‡ ID
 
-#define IST8310_WRITE_REG_NUM 4 //IST8310ÐèÒªÉèÖÃµÄ¼Ä´æÆ÷ÊýÄ¿
+#define IST8310_WRITE_REG_NUM 4 //IST8310éœ€è¦è®¾ç½®çš„å¯„å­˜å™¨æ•°ç›®
 
 static const uint8_t ist8310_write_reg_data_error[IST8310_WRITE_REG_NUM][3] =
     {
