@@ -156,17 +156,13 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   uint8_t i=0;
   OLED_init();
-  Buzzer_beep();
-  // HAL_Delay(500);  // 不能用HAL_Delay
-  osDelay(1000); // 延时初始化 CAN， 防止初始化早于上电 (需要写CAN自检程序)
+  // Buzzer_beep();
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1  // 这两段CAN配置程序，只影响C板的CAN发送接收初始化，小米电机初始化不用这两个
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器    //
 
   OLED_clear();
-  HAL_GPIO_WritePin(GPIOH, GPIO_PIN_11, GPIO_PIN_SET); 
-
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -285,11 +281,6 @@ void Motor_MI_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_MI_task */
   Wheel_Init(); // 初始化小米电机
-  /*原初始化程序*/
-  // MI_motor_Init(&MI_Motor_ID1,&MI_CAN_1,1); // 将MI_CAN_1，ID=1传入小米结构体 
-  // MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_1，ID=2传入小米结构体 
-  // MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
-  // MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
 
   /* Infinite loop */
   for(;;)
