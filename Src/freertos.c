@@ -30,7 +30,7 @@
 #include "INS_task.h"
 #include "OLED.h"
 #include "buzzer.h"
-#include "remote_control.h"
+#include "rc.h"
 #include "bsp_usart.h"
 #include "bsp_rc.h"
 #include "bsp_delay.h"
@@ -59,10 +59,6 @@ osThreadId led_RGB_flow_handle;
 #define PI 3.1415926f
 #define DRG 180/PI
 
-#define UP 1
-#define MID 3
-#define DOWN 2
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -73,9 +69,10 @@ osThreadId led_RGB_flow_handle;
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 //定义全局变量
-uint8_t STOP;  //急停按键
-uint8_t STATE; //状态按键 (A1电机)
-const RC_ctrl_t* DT7_pram; //遥控器控制结构体
+uint8_t MODE;  // 模式 (SW_UP=关闭 SW_MID=遥控模式 SW_DOWN=电脑模式)
+uint8_t STATE; // 状态 (A1电机)
+
+extern RC_Type rc;        // 遥控器数据
 
 extern fp32 INS_angle[3]; // 陀螺仪角度
 extern fp32 temp;         // BMI088温度
@@ -156,14 +153,14 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   uint8_t i=0;
   OLED_init();
-
+  osDelay(500); // 延时初始化 CAN， 防止初始化早于上电 (需要写CAN自检程序)
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
-  remote_control_init(); OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
+  Dbus_Init();    osDelay(1000);       OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器
 
   OLED_clear();
-  Buzzer_beep();
+  // Buzzer_beep();
 
   /* USER CODE END Init */
 
@@ -245,23 +242,22 @@ void OLED_task(void const * argument)
   OLED_show_string(i,0,"Yaw   = "); i++;
   OLED_show_string(i,0,"Pitch = "); i++;
   OLED_show_string(i,0,"Roll  = "); i++;
-  OLED_show_string(i,0,"CH3=");   OLED_show_string(i,10,"CH2="); i++;
-  OLED_show_string(i,0,"CH1=");   OLED_show_string(i,10,"CH0="); i++;
+  OLED_show_string(i,0,"LX =");   OLED_show_string(i,11,"RX ="); i++;
+  OLED_show_string(i,0,"LY =");   OLED_show_string(i,11,"RY ="); i++;
   OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
-    DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
-    STOP  = DT7_pram->rc.s[1]/2; // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
-    STATE = DT7_pram->rc.s[0];   // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+    MODE  = rc.sw1/2; // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
+    STATE = rc.sw2;   // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
 
     i = 0;
     OLED_show_signednum(i,9,INS_angle[0]*DRG,3);   i++;
     OLED_show_signednum(i,9,INS_angle[1]*DRG,3);   i++;
     OLED_show_signednum(i,9,INS_angle[2]*DRG,3);   i++;
-    OLED_show_signednum(i,4,DT7_pram->rc.ch[3],3);    OLED_show_signednum(i,14,DT7_pram->rc.ch[2],3);   i++;
-    OLED_show_signednum(i,4,DT7_pram->rc.ch[1],3);    OLED_show_signednum(i,14,DT7_pram->rc.ch[0],3);   i++;
+    OLED_show_signednum(i,4,rc.LX*100,4);    OLED_show_signednum(i,15,rc.RX*100,4);   i++;
+    OLED_show_signednum(i,4,rc.LY*100,4);    OLED_show_signednum(i,15,rc.RY*100,4);   i++;
     OLED_refresh_gram();
     osDelay(2);
   }
@@ -286,8 +282,8 @@ void Motor_MI_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    MI_motor_SpeedControl(&MI_Motor_ID1,(float) STOP*DT7_pram->rc.ch[1]/33,1); // 使用 (float) 强制转换
-    MI_motor_SpeedControl(&MI_Motor_ID2,(float) STOP*DT7_pram->rc.ch[3]/-33,1);
+    // MI_motor_SpeedControl(&MI_Motor_ID1,(float) MODE*(+1)*(rc.LY-rc.RX)/33,1);  // 左轮
+    // MI_motor_SpeedControl(&MI_Motor_ID2,(float) MODE*(-1)*(rc.LY+rc.RX)/33,1); // 右轮
     osDelay(1);
   }
   /* USER CODE END Motor_MI_task */
@@ -304,7 +300,7 @@ void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
   // 防止电机上电发疯
-  STATE = UP;
+  STATE = SW_UP;
   osDelay(100);
 
   // 电机零位初始化
@@ -313,7 +309,7 @@ void Motor_A1_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (STATE == UP) // 急停 0力矩模式
+    if (STATE == SW_UP) // 急停 0力矩模式
     {
       modfiy_torque_cmd(&cmd_left,0,0);      modfiy_torque_cmd(&cmd_right,0,0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
@@ -324,25 +320,25 @@ void Motor_A1_task(void const * argument)
       osDelay(2);
     }
 
-    else if (STATE == MID)  // 速度模式
+    else if (STATE == SW_MID)  // 速度模式
     {
-      modfiy_speed_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[0]/660*30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[0]/660*-30.0f);
+      // modfiy_speed_cmd(&cmd_left,0,(float) rc.RX/660*30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) rc.RX/660*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_speed_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[2]/660*30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[2]/660*-30.0f);
+      // modfiy_speed_cmd(&cmd_left,1,(float) rc.LX/660*30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) rc.LX/660*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
-    else if (STATE == DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
+    else if (STATE == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_cmd(&cmd_left,0,(float) DT7_pram->rc.ch[0]/660*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      modfiy_cmd(&cmd_right,0,(float) DT7_pram->rc.ch[0]/660*-70 + zero_right_ID0, 0.006,1.0); 
+      // modfiy_cmd(&cmd_left,0,(float) rc.RX/660*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      // modfiy_cmd(&cmd_right,0,(float) rc.RX/660*-70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_cmd(&cmd_left,1,(float) DT7_pram->rc.ch[2]/660*70 + zero_left_ID1, 0.006, 1.0);   
-      modfiy_cmd(&cmd_right,1,(float) DT7_pram->rc.ch[2]/660*-70 + zero_right_ID1, 0.006, 1.0);
+      // modfiy_cmd(&cmd_left,1,(float) rc.LX/660*70 + zero_left_ID1, 0.006, 1.0);   
+      // modfiy_cmd(&cmd_right,1,(float) rc.LX/660*-70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(2);

@@ -54,7 +54,7 @@ modules/Buzzer/buzzer.c \
 modules/Motor/Motor_A1/unitreeA1_cmd.c \
 modules/Motor/Motor_MI/Callback.c \
 modules/Motor/Motor_MI/MI_motor_drive.c \
-modules/RC/remote_control.c \
+modules/RC/rc.c \
 modules/can_test.c \
 Src/main.c \
 Src/gpio.c \
