@@ -38,6 +38,7 @@ BUILD_DIR = build
 C_SOURCES =  \
 application/INS_task.c \
 application/joint.c \
+application/wheel.c \
 bsp/boards/bsp_delay.c \
 bsp/boards/bsp_imu_pwm.c \
 bsp/boards/bsp_spi.c \

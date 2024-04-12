@@ -56,7 +56,7 @@ void Dbus_Init()
  * @retval  none
  * @note    需要在stm32f4xx_it.c相应的中断服务函数中调用
  **/
-void USART3_IRQHandler(void)
+void Dbus_UART_IRQHandler(void)
 {
 	if (DBUS_HUART.Instance->SR & UART_FLAG_IDLE)  // 如果是串口空闲中断，则进行处理
 	{
