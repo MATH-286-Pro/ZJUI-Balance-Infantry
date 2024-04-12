@@ -22,8 +22,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/modules/RC",
-      "program": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/modules/RC/build/Debug/outDebug",
+      "cwd": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/Src",
+      "program": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/Src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

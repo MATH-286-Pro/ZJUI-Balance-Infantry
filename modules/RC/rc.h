@@ -70,6 +70,6 @@ extern uint32_t rc_tick;
 
 /* ------------------------------ Function Declaration (used in other .c files) ------------------------------ */
 void Dbus_Init(void); //放在main
-void Dbus_UART_IRQHandler(void); //放在中断处理函数中
+void USART3_IRQHandler(void); //放在中断处理函数中
 
 #endif

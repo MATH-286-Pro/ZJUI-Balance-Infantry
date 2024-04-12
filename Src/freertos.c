@@ -156,7 +156,7 @@ void MX_FREERTOS_Init(void) {
   uint8_t i=0;
   OLED_init();
   Buzzer_beep();
-
+  // HAL_Delay(500);  // 不能用HAL_Delay
   osDelay(500); // 延时初始化 CAN， 防止初始化早于上电 (需要写CAN自检程序)
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
@@ -164,6 +164,7 @@ void MX_FREERTOS_Init(void) {
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器
 
   OLED_clear();
+  HAL_GPIO_WritePin(GPIOH, GPIO_PIN_11, GPIO_PIN_SET); 
 
   /* USER CODE END Init */
 
