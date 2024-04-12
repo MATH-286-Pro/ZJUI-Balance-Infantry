@@ -30,8 +30,23 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
+#include "INS_task.h"
+#include "OLED.h"
+#include "buzzer.h"
+#include "rc.h"
+#include "bsp_usart.h"
+#include "bsp_rc.h"
 #include "bsp_delay.h"
-/* USER CODE END Includes */
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
+#include "i2c.h"
+#include "can.h"
+#include "can_test.h"
+#include "MI_motor_drive.h"
+#include "unitreeA1_cmd.h"
+#include "joint.h"/* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -106,6 +121,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
