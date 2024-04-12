@@ -33,7 +33,8 @@
   <img src="Picture/Config.png" width="50%" height="auto">
 </div>
 
-
+- 关节电机上摆角度 = +21.9
+- 关节电机下摆角度 = -81.9
 
 测试日志
 - 2024.3.13

@@ -94,6 +94,8 @@ extern float zero_left_ID1;
 extern float zero_right_ID0;
 extern float zero_right_ID1;
 
+float POS_BUF = 0.0f; 
+
 /* USER CODE END Variables */
 osThreadId testHandle;
 osThreadId OLEDHandle;
@@ -222,9 +224,16 @@ __weak void test_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    // 测试任务，目前什么东西都没有
-    // 官方写了一个test_task，这里的weak void不会进入
-    osDelay(1);
+    if (POS_BUF > -80.0 && POS_BUF < 20.0)
+      {POS_BUF = POS_BUF + rc.RY;}
+
+    else if (POS_BUF <= -80.0)
+      {POS_BUF = -79.0;}
+
+    else if (POS_BUF >= 20.0)
+      {POS_BUF = 19.0;}
+
+    osDelay(10);
   }
   /* USER CODE END test_task */
 }
@@ -243,8 +252,7 @@ void OLED_task(void const * argument)
   OLED_show_string(i,0,"Yaw   = "); i++;
   OLED_show_string(i,0,"Pitch = "); i++;
   OLED_show_string(i,0,"Roll  = "); i++;
-  OLED_show_string(i,0,"W  =");   OLED_show_string(i,11,"RX ="); i++;
-  OLED_show_string(i,0,"LY =");   OLED_show_string(i,11,"RY ="); i++;
+  OLED_show_string(i,0,"BUF = ");   
   OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
@@ -257,8 +265,7 @@ void OLED_task(void const * argument)
     OLED_show_signednum(i,9,INS_angle[0]*DRG,3);   i++;
     OLED_show_signednum(i,9,INS_angle[1]*DRG,3);   i++;
     OLED_show_signednum(i,9,INS_angle[2]*DRG,3);   i++;
-    OLED_show_signednum(i,4,rc.wheel,4);    OLED_show_signednum(i,15,rc.RX*100,4);   i++;
-    OLED_show_signednum(i,4,rc.LY*100,4);    OLED_show_signednum(i,15,rc.RY*100,4);   i++;
+    OLED_show_signednum(i,7,POS_BUF,3);    
     OLED_refresh_gram();
     osDelay(2);
   }
@@ -323,23 +330,23 @@ void Motor_A1_task(void const * argument)
 
     else if (STATE == SW_MID)  // 速度模式
     {
-      // modfiy_speed_cmd(&cmd_left,0,(float) rc.RX/660*30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) rc.RX/660*-30.0f);
+      modfiy_speed_cmd(&cmd_left,0,(float) rc.RX*30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) rc.RX*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
-      // modfiy_speed_cmd(&cmd_left,1,(float) rc.LX/660*30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) rc.LX/660*-30.0f);
+      modfiy_speed_cmd(&cmd_left,1,(float) rc.LX*30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) rc.LX*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
     else if (STATE == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      // modfiy_cmd(&cmd_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      // modfiy_cmd(&cmd_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
+      modfiy_cmd(&cmd_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      modfiy_cmd(&cmd_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
       osDelay(2);
-      // modfiy_cmd(&cmd_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
-      // modfiy_cmd(&cmd_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
+      modfiy_cmd(&cmd_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
+      modfiy_cmd(&cmd_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(2);
