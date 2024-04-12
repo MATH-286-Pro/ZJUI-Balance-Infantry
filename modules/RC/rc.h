@@ -61,7 +61,7 @@ typedef struct {
 		} bit;
 	} kb;
     
-    int16_t wheel;  //左上角拨轮
+    int16_t wheel;  //左上角拨轮 //364~1024~1684
 } RC_Type;
 
 /* ------------------------------ Extern Global Variable ------------------------------ */

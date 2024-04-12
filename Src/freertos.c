@@ -153,14 +153,15 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   uint8_t i=0;
   OLED_init();
+  Buzzer_beep();
+
   osDelay(500); // 延时初始化 CAN， 防止初始化早于上电 (需要写CAN自检程序)
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
-  Dbus_Init();    osDelay(1000);       OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
+  Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器
 
   OLED_clear();
-  // Buzzer_beep();
 
   /* USER CODE END Init */
 
@@ -242,7 +243,7 @@ void OLED_task(void const * argument)
   OLED_show_string(i,0,"Yaw   = "); i++;
   OLED_show_string(i,0,"Pitch = "); i++;
   OLED_show_string(i,0,"Roll  = "); i++;
-  OLED_show_string(i,0,"LX =");   OLED_show_string(i,11,"RX ="); i++;
+  OLED_show_string(i,0,"W  =");   OLED_show_string(i,11,"RX ="); i++;
   OLED_show_string(i,0,"LY =");   OLED_show_string(i,11,"RY ="); i++;
   OLED_refresh_gram();
   /* Infinite loop */
@@ -256,7 +257,7 @@ void OLED_task(void const * argument)
     OLED_show_signednum(i,9,INS_angle[0]*DRG,3);   i++;
     OLED_show_signednum(i,9,INS_angle[1]*DRG,3);   i++;
     OLED_show_signednum(i,9,INS_angle[2]*DRG,3);   i++;
-    OLED_show_signednum(i,4,rc.LX*100,4);    OLED_show_signednum(i,15,rc.RX*100,4);   i++;
+    OLED_show_signednum(i,4,rc.wheel,4);    OLED_show_signednum(i,15,rc.RX*100,4);   i++;
     OLED_show_signednum(i,4,rc.LY*100,4);    OLED_show_signednum(i,15,rc.RY*100,4);   i++;
     OLED_refresh_gram();
     osDelay(2);
@@ -282,8 +283,8 @@ void Motor_MI_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    // MI_motor_SpeedControl(&MI_Motor_ID1,(float) MODE*(+1)*(rc.LY-rc.RX)/33,1);  // 左轮
-    // MI_motor_SpeedControl(&MI_Motor_ID2,(float) MODE*(-1)*(rc.LY+rc.RX)/33,1); // 右轮
+    MI_motor_SpeedControl(&MI_Motor_ID1, MODE*(+1)*(rc.LY-rc.RX)*20,1);  // 左轮
+    MI_motor_SpeedControl(&MI_Motor_ID2, MODE*(-1)*(rc.LY+rc.RX)*20,1);  // 右轮
     osDelay(1);
   }
   /* USER CODE END Motor_MI_task */
@@ -332,13 +333,13 @@ void Motor_A1_task(void const * argument)
 
     else if (STATE == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      // modfiy_cmd(&cmd_left,0,(float) rc.RX/660*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      // modfiy_cmd(&cmd_right,0,(float) rc.RX/660*-70 + zero_right_ID0, 0.006,1.0); 
+      // modfiy_cmd(&cmd_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      // modfiy_cmd(&cmd_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
       osDelay(2);
-      // modfiy_cmd(&cmd_left,1,(float) rc.LX/660*70 + zero_left_ID1, 0.006, 1.0);   
-      // modfiy_cmd(&cmd_right,1,(float) rc.LX/660*-70 + zero_right_ID1, 0.006, 1.0);
+      // modfiy_cmd(&cmd_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
+      // modfiy_cmd(&cmd_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(2);
