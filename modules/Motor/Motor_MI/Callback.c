@@ -5,6 +5,10 @@
 #include "MI_motor_drive.h"
 #include "freeRTOS.h"
 
+// 定义变量
+MI_Motor_s MI_Motor_ID1;
+MI_Motor_s MI_Motor_ID2;
+
 /**
   * @brief          hal库CAN回调函数,接收电机数据
   * @param[in]      hcan:CAN句柄指针
