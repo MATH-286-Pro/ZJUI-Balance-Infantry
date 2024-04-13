@@ -46,7 +46,7 @@
 #include "can_test.h"
 #include "MI_motor_drive.h"
 #include "unitreeA1_cmd.h"
-#include "joint.h"/* USER CODE END Includes */
+/* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -66,7 +66,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,7 +120,9 @@ int main(void)
   MX_USART3_UART_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_GPIO_WritePin(GPIOH, GPIO_PIN_10, GPIO_PIN_SET); // 蓝灯开启
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(GPIOH, GPIO_PIN_10, GPIO_PIN_RESET); // 蓝灯关闭
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

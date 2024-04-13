@@ -154,6 +154,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
+  HAL_GPIO_WritePin(GPIOH,GPIO_PIN_11,GPIO_PIN_SET); // 绿灯亮起
+  
   uint8_t i=0;
   OLED_init();
   Buzzer_beep();
@@ -286,6 +288,7 @@ void Motor_MI_task(void const * argument)
   MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_1，ID=2传入小米结构体 
   MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
   MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
+  // osDelay(100);
 
   /* Infinite loop */
   for(;;)

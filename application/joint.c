@@ -11,10 +11,10 @@ float zero_right_ID1 = 1000.0f;
 int Joint_Zero_OK() {
     // 检查所有零位是否都在(-180, 180)范围内
     // 一般来说 left_ID0 零位不可能等于 right_ID0 零位
-    if ((zero_left_ID0 > -180 && zero_left_ID0 < 180) &&
-        (zero_right_ID0 > -180 && zero_right_ID0 < 180) &&
-        (zero_left_ID1 > -180 && zero_left_ID1 < 180) &&
-        (zero_right_ID1 > -180 && zero_right_ID1 < 180) &&
+    if ((zero_left_ID0 > -180 && zero_left_ID0 < 180) && zero_left_ID0 != 0 &&
+        (zero_right_ID0 > -180 && zero_right_ID0 < 180) && zero_right_ID0 != 0 &&
+        (zero_left_ID1 > -180 && zero_left_ID1 < 180) && zero_left_ID1 != 0 &&
+        (zero_right_ID1 > -180 && zero_right_ID1 < 180) && zero_left_ID0 != 0 &&
         (zero_left_ID0 != zero_right_ID0) &&
         (zero_left_ID1 != zero_right_ID1)) {
         return 1;  // 如果所有零位都在范围内，则返回 true
@@ -44,7 +44,10 @@ void Joint_Zero_init_Type1()
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
       zero_left_ID1  = (float) id01_left_date.Pos * RAD2DGR / 9.1f;
       zero_right_ID1 = (float) id01_right_date.Pos * RAD2DGR / 9.1f;
-      osDelay(2);}
+      osDelay(2);
+      
+      osDelay(20);
+      }
 
   // 自检成功 红灯熄灭
   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
