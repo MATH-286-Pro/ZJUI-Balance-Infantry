@@ -12,8 +12,4 @@ void Buzzer_beep(void) {
     HAL_Delay(50);                           // 延时0.1s
     HAL_TIM_PWM_Stop(&htim4,TIM_CHANNEL_3);   // 关闭TIM4 PWM
 
-    // HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
-    // __HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_3,10);
-    // HAL_Delay(100);
-    // __HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_3,0);
 }
