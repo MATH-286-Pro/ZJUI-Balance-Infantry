@@ -382,7 +382,7 @@ void Robot_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    BalanceTask();
+    // BalanceTask();
     osDelay(1);
   }
   /* USER CODE END Robot_task */
