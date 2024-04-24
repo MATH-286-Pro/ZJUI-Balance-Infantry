@@ -162,10 +162,10 @@ void MX_FREERTOS_Init(void) {
   osDelay(500); // 延时防止CAN上电失败
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
-  CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1  // 这两段CAN配置程序，只影响C板的CAN发送接收初始化，小米电机初始化不用这两个
+  CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1  // 这两段CAN配置程序
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器    //
-
   OLED_clear();
+  
   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_11,GPIO_PIN_RESET); // 绿灯关闭
 
   /* USER CODE END Init */
@@ -299,13 +299,6 @@ void Motor_MI_task(void const * argument)
       MI_motor_SpeedControl(&MI_Motor_ID1, (+1)*(rc.LY-rc.RX)*20,1);  // 左轮
       MI_motor_SpeedControl(&MI_Motor_ID2, (-1)*(rc.LY+rc.RX)*20,1);  // 右轮
     }
-    
-    if (rc.sw1 == SW_DOWN)
-    {
-      MI_motor_Stop(&MI_Motor_ID1);
-      MI_motor_Stop(&MI_Motor_ID2);
-    }
-
     osDelay(1);
   }
   /* USER CODE END Motor_MI_task */
