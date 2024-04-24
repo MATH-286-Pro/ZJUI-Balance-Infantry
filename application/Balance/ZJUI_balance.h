@@ -52,4 +52,9 @@ typedef struct
     float roll, roll_w;        // 底盘横滚角度和角速度
 } ChassisParam;
 
+
+void BalanceTask();
+void ParamAssemble();
+
+
 #endif

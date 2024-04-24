@@ -15,6 +15,7 @@
 #include "stdint.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include "arm_math.h"
 
 
 #define msin(x) (arm_sin_f32(x))

@@ -26,7 +26,7 @@ extern motor_recv_t MotorA1_recv_right_id02;  // 右腿02号电机接收数据�
  @param KP   电机刚度系数
  @param KW   电机速度系数
 */
-void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW);
+void modfiy_pos_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW);
 
 // 速度模式
 void modfiy_speed_cmd(motor_send_t *send,uint8_t id, float Omega);

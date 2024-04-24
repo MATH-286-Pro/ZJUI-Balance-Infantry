@@ -44,6 +44,7 @@
 #include "unitreeA1_cmd.h"
 #include "joint.h"
 #include "wheel.h"
+#include "ZJUI_balance.h"
 
 
 /* USER CODE END Includes */
@@ -102,6 +103,7 @@ osThreadId testHandle;
 osThreadId OLEDHandle;
 osThreadId Motor_MIHandle;
 osThreadId Motor_A1Handle;
+osThreadId RobotHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -112,6 +114,7 @@ void test_task(void const * argument);
 void OLED_task(void const * argument);
 void Motor_MI_task(void const * argument);
 void Motor_A1_task(void const * argument);
+void Robot_task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -158,7 +161,7 @@ void MX_FREERTOS_Init(void) {
   
   uint8_t i=0;
   OLED_init();
-  Buzzer_beep();
+  // Buzzer_beep();
   osDelay(500); // 延时防止CAN上电失败
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
@@ -202,6 +205,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of Motor_A1 */
   osThreadDef(Motor_A1, Motor_A1_task, osPriorityIdle, 0, 128);
   Motor_A1Handle = osThreadCreate(osThread(Motor_A1), NULL);
+
+  /* definition and creation of Robot */
+  osThreadDef(Robot, Robot_task, osPriorityIdle, 0, 128);
+  RobotHandle = osThreadCreate(osThread(Robot), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -347,19 +354,38 @@ void Motor_A1_task(void const * argument)
 
     else if (STATE == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_cmd(&MotorA1_send_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      modfiy_cmd(&MotorA1_send_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
+      modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      modfiy_pos_cmd(&MotorA1_send_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_cmd(&MotorA1_send_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
-      modfiy_cmd(&MotorA1_send_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
+      modfiy_pos_cmd(&MotorA1_send_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
+      modfiy_pos_cmd(&MotorA1_send_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
   }
   /* USER CODE END Motor_A1_task */
+}
+
+/* USER CODE BEGIN Header_Robot_task */
+/**
+* @brief Function implementing the Robot thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Robot_task */
+void Robot_task(void const * argument)
+{
+  /* USER CODE BEGIN Robot_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    BalanceTask();
+    osDelay(1);
+  }
+  /* USER CODE END Robot_task */
 }
 
 /* Private application code --------------------------------------------------*/

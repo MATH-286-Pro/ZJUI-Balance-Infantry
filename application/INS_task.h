@@ -25,6 +25,9 @@
 #define INS_Task_H
 #include "struct_typedef.h"
 
+#define XX   0
+#define YY   1
+#define ZZ   2
 
 #define SPI_DMA_GYRO_LENGHT       8
 #define SPI_DMA_ACCEL_LENGHT      9
@@ -71,6 +74,25 @@
 #define INS_MAG_X_ADDRESS_OFFSET 0
 #define INS_MAG_Y_ADDRESS_OFFSET 1
 #define INS_MAG_Z_ADDRESS_OFFSET 2
+
+
+// 自定义结构体
+typedef struct 
+{
+  // IMU 测量值
+  float Accel[3]; // 加速度
+  float Gyro[3];  // 角速度
+
+  // 位姿
+  float Yaw;
+  float Pitch;
+  float Roll;
+
+} INS_t;
+
+
+extern INS_t INS;
+
 
 /**
   * @brief          imu task, init bmi088, ist8310, calculate the euler angle
@@ -176,5 +198,6 @@ extern const fp32 *get_accel_data_point(void);
   * @retval         INS_mag的指针
   */
 extern const fp32 *get_mag_data_point(void);
+
 
 #endif

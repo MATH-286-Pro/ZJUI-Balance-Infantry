@@ -52,7 +52,7 @@ uint32_t crc32_core_Ver3(uint32_t *ptr, uint32_t len)
 }
 
 // 电机位置修改
-void modfiy_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW)
+void modfiy_pos_cmd(motor_send_t *send,uint8_t id, float Pos, float KP, float KW)
 {
 
     send->hex_len = 34;

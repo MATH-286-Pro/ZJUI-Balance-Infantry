@@ -39,6 +39,8 @@
 
 #define IMU_temp_PWM(pwm)  imu_pwm_set(pwm)                    //pwm给定
 
+// 自定义INS数据
+INS_t INS;
 
 /**
   * @brief          control the temperature of bmi088
@@ -119,16 +121,10 @@ void INS_task(void const *pvParameters)
 {
     //wait a time
     osDelay(INS_TASK_INIT_TIME);
-    while(BMI088_init())
-    {
-        osDelay(100);
-    }
-    while(ist8310_init())
-    {
-        osDelay(100);
-    }
+    while(BMI088_init())  {osDelay(100);}
+    while(ist8310_init()) {osDelay(100);}
 
-    BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
+    BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp); //角速度 加速度 温度
 
     PID_init(&imu_temp_pid, PID_POSITION, imu_temp_PID, TEMPERATURE_PID_MAX_OUT, TEMPERATURE_PID_MAX_IOUT);
 
@@ -181,9 +177,19 @@ void INS_task(void const *pvParameters)
         }
 
 
-        AHRS_update(INS_quat, 0.001f, bmi088_real_data.gyro, bmi088_real_data.accel, ist8310_real_data.mag);
+        AHRS_update(INS_quat, 0.001f, bmi088_real_data.gyro, bmi088_real_data.accel, ist8310_real_data.mag); // 三轴更新
         get_angle(INS_quat, INS_angle + INS_YAW_ADDRESS_OFFSET, INS_angle + INS_PITCH_ADDRESS_OFFSET, INS_angle + INS_ROLL_ADDRESS_OFFSET);
 
+        // 添加用于获取数据
+        INS.Accel[XX] = bmi088_real_data.accel[XX];
+        INS.Accel[YY] = bmi088_real_data.accel[YY];
+        INS.Accel[ZZ] = bmi088_real_data.accel[ZZ];
+        INS.Gyro[XX]  = bmi088_real_data.gyro[XX];
+        INS.Gyro[YY]  = bmi088_real_data.gyro[YY];
+        INS.Gyro[ZZ]  = bmi088_real_data.gyro[ZZ];
+        INS.Yaw      = INS_angle[INS_YAW_ADDRESS_OFFSET];
+        INS.Pitch    = INS_angle[INS_PITCH_ADDRESS_OFFSET];
+        INS.Roll     = INS_angle[INS_ROLL_ADDRESS_OFFSET];
 
     }
 }
@@ -199,7 +205,7 @@ void AHRS_init(fp32 quat[4], fp32 accel[3], fp32 mag[3])
 
 void AHRS_update(fp32 quat[4], fp32 time, fp32 gyro[3], fp32 accel[3], fp32 mag[3])
 {
-    MahonyAHRSupdate(quat, gyro[0], gyro[1], gyro[2], accel[0], accel[1], accel[2], mag[0], mag[1], mag[2]);
+    MahonyAHRSupdate(quat, gyro[XX], gyro[YY], gyro[ZZ], accel[XX], accel[YY], accel[ZZ], mag[XX], mag[YY], mag[ZZ]);
 }
 void get_angle(fp32 q[4], fp32 *yaw, fp32 *pitch, fp32 *roll)
 {

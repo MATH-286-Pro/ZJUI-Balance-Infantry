@@ -145,6 +145,8 @@
     - CubeMX 开启 DSP 函数库解决平衡算法缺失 arm_math.h 问题
     - 出现 __SMMLA 重定义的问题？
     - 优先测试5连杆解算 ZJUI_linkNleg.h
+    - 增加 INS_t INS 数据用于记录 Accel加速度 Gyro角速度 YAW PITCH ROLL三轴
+    - 增加 bsp_dwt.c 但是未启用
   
 ## 任务列表
 - [ ] PC模式
