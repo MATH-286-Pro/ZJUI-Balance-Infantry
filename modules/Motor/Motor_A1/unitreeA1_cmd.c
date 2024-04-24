@@ -7,18 +7,18 @@
 
 #define PI 3.14159
 
-motor_send_t cmd_left;        // 左腿一号电机数据体
-motor_send_t cmd_right;       // 右腿一号电机数据体
+motor_send_t MotorA1_send_left;       // 左腿一号电机数据体
+motor_send_t MotorA1_send_right;      // 右腿一号电机数据体
 
-motor_recv_t Date_left;       // 左腿电机接收数据体
-motor_recv_t id00_left_date;  // 左腿00号电机接收数据体
-motor_recv_t id01_left_date;  // 左腿01号电机接收数据体
-motor_recv_t id02_left_date;  // 左腿02号电机接收数据体
+motor_recv_t Date_left;               // 左腿电机接收数据体
+motor_recv_t MotorA1_recv_left_id00;  // 左腿00号电机接收数据体
+motor_recv_t MotorA1_recv_left_id01;  // 左腿01号电机接收数据体
+motor_recv_t MotorA1_recv_left_id02;  // 左腿02号电机接收数据体
 
-motor_recv_t Date_right;      // 右腿电机接收数据体
-motor_recv_t id00_right_date; // 右腿00号电机接收数据体
-motor_recv_t id01_right_date; // 右腿01号电机接收数据体
-motor_recv_t id02_right_date; // 右腿02号电机接收数据体
+motor_recv_t Date_right;              // 右腿电机接收数据体
+motor_recv_t MotorA1_recv_right_id00; // 右腿00号电机接收数据体
+motor_recv_t MotorA1_recv_right_id01; // 右腿01号电机接收数据体
+motor_recv_t MotorA1_recv_right_id02; // 右腿02号电机接收数据体
 
 // CRC校验位的代码
 uint32_t crc32_core_Ver3(uint32_t *ptr, uint32_t len)
@@ -105,36 +105,36 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
     /*—————————————————————————————————————————左腿代码范围————————————————————————————————————————————————*/
     if (huart == &huart1)
     {
-        uint8_t A1cmd_left[34]; // 发送数据
+        uint8_t A1MotorA1_send_left[34]; // 发送数据
         uint8_t Date[78];       // 接收数据
 
         // 此处为左腿电机结构体//
-        cmd_left.motor_send_data.head.start[0] = 0xFE;
-        cmd_left.motor_send_data.head.start[1] = 0xEE;
-        cmd_left.motor_send_data.head.motorID  = cmd_left.id;
-        cmd_left.motor_send_data.head.reserved = 0x00;
+        MotorA1_send_left.motor_send_data.head.start[0] = 0xFE;
+        MotorA1_send_left.motor_send_data.head.start[1] = 0xEE;
+        MotorA1_send_left.motor_send_data.head.motorID  = MotorA1_send_left.id;
+        MotorA1_send_left.motor_send_data.head.reserved = 0x00;
 
-        cmd_left.motor_send_data.Mdata.mode      = cmd_left.mode;  // mode = 10
-        cmd_left.motor_send_data.Mdata.ModifyBit = 0xFF;
-        cmd_left.motor_send_data.Mdata.ReadBit   = 0x00;
-        cmd_left.motor_send_data.Mdata.reserved  = 0x00;
-        cmd_left.motor_send_data.Mdata.Modify.F  = 0;
-        cmd_left.motor_send_data.Mdata.T         = cmd_left.T * 256;
-        cmd_left.motor_send_data.Mdata.W         = cmd_left.W * 128;
-        cmd_left.motor_send_data.Mdata.Pos       = (int)((cmd_left.Pos / 6.2832f) * 16384.0f); // 单位 rad
-        cmd_left.motor_send_data.Mdata.K_P       = cmd_left.K_P * 2048;
-        cmd_left.motor_send_data.Mdata.K_W       = cmd_left.K_W * 1024;
+        MotorA1_send_left.motor_send_data.Mdata.mode      = MotorA1_send_left.mode;  // mode = 10
+        MotorA1_send_left.motor_send_data.Mdata.ModifyBit = 0xFF;
+        MotorA1_send_left.motor_send_data.Mdata.ReadBit   = 0x00;
+        MotorA1_send_left.motor_send_data.Mdata.reserved  = 0x00;
+        MotorA1_send_left.motor_send_data.Mdata.Modify.F  = 0;
+        MotorA1_send_left.motor_send_data.Mdata.T         = MotorA1_send_left.T * 256;
+        MotorA1_send_left.motor_send_data.Mdata.W         = MotorA1_send_left.W * 128;
+        MotorA1_send_left.motor_send_data.Mdata.Pos       = (int)((MotorA1_send_left.Pos / 6.2832f) * 16384.0f); // 单位 rad
+        MotorA1_send_left.motor_send_data.Mdata.K_P       = MotorA1_send_left.K_P * 2048;
+        MotorA1_send_left.motor_send_data.Mdata.K_W       = MotorA1_send_left.K_W * 1024;
 
-        cmd_left.motor_send_data.Mdata.LowHzMotorCmdIndex = 0;
-        cmd_left.motor_send_data.Mdata.LowHzMotorCmdByte  = 0;
-        cmd_left.motor_send_data.Mdata.Res[0] = cmd_left.Res;
+        MotorA1_send_left.motor_send_data.Mdata.LowHzMotorCmdIndex = 0;
+        MotorA1_send_left.motor_send_data.Mdata.LowHzMotorCmdByte  = 0;
+        MotorA1_send_left.motor_send_data.Mdata.Res[0] = MotorA1_send_left.Res;
 
-        cmd_left.motor_send_data.CRCdata.u32 = crc32_core_Ver3((uint32_t *)(&cmd_left.motor_send_data), 7); // CRC校验
+        MotorA1_send_left.motor_send_data.CRCdata.u32 = crc32_core_Ver3((uint32_t *)(&MotorA1_send_left.motor_send_data), 7); // CRC校验
 
-        memcpy(A1cmd_left, &cmd_left.motor_send_data, 34);
+        memcpy(A1MotorA1_send_left, &MotorA1_send_left.motor_send_data, 34);
         
         // HAL库 DMA 发送数据 + 接收数据
-        HAL_UART_Transmit_DMA(&huart1, A1cmd_left, 34);
+        HAL_UART_Transmit_DMA(&huart1, A1MotorA1_send_left, 34);
         HAL_Delay(10);
         HAL_UART_Receive_DMA(&huart1, Date, 78);
 
@@ -161,75 +161,75 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
 
         if (Date_left.motor_id == 0x00)
         {
-            id00_left_date.motor_id = Date_left.motor_id;
-            id00_left_date.mode     = Date_left.mode; 
-            id00_left_date.Temp     = Date_left.Temp;
-            id00_left_date.MError   = Date_left.MError;
-            id00_left_date.T        = Date_left.T;
-            id00_left_date.W        = Date_left.W;   
-            id00_left_date.Pos      = Date_left.Pos;
-            id00_left_date.Acc      = Date_left.Acc; 
+            MotorA1_recv_left_id00.motor_id = Date_left.motor_id;
+            MotorA1_recv_left_id00.mode     = Date_left.mode; 
+            MotorA1_recv_left_id00.Temp     = Date_left.Temp;
+            MotorA1_recv_left_id00.MError   = Date_left.MError;
+            MotorA1_recv_left_id00.T        = Date_left.T;
+            MotorA1_recv_left_id00.W        = Date_left.W;   
+            MotorA1_recv_left_id00.Pos      = Date_left.Pos;
+            MotorA1_recv_left_id00.Acc      = Date_left.Acc; 
         }
 
         if (Date_left.motor_id == 0x01)
         {
-            id01_left_date.motor_id = Date_left.motor_id;
-            id01_left_date.mode     = Date_left.mode; 
-            id01_left_date.Temp     = Date_left.Temp;
-            id01_left_date.MError   = Date_left.MError;
-            id01_left_date.T        = Date_left.T;
-            id01_left_date.W        = Date_left.W;   
-            id01_left_date.Pos      = Date_left.Pos;
-            id01_left_date.Acc      = Date_left.Acc; 
+            MotorA1_recv_left_id01.motor_id = Date_left.motor_id;
+            MotorA1_recv_left_id01.mode     = Date_left.mode; 
+            MotorA1_recv_left_id01.Temp     = Date_left.Temp;
+            MotorA1_recv_left_id01.MError   = Date_left.MError;
+            MotorA1_recv_left_id01.T        = Date_left.T;
+            MotorA1_recv_left_id01.W        = Date_left.W;   
+            MotorA1_recv_left_id01.Pos      = Date_left.Pos;
+            MotorA1_recv_left_id01.Acc      = Date_left.Acc; 
 
         }
 
         if (Date_left.motor_id == 0x02)
         {
-            id02_left_date.motor_id = Date_left.motor_id;
-            id02_left_date.mode     = Date_left.mode; 
-            id02_left_date.Temp     = Date_left.Temp;
-            id02_left_date.MError   = Date_left.MError;
-            id02_left_date.T        = Date_left.T;
-            id02_left_date.W        = Date_left.W;  
-            id02_left_date.Pos      = Date_left.Pos;
-            id02_left_date.Acc      = Date_left.Acc; 
+            MotorA1_recv_left_id02.motor_id = Date_left.motor_id;
+            MotorA1_recv_left_id02.mode     = Date_left.mode; 
+            MotorA1_recv_left_id02.Temp     = Date_left.Temp;
+            MotorA1_recv_left_id02.MError   = Date_left.MError;
+            MotorA1_recv_left_id02.T        = Date_left.T;
+            MotorA1_recv_left_id02.W        = Date_left.W;  
+            MotorA1_recv_left_id02.Pos      = Date_left.Pos;
+            MotorA1_recv_left_id02.Acc      = Date_left.Acc; 
         }
     }
 
     /*—————————————————————————————————————————右腿代码范围————————————————————————————————————————————————————————*/
     if (huart == &huart6)
     {
-        uint8_t A1cmd_right[34]; // 发送数据
+        uint8_t A1MotorA1_send_right[34]; // 发送数据
         uint8_t Date[78];        // 接收数据
 
         // 此处为右腿一号电机结构体//
-        cmd_right.motor_send_data.head.start[0] = 0xFE;
-        cmd_right.motor_send_data.head.start[1] = 0xEE;
-        cmd_right.motor_send_data.head.motorID  = cmd_left.id;
-        cmd_right.motor_send_data.head.reserved = 0x00;
+        MotorA1_send_right.motor_send_data.head.start[0] = 0xFE;
+        MotorA1_send_right.motor_send_data.head.start[1] = 0xEE;
+        MotorA1_send_right.motor_send_data.head.motorID  = MotorA1_send_left.id;
+        MotorA1_send_right.motor_send_data.head.reserved = 0x00;
 
-        cmd_right.motor_send_data.Mdata.mode = cmd_right.mode; // mode = 10
-        cmd_right.motor_send_data.Mdata.ModifyBit = 0xFF;
-        cmd_right.motor_send_data.Mdata.ReadBit   = 0x00;
-        cmd_right.motor_send_data.Mdata.reserved  = 0x00;
-        cmd_right.motor_send_data.Mdata.Modify.F  = 0;
-        cmd_right.motor_send_data.Mdata.T         = cmd_right.T * 256;
-        cmd_right.motor_send_data.Mdata.W         = cmd_right.W * 128;
-        cmd_right.motor_send_data.Mdata.Pos       = (int)((cmd_right.Pos / 6.2832f) * 16384.0f);
-        cmd_right.motor_send_data.Mdata.K_P       = cmd_right.K_P * 2048;
-        cmd_right.motor_send_data.Mdata.K_W       = cmd_right.K_W * 1024;
+        MotorA1_send_right.motor_send_data.Mdata.mode = MotorA1_send_right.mode; // mode = 10
+        MotorA1_send_right.motor_send_data.Mdata.ModifyBit = 0xFF;
+        MotorA1_send_right.motor_send_data.Mdata.ReadBit   = 0x00;
+        MotorA1_send_right.motor_send_data.Mdata.reserved  = 0x00;
+        MotorA1_send_right.motor_send_data.Mdata.Modify.F  = 0;
+        MotorA1_send_right.motor_send_data.Mdata.T         = MotorA1_send_right.T * 256;
+        MotorA1_send_right.motor_send_data.Mdata.W         = MotorA1_send_right.W * 128;
+        MotorA1_send_right.motor_send_data.Mdata.Pos       = (int)((MotorA1_send_right.Pos / 6.2832f) * 16384.0f);
+        MotorA1_send_right.motor_send_data.Mdata.K_P       = MotorA1_send_right.K_P * 2048;
+        MotorA1_send_right.motor_send_data.Mdata.K_W       = MotorA1_send_right.K_W * 1024;
 
-        cmd_right.motor_send_data.Mdata.LowHzMotorCmdIndex = 0;
-        cmd_right.motor_send_data.Mdata.LowHzMotorCmdByte  = 0;
-        cmd_right.motor_send_data.Mdata.Res[0] = cmd_right.Res;
+        MotorA1_send_right.motor_send_data.Mdata.LowHzMotorCmdIndex = 0;
+        MotorA1_send_right.motor_send_data.Mdata.LowHzMotorCmdByte  = 0;
+        MotorA1_send_right.motor_send_data.Mdata.Res[0] = MotorA1_send_right.Res;
 
-        cmd_right.motor_send_data.CRCdata.u32 = crc32_core_Ver3((uint32_t *)(&cmd_right.motor_send_data), 7); // CRC校验
+        MotorA1_send_right.motor_send_data.CRCdata.u32 = crc32_core_Ver3((uint32_t *)(&MotorA1_send_right.motor_send_data), 7); // CRC校验
 
-        memcpy(A1cmd_right, &cmd_right.motor_send_data, 34);
+        memcpy(A1MotorA1_send_right, &MotorA1_send_right.motor_send_data, 34);
 
         // DMA 发送数据 + 接收数据
-        HAL_UART_Transmit(&huart6, A1cmd_right, 34,0x03);
+        HAL_UART_Transmit(&huart6, A1MotorA1_send_right, 34,0x03);
         HAL_Delay(10);
         HAL_UART_Receive_DMA(&huart6, Date, 78);
 
@@ -253,38 +253,38 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
 
         if (Date_right.motor_id == 0x00)
         {
-            id00_right_date.motor_id = Date_right.motor_id;
-            id00_right_date.mode     = Date_right.mode; 
-            id00_right_date.Temp     = Date_right.Temp;
-            id00_right_date.MError   = Date_right.MError;
-            id00_right_date.T        = Date_right.T;
-            id00_right_date.W        = Date_right.W;   
-            id00_right_date.Pos      = Date_right.Pos;
-            id00_right_date.Acc      = Date_right.Acc; 
+            MotorA1_recv_right_id00.motor_id = Date_right.motor_id;
+            MotorA1_recv_right_id00.mode     = Date_right.mode; 
+            MotorA1_recv_right_id00.Temp     = Date_right.Temp;
+            MotorA1_recv_right_id00.MError   = Date_right.MError;
+            MotorA1_recv_right_id00.T        = Date_right.T;
+            MotorA1_recv_right_id00.W        = Date_right.W;   
+            MotorA1_recv_right_id00.Pos      = Date_right.Pos;
+            MotorA1_recv_right_id00.Acc      = Date_right.Acc; 
         }
 
         if (Date_right.motor_id == 0x01)
         {
-            id01_right_date.motor_id = Date_right.motor_id;
-            id01_right_date.mode     = Date_right.mode; 
-            id01_right_date.Temp     = Date_right.Temp;
-            id01_right_date.MError   = Date_right.MError;
-            id01_right_date.T        = Date_right.T;
-            id01_right_date.W        = Date_right.W;   
-            id01_right_date.Pos      = Date_right.Pos;
-            id01_right_date.Acc      = Date_right.Acc; 
+            MotorA1_recv_right_id01.motor_id = Date_right.motor_id;
+            MotorA1_recv_right_id01.mode     = Date_right.mode; 
+            MotorA1_recv_right_id01.Temp     = Date_right.Temp;
+            MotorA1_recv_right_id01.MError   = Date_right.MError;
+            MotorA1_recv_right_id01.T        = Date_right.T;
+            MotorA1_recv_right_id01.W        = Date_right.W;   
+            MotorA1_recv_right_id01.Pos      = Date_right.Pos;
+            MotorA1_recv_right_id01.Acc      = Date_right.Acc; 
         }
 
         if (Date_right.motor_id == 0x02)
         {
-            id02_right_date.motor_id = Date_right.motor_id;
-            id02_right_date.mode     = Date_right.mode; 
-            id02_right_date.Temp     = Date_right.Temp;
-            id02_right_date.MError   = Date_right.MError;
-            id02_right_date.T        = Date_right.T;
-            id02_right_date.W        = Date_right.W;   
-            id02_right_date.Pos      = Date_right.Pos;
-            id02_right_date.Acc      = Date_right.Acc; 
+            MotorA1_recv_right_id02.motor_id = Date_right.motor_id;
+            MotorA1_recv_right_id02.mode     = Date_right.mode; 
+            MotorA1_recv_right_id02.Temp     = Date_right.Temp;
+            MotorA1_recv_right_id02.MError   = Date_right.MError;
+            MotorA1_recv_right_id02.T        = Date_right.T;
+            MotorA1_recv_right_id02.W        = Date_right.W;   
+            MotorA1_recv_right_id02.Pos      = Date_right.Pos;
+            MotorA1_recv_right_id02.Acc      = Date_right.Acc; 
         }
     }
 }

@@ -81,13 +81,13 @@ extern fp32 temp;         // BMI088温度
 extern MI_Motor_s MI_Motor_ID1;              // 定义小米电机结构体1
 extern MI_Motor_s MI_Motor_ID2;              // 定义小米电机结构体2
 
-extern motor_send_t cmd_left;         // 左腿一号电机数据体
-extern motor_send_t cmd_right;        // 右腿一号电机数据体
+extern motor_send_t MotorA1_send_left;         // 左腿一号电机数据体
+extern motor_send_t MotorA1_send_right;        // 右腿一号电机数据体
 
 extern motor_recv_t Date_left;        // 左腿电机接收数据体
-extern motor_recv_t id00_left_date;   // 左腿00号电机接收数据体
-extern motor_recv_t id01_left_date;   // 左腿01号电机接收数据体
-extern motor_recv_t id02_left_date;   // 左腿02号电机接收数据体
+extern motor_recv_t MotorA1_recv_left_id00;   // 左腿00号电机接收数据体
+extern motor_recv_t MotorA1_recv_left_id01;   // 左腿01号电机接收数据体
+extern motor_recv_t MotorA1_recv_left_id02;   // 左腿02号电机接收数据体
 
 // 默认电机零位
 extern float zero_left_ID0;
@@ -326,34 +326,34 @@ void Motor_A1_task(void const * argument)
   {
     if (STATE == SW_UP) // 急停 0力矩模式
     {
-      modfiy_torque_cmd(&cmd_left,0,0);      modfiy_torque_cmd(&cmd_right,0,0);
+      modfiy_torque_cmd(&MotorA1_send_left,0,0);      modfiy_torque_cmd(&MotorA1_send_right,0,0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
       osDelay(2);
 
-      modfiy_torque_cmd(&cmd_left,1,0);      modfiy_torque_cmd(&cmd_right,1,0);
+      modfiy_torque_cmd(&MotorA1_send_left,1,0);      modfiy_torque_cmd(&MotorA1_send_right,1,0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
     else if (STATE == SW_MID)  // 速度模式
     {
-      modfiy_speed_cmd(&cmd_left,0,(float) rc.RX*30.0f);   modfiy_speed_cmd(&cmd_right,0,(float) rc.RX*-30.0f);
+      modfiy_speed_cmd(&MotorA1_send_left,0,(float) rc.RX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,0,(float) rc.RX*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_speed_cmd(&cmd_left,1,(float) rc.LX*30.0f);   modfiy_speed_cmd(&cmd_right,1,(float) rc.LX*-30.0f);
+      modfiy_speed_cmd(&MotorA1_send_left,1,(float) rc.LX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,1,(float) rc.LX*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
     else if (STATE == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_cmd(&cmd_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      modfiy_cmd(&cmd_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
+      modfiy_cmd(&MotorA1_send_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      modfiy_cmd(&MotorA1_send_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
       osDelay(2);
-      modfiy_cmd(&cmd_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
-      modfiy_cmd(&cmd_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
+      modfiy_cmd(&MotorA1_send_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
+      modfiy_cmd(&MotorA1_send_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
       osDelay(2);

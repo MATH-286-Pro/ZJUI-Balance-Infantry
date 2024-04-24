@@ -34,16 +34,16 @@ void Joint_Zero_init_Type1()
 
   while (Joint_Zero_OK() == False) {
 
-      modfiy_torque_cmd(&cmd_left, 0, 0);    modfiy_torque_cmd(&cmd_right, 0, 0);
+      modfiy_torque_cmd(&MotorA1_send_left, 0, 0);    modfiy_torque_cmd(&MotorA1_send_right, 0, 0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      zero_left_ID0  = (float) id00_left_date.Pos * RAD2DGR / 9.1f;
-      zero_right_ID0 = (float) id00_right_date.Pos * RAD2DGR / 9.1f;
+      zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos * RAD2DGR / 9.1f;
+      zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos * RAD2DGR / 9.1f;
       osDelay(2);
 
-      modfiy_torque_cmd(&cmd_left, 1, 0);    modfiy_torque_cmd(&cmd_right, 1, 0);
+      modfiy_torque_cmd(&MotorA1_send_left, 1, 0);    modfiy_torque_cmd(&MotorA1_send_right, 1, 0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      zero_left_ID1  = (float) id01_left_date.Pos * RAD2DGR / 9.1f;
-      zero_right_ID1 = (float) id01_right_date.Pos * RAD2DGR / 9.1f;
+      zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos * RAD2DGR / 9.1f;
+      zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos * RAD2DGR / 9.1f;
       osDelay(2);
       
       osDelay(20);

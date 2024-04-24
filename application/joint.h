@@ -18,13 +18,13 @@ extern float zero_right_ID0;
 extern float zero_right_ID1;
 
 // 电机数据发送结构体
-extern motor_send_t cmd_left;         // 左腿一号电机数据体
-extern motor_send_t cmd_right;        // 右腿一号电机数据体
+extern motor_send_t MotorA1_send_left;         // 左腿一号电机数据体
+extern motor_send_t MotorA1_send_right;        // 右腿一号电机数据体
 
 extern motor_recv_t Date_left;        // 左腿电机接收数据体
-extern motor_recv_t id00_left_date;   // 左腿00号电机接收数据体
-extern motor_recv_t id01_left_date;   // 左腿01号电机接收数据体
-extern motor_recv_t id02_left_date;   // 左腿02号电机接收数据体
+extern motor_recv_t MotorA1_recv_left_id00;   // 左腿00号电机接收数据体
+extern motor_recv_t MotorA1_recv_left_id01;   // 左腿01号电机接收数据体
+extern motor_recv_t MotorA1_recv_left_id02;   // 左腿02号电机接收数据体
 
 
 // 电机零点自检
