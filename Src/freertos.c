@@ -328,7 +328,8 @@ void Motor_A1_task(void const * argument)
   osDelay(100);
 
   // 电机零位初始化
-  Joint_Zero_init_Type1();
+  // Joint_Zero_init_Type1(); // 上电原点
+  Joint_Zero_init_Type2(); // 限位原点
 
   /* Infinite loop */
   for(;;)
@@ -336,21 +337,21 @@ void Motor_A1_task(void const * argument)
     if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF) // 急停 0力矩模式
     {
       modfiy_torque_cmd(&MotorA1_send_left,0,0);      modfiy_torque_cmd(&MotorA1_send_right,0,0);
-      unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
+      unitreeA1_rxtx(&huart1);                        unitreeA1_rxtx(&huart6);
       osDelay(2);
 
       modfiy_torque_cmd(&MotorA1_send_left,1,0);      modfiy_torque_cmd(&MotorA1_send_right,1,0);
-      unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
+      unitreeA1_rxtx(&huart1);                        unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
     else if (rc.sw2 == SW_MID)  // 速度模式
     {
       modfiy_speed_cmd(&MotorA1_send_left,0,(float) rc.RX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,0,(float) rc.RX*-30.0f);
-      unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
+      unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
       osDelay(2);
       modfiy_speed_cmd(&MotorA1_send_left,1,(float) rc.LX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,1,(float) rc.LX*-30.0f);
-      unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
+      unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 

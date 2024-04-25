@@ -20,9 +20,18 @@
     "core_cm7.h": "c"
   },
   "makefile.configurations": [
-        {
-            "name": "MultiThread Compile",
-            "makeArgs": ["-j"]
-        }
-    ]
+    {
+      "name": "MultiThread Compile",
+      "makeArgs": [
+        "-j"
+      ]
+    }
+  ],
+  "makefile.launchConfigurations": [
+    {
+      "cwd": "d:\\DeskTop\\Embedded\\Infantry_test\\0Test\\0.ZJUI-Balance-Infantry\\ZJUI-Balance-Infantry\\build",
+      "binaryPath": "d:\\DeskTop\\Embedded\\Infantry_test\\0Test\\0.ZJUI-Balance-Infantry\\ZJUI-Balance-Infantry\\build\\ZJUI-Infantry.elf",
+      "binaryArgs": []
+    }
+  ]
 }

@@ -1,8 +1,10 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "joint.h"
 
 // 默认电机初始零点
-float zero_left_ID0 = 1000.0f;
-float zero_left_ID1 = 1000.0f;
+float zero_left_ID0  = 1000.0f;
+float zero_left_ID1  = 1000.0f;
 float zero_right_ID0 = 1000.0f;
 float zero_right_ID1 = 1000.0f;
 
@@ -54,8 +56,32 @@ void Joint_Zero_init_Type1()
 
 }
 
-// // 电机零位获取 (初始位置 = 上限位位置)
-// void Jpint_Zero_Init_Type2()
-// {
+// 电机零位获取 (初始位置 = 限位位置)
+void Joint_Zero_init_Type2()
+{
+// 自检不通过 红灯亮起
+HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_SET); //
 
-// }
+float home_speed = 10.0f;
+float home_torque = 0.3f; 
+
+while (Joint_Zero_OK() == False) {
+
+    modfiy_speed_cmd(&MotorA1_send_left,  0, -home_speed);    
+    modfiy_speed_cmd(&MotorA1_send_right, 0, +home_speed);
+    unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
+    if ((MotorA1_recv_left_id00.T)  <= -home_torque) {zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos * RAD2DGR / 9.1f;}
+    if ((MotorA1_recv_right_id00.T) >= +home_torque) {zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos * RAD2DGR / 9.1f;}
+    osDelay(1);
+
+    modfiy_speed_cmd(&MotorA1_send_left,  1, +home_speed);    
+    modfiy_speed_cmd(&MotorA1_send_right, 1, -home_speed);
+    unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
+    if ((MotorA1_recv_left_id01.T)  >= +home_torque) {zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos * RAD2DGR / 9.1f;}
+    if ((MotorA1_recv_right_id01.T) <= -home_torque) 
+    {zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos * RAD2DGR / 9.1f;}
+    osDelay(1);
+    }
+HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
+
+}
