@@ -16,10 +16,14 @@
 #include "main.h"
 #include "cmsis_os.h"
 // #include "arm_math.h"
+#include "math.h"
 
 
-#define msin(x) (arm_sin_f32(x))
-#define mcos(x) (arm_cos_f32(x))
+// #define msin(x) (arm_sin_f32(x)) // arm_math.h
+// #define mcos(x) (arm_cos_f32(x))
+
+#define msin(x) (sin(x)) // math.h
+#define mcos(x) (cos(x))
 
 
 extern uint8_t GlobalDebugMode;

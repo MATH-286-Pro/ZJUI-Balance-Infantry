@@ -85,10 +85,13 @@ extern MI_Motor_s MI_Motor_ID2;              // 定义小米电机结构体2
 extern motor_send_t MotorA1_send_left;         // 左腿一号电机数据体
 extern motor_send_t MotorA1_send_right;        // 右腿一号电机数据体
 
-extern motor_recv_t Date_left;        // 左腿电机接收数据体
+extern motor_recv_t Date_left;                // 左腿电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id00;   // 左腿00号电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id01;   // 左腿01号电机接收数据体
-extern motor_recv_t MotorA1_recv_left_id02;   // 左腿02号电机接收数据体
+
+extern motor_recv_t Date_right;                // 右腿电机接收数据体
+extern motor_recv_t MotorA1_recv_right_id00;   // 右腿00号电机接收数据体
+extern motor_recv_t MotorA1_recv_right_id01;   // 右腿01号电机接收数据体
 
 // 默认电机零位
 extern float zero_left_ID0;
@@ -161,7 +164,7 @@ void MX_FREERTOS_Init(void) {
   
   uint8_t i=0;
   OLED_init();
-  // Buzzer_beep();
+  Buzzer_beep();
   osDelay(500); // 延时防止CAN上电失败
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
@@ -322,7 +325,6 @@ void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
   // 防止电机上电发疯
-  STATE = SW_UP;
   osDelay(100);
 
   // 电机零位初始化
@@ -331,7 +333,7 @@ void Motor_A1_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (STATE == SW_UP) // 急停 0力矩模式
+    if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF) // 急停 0力矩模式
     {
       modfiy_torque_cmd(&MotorA1_send_left,0,0);      modfiy_torque_cmd(&MotorA1_send_right,0,0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
@@ -342,7 +344,7 @@ void Motor_A1_task(void const * argument)
       osDelay(2);
     }
 
-    else if (STATE == SW_MID)  // 速度模式
+    else if (rc.sw2 == SW_MID)  // 速度模式
     {
       modfiy_speed_cmd(&MotorA1_send_left,0,(float) rc.RX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,0,(float) rc.RX*-30.0f);
       unitreeA1_rxtx(&huart1);                                               unitreeA1_rxtx(&huart6);
@@ -352,7 +354,7 @@ void Motor_A1_task(void const * argument)
       osDelay(2);
     }
 
-    else if (STATE == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
+    else if (rc.sw2 == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
       modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
       modfiy_pos_cmd(&MotorA1_send_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
@@ -382,7 +384,7 @@ void Robot_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    // BalanceTask();
+    BalanceTask();
     osDelay(1);
   }
   /* USER CODE END Robot_task */

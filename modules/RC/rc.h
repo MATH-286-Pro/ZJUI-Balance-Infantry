@@ -4,9 +4,10 @@
 /* ------------------------------ Include ------------------------------ */
 #include "stdint.h"
 /* ------------------------------ Macro Definition ------------------------------ */
-#define SW_UP       0x01
-#define SW_MID      0x03
-#define SW_DOWN     0x02
+#define SW_POWER_OFF 0x00
+#define SW_UP        0x01
+#define SW_MID       0x03
+#define SW_DOWN      0x02
 #define DBUS_OFFLINE_TICK   200  // 遥控器超时时间，单位为ms
 #pragma pack()  // 按照1字节对齐
 /* ------------------------------ Type Definition ------------------------------ */

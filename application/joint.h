@@ -21,11 +21,13 @@ extern float zero_right_ID1;
 extern motor_send_t MotorA1_send_left;         // 左腿一号电机数据体
 extern motor_send_t MotorA1_send_right;        // 右腿一号电机数据体
 
-extern motor_recv_t Date_left;        // 左腿电机接收数据体
+extern motor_recv_t Date_left;                // 左腿电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id00;   // 左腿00号电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id01;   // 左腿01号电机接收数据体
-extern motor_recv_t MotorA1_recv_left_id02;   // 左腿02号电机接收数据体
 
+extern motor_recv_t Date_right;                // 右腿电机接收数据体
+extern motor_recv_t MotorA1_recv_right_id00;   // 右腿00号电机接收数据体
+extern motor_recv_t MotorA1_recv_right_id01;   // 右腿01号电机接收数据体
 
 // 电机零点自检
 int Joint_Zero_OK(void);
