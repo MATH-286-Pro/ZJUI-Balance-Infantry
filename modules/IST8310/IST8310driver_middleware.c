@@ -16,7 +16,7 @@
   ****************************(C) COPYRIGHT 2016 DJI****************************
   */
 
-#include "ist8310driver_middleware.h"
+#include "IST8310driver_middleware.h"
 #include "main.h"
 #include "cmsis_os.h"
 #include "bsp_delay.h"

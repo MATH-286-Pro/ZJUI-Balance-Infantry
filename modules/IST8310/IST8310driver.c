@@ -18,8 +18,8 @@
   ****************************(C) COPYRIGHT 2016 DJI****************************
   */
 
-#include "ist8310driver.h"
-#include "ist8310driver_middleware.h"
+#include "IST8310driver.h"
+#include "IST8310driver_middleware.h"
 
 #define MAG_SEN 0.3f //转换成 uT
 

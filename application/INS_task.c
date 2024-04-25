@@ -29,8 +29,8 @@
 
 #include "bsp_imu_pwm.h"
 #include "bsp_spi.h"
-#include "bmi088driver.h"
-#include "ist8310driver.h"
+#include "BMI088driver.h"
+#include "IST8310driver.h"
 #include "pid.h"
 
 #include "MahonyAHRS.h"

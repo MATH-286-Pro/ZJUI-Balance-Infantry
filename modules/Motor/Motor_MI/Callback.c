@@ -3,7 +3,7 @@
 #include "can.h"
 #include "Callback.h"
 #include "MI_motor_drive.h"
-#include "freeRTOS.h"
+#include "FreeRTOS.h"
 
 // 定义变量
 MI_Motor_s MI_Motor_ID1;
