@@ -38,14 +38,14 @@ void Joint_Zero_init_Type1()
 
       modfiy_torque_cmd(&MotorA1_send_left, 0, 0);    modfiy_torque_cmd(&MotorA1_send_right, 0, 0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos * RAD2DGR / 9.1f;
-      zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos * RAD2DGR / 9.1f;
+      zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos ;
+      zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos ;
       osDelay(2);
 
       modfiy_torque_cmd(&MotorA1_send_left, 1, 0);    modfiy_torque_cmd(&MotorA1_send_right, 1, 0);
       unitreeA1_rxtx(&huart1);               unitreeA1_rxtx(&huart6);
-      zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos * RAD2DGR / 9.1f;
-      zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos * RAD2DGR / 9.1f;
+      zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos ;
+      zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos ;
       osDelay(2);
       
       osDelay(20);
@@ -64,22 +64,22 @@ HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_SET); //
 
 float home_speed = 10.0f;
 float home_torque = 0.3f; 
+float UP_LIMIT = 21.9f;
 
 while (Joint_Zero_OK() == False) {
 
     modfiy_speed_cmd(&MotorA1_send_left,  0, -home_speed);    
     modfiy_speed_cmd(&MotorA1_send_right, 0, +home_speed);
     unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
-    if ((MotorA1_recv_left_id00.T)  <= -home_torque) {zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos * RAD2DGR / 9.1f;}
-    if ((MotorA1_recv_right_id00.T) >= +home_torque) {zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos * RAD2DGR / 9.1f;}
+    if ((MotorA1_recv_left_id00.T)  <= -home_torque) {zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos + UP_LIMIT;} // zero_left_ID0 是减速后的角度 (不是弧度)
+    if ((MotorA1_recv_right_id00.T) >= +home_torque) {zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos - UP_LIMIT;}
     osDelay(1);
 
     modfiy_speed_cmd(&MotorA1_send_left,  1, +home_speed);    
     modfiy_speed_cmd(&MotorA1_send_right, 1, -home_speed);
     unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
-    if ((MotorA1_recv_left_id01.T)  >= +home_torque) {zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos * RAD2DGR / 9.1f;}
-    if ((MotorA1_recv_right_id01.T) <= -home_torque) 
-    {zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos * RAD2DGR / 9.1f;}
+    if ((MotorA1_recv_left_id01.T)  >= +home_torque) {zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos - UP_LIMIT;}
+    if ((MotorA1_recv_right_id01.T) <= -home_torque) {zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos + UP_LIMIT;}
     osDelay(1);
     }
 HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //

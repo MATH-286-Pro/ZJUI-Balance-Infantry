@@ -1,7 +1,11 @@
-#include "Balance.h"
+#ifndef __ZJUI_SPEED_ESTIMATION_H
+#define __ZJUI_SPEED_ESTIMATION_H
+
+#include "ZJUI_balance.h"
 #include "general_def.h"
-#include "INS_task.h"  // 注意
 #include "user_lib.h"
+#include "INS_task.h"  // 注意
+#include "kalman_filter.h"
 
 
 
@@ -100,3 +104,5 @@ void SpeedEstimation(LinkNPodParam *lp, LinkNPodParam *rp, ChassisParam *cp, INS
     VAL_LIMIT(cp->vel_cov, 0.01, 100);       // 协方差限幅
     cp->dist = cp->dist + cp->vel * delta_t;
 }
+
+#endif // __ZJUI_SPEED_ESTIMATION_H
