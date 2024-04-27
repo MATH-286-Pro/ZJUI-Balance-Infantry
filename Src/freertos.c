@@ -71,27 +71,24 @@ osThreadId led_RGB_flow_handle;
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 //定义全局变量
-uint8_t MODE;  // 模式 (SW_UP=关闭 SW_MID=遥控模式 SW_DOWN=电脑模式)
-uint8_t STATE; // 状态 (A1电机)
-
 extern RC_Type rc;        // 遥控器数据
 
 extern fp32 INS_angle[3]; // 陀螺仪角度
 extern fp32 temp;         // BMI088温度
 
-extern MI_Motor_s MI_Motor_ID1;              // 定义小米电机结构体1
-extern MI_Motor_s MI_Motor_ID2;              // 定义小米电机结构体2
+extern MI_Motor_s MI_Motor_ID1;               // 定义小米电机结构体1
+extern MI_Motor_s MI_Motor_ID2;               // 定义小米电机结构体2
 
-extern motor_send_t MotorA1_send_left;         // 左腿一号电机数据体
-extern motor_send_t MotorA1_send_right;        // 右腿一号电机数据体
+extern motor_send_t MotorA1_send_left;        // 左腿一号电机数据体
+extern motor_send_t MotorA1_send_right;       // 右腿一号电机数据体
 
 extern motor_recv_t Date_left;                // 左腿电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id00;   // 左腿00号电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id01;   // 左腿01号电机接收数据体
 
-extern motor_recv_t Date_right;                // 右腿电机接收数据体
-extern motor_recv_t MotorA1_recv_right_id00;   // 右腿00号电机接收数据体
-extern motor_recv_t MotorA1_recv_right_id01;   // 右腿01号电机接收数据体
+extern motor_recv_t Date_right;               // 右腿电机接收数据体
+extern motor_recv_t MotorA1_recv_right_id00;  // 右腿00号电机接收数据体
+extern motor_recv_t MotorA1_recv_right_id01;  // 右腿01号电机接收数据体
 
 // 默认电机零位
 extern float zero_left_ID0;
@@ -99,7 +96,14 @@ extern float zero_left_ID1;
 extern float zero_right_ID0;
 extern float zero_right_ID1;
 
+extern uint8_t STOP; // 急停状态
+
 float POS_BUF = 0.0f; 
+
+// 解算参数
+extern LinkNPodParam l_side, r_side;    
+extern ChassisParam chassis;
+// extern INS_t INS;
 
 /* USER CODE END Variables */
 osThreadId testHandle;
@@ -161,10 +165,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_11,GPIO_PIN_SET); // 绿灯亮起
-  
+
   uint8_t i=0;
-  OLED_init();
-  Buzzer_beep();
   osDelay(500); // 延时防止CAN上电失败
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
@@ -237,16 +239,11 @@ __weak void test_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (POS_BUF > -80.0 && POS_BUF < 20.0)
-      {POS_BUF = POS_BUF + rc.RY;}
-
-    else if (POS_BUF <= -80.0)
-      {POS_BUF = -79.0;}
-
-    else if (POS_BUF >= 20.0)
-      {POS_BUF = 19.0;}
-
-    osDelay(10);
+    if (rc.sw1 == SW_MID)
+      {STOP = False;
+      HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET);} // 复位
+    Joint_Monitor();
+    osDelay(1);
   }
   /* USER CODE END test_task */
 }
@@ -262,23 +259,22 @@ void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
   uint8_t i = 0;
-  OLED_show_string(i,0,"Yaw   = "); i++;
-  OLED_show_string(i,0,"Pitch = "); i++;
-  OLED_show_string(i,0,"Roll  = "); i++;
-  OLED_show_string(i,0,"BUF = ");   
+  OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,9,"Rol=");  i++;
+  OLED_show_string(i,0,"Pit=");   i++;
+  OLED_show_string(i,0,"RTB=");   OLED_show_string(i,9,"LTB=");  i++;
+  OLED_show_string(i,0,"RTF=");   OLED_show_string(i,9,"LTF=");  i++;
+  // OLED_show_string(i,0,"a_Z=");   OLED_show_string(i,9,"a_Y=");  i++;
   OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
-    MODE  = rc.sw1/2; // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
-    STATE = rc.sw2;   // 跟踪遥控器开关 S[1]左 S[0]右 状态  // 上1 中3 下2
-
     i = 0;
-    OLED_show_signednum(i,9,INS_angle[0]*DRG,3);   i++;
-    OLED_show_signednum(i,9,INS_angle[1]*DRG,3);   i++;
-    OLED_show_signednum(i,9,INS_angle[2]*DRG,3);   i++;
-    OLED_show_signednum(i,7,POS_BUF,3);    
+    OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,9+4,INS_angle[2]*DRG,3);   i++;
+    OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
+    OLED_show_signednum(i,4,r_side.T_back*100,3);   OLED_show_signednum(i,9+4,l_side.T_back*100,3);  i++;
+    OLED_show_signednum(i,4,r_side.T_front*100,3);  OLED_show_signednum(i,9+4,l_side.T_front*100,3); i++;
+    // OLED_show_signednum(i,4,INS.Acc[2],3);          OLED_show_signednum(i,9+4,INS.Acc[1],3);         i++;
     OLED_refresh_gram();
     osDelay(2);
   }
@@ -304,7 +300,7 @@ void Motor_MI_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_MID)
+    if (rc.sw1 == SW_DOWN)
     {
       MI_motor_SpeedControl(&MI_Motor_ID1, (+1)*(rc.LY-rc.RX)*20,1);  // 左轮
       MI_motor_SpeedControl(&MI_Motor_ID2, (-1)*(rc.LY+rc.RX)*20,1);  // 右轮
@@ -334,28 +330,28 @@ void Motor_A1_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF) // 急停 0力矩模式
+    if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF || STOP == True) // 急停 0力矩模式
     {
-      modfiy_torque_cmd(&MotorA1_send_left,0,0);      modfiy_torque_cmd(&MotorA1_send_right,0,0);
+      modfiy_speed_cmd(&MotorA1_send_left,0,0);      modfiy_speed_cmd(&MotorA1_send_right,0,0);
       unitreeA1_rxtx(&huart1);                        unitreeA1_rxtx(&huart6);
       osDelay(2);
 
-      modfiy_torque_cmd(&MotorA1_send_left,1,0);      modfiy_torque_cmd(&MotorA1_send_right,1,0);
+      modfiy_speed_cmd(&MotorA1_send_left,1,0);      modfiy_speed_cmd(&MotorA1_send_right,1,0);
       unitreeA1_rxtx(&huart1);                        unitreeA1_rxtx(&huart6);
       osDelay(2);
     }
 
-    else if (rc.sw2 == SW_MID)  // 速度模式
-    {
-      modfiy_speed_cmd(&MotorA1_send_left,0,(float) rc.RX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,0,(float) rc.RX*-30.0f);
-      unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
-      osDelay(2);
-      modfiy_speed_cmd(&MotorA1_send_left,1,(float) rc.LX*30.0f);   modfiy_speed_cmd(&MotorA1_send_right,1,(float) rc.LX*-30.0f);
-      unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
-      osDelay(2);
-    }
+    // else if (rc.sw2 == SW_MID)  // 速度模式
+    // {
+    //   modfiy_speed_cmd(&MotorA1_send_left,0,(float) rc.RX*3.0f);   modfiy_speed_cmd(&MotorA1_send_right,0,(float) rc.RX*-3.0f);
+    //   unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
+    //   osDelay(2);
+    //   modfiy_speed_cmd(&MotorA1_send_left,1,(float) rc.LX*3.0f);   modfiy_speed_cmd(&MotorA1_send_right,1,(float) rc.LX*-3.0f);
+    //   unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
+    //   osDelay(2);
+    // }
 
-    else if (rc.sw2 == SW_DOWN) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
+    else if (rc.sw2 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
       modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
       modfiy_pos_cmd(&MotorA1_send_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
@@ -385,8 +381,11 @@ void Robot_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    BalanceTask();
-    osDelay(1);
+    if (rc.sw2 == SW_DOWN && STOP == False) //急停使用
+    {
+      // BalanceTask(); 
+      osDelay(1);
+    }
   }
   /* USER CODE END Robot_task */
 }

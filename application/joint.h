@@ -29,6 +29,8 @@ extern motor_recv_t Date_right;                // 右腿电机接收数据体
 extern motor_recv_t MotorA1_recv_right_id00;   // 右腿00号电机接收数据体
 extern motor_recv_t MotorA1_recv_right_id01;   // 右腿01号电机接收数据体
 
+extern uint8_t STOP; // 急停状态
+
 // 电机零点自检
 int Joint_Zero_OK(void);
 
@@ -37,5 +39,8 @@ void Joint_Zero_init_Type1(void);
 
 // 电机零点获取 (零点位置 = 限位位置)
 void Joint_Zero_init_Type2(void);
+
+// 监控电机位置与力矩状态
+void Joint_Monitor(void);
 
 #endif // !JOINT_H

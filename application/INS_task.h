@@ -25,9 +25,9 @@
 #define INS_Task_H
 #include "struct_typedef.h"
 
-#define XX   0
-#define YY   1
-#define ZZ   2
+#define X0 0
+#define Y0 1
+#define Z0 2
 
 #define SPI_DMA_GYRO_LENGHT       8
 #define SPI_DMA_ACCEL_LENGHT      9
@@ -79,6 +79,10 @@
 // 自定义结构体
 typedef struct 
 {
+  // 未理解的参数 低通滤波系数?
+  float AccelLPF;
+  float DGyroLPF; 
+
   // IMU 测量值
   float Accel[3]; // 加速度
   float dgyro[3]; // 角加速度

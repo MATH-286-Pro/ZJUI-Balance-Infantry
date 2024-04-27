@@ -1,10 +1,10 @@
 // User includes
 #include "ZJUI_balance.h"
 #include "ZJUI_linkNleg.h" //ZJUI_linkNleg中包含 arm_math.h 后出现 __SMMLA 重定义问题
-// #include "ZJUI_speed_estimation.h"
+#include "ZJUI_speed_estimation.h"
 // #include "ZJUI_LQR_calc.h"
 
-
+#include "bsp_dwt.h"
 #include "unitreeA1_cmd.h"
 #include "MI_motor_drive.h"
 #include "INS_task.h"
@@ -13,6 +13,8 @@
 
 // User define variables
 // 关节电机变量
+extern motor_send_t MotorA1_send_left;        // 左腿一号电机数据体
+extern motor_send_t MotorA1_send_right;       // 右腿一号电机数据体
 extern motor_recv_t MotorA1_recv_left_id00;   // 左腿00号电机接收数据体
 extern motor_recv_t MotorA1_recv_left_id01;   // 左腿01号电机接收数据体
 extern motor_recv_t MotorA1_recv_right_id00;  // 右腿00号电机接收数据体
@@ -28,8 +30,11 @@ extern MI_Motor_s MI_Motor_ID2;              // 定义小米电机结构体2
 // IMU变量
 extern INS_t INS;         
 // 两个腿的参数,0为左腿,1为右腿
-static LinkNPodParam l_side, r_side;    
-static ChassisParam chassis;
+ LinkNPodParam l_side, r_side;    
+ ChassisParam chassis;
+// DWT计时器
+static float delta_t;
+static uint32_t balance_dwt_cnt;
 
 
 
@@ -37,6 +42,9 @@ static ChassisParam chassis;
 // 查看Link2Leg() 解算是否正确
 void BalanceTask()
 {   
+    // DWT定时器
+    delta_t = DWT_GetDeltaT(&balance_dwt_cnt); 
+
     // 参数组装
     ParamAssemble();
 
@@ -44,11 +52,31 @@ void BalanceTask()
     Link2Leg(&l_side, &chassis);
     Link2Leg(&r_side, &chassis);
 
+    // Body 水平速度计算 (世界坐标)
+    SpeedEstimation(&l_side, &r_side, &chassis, &INS, delta_t); // 目前能运行，但是待验证
+
+    // 根据单杆计算处的角度和杆长,计算反馈增益
+    CalcLQR(&l_side);
+    CalcLQR(&r_side);
+
+    // // 转向和抗劈叉 (暂时跳过)
+    // SynthesizeMotion();
+
+    // // 腿长控制,保持机体水平 (暂时跳过)
+    // LegControl();
+
+    // VMC映射成关节输出 (这只是数学结算，不包含电机控制程序)
+    VMCProject(&l_side);
+    VMCProject(&r_side);
+
+    // 电机输出力矩
+    MotorControl();
+
 }
 
 
 // 参数组装
-void ParamAssemble()
+static void ParamAssemble()
 {
     // 传入电机参数
     l_side.phi1  = (+(MotorA1_recv_left_id01.Pos - zero_left_ID1) + 180.0f)*DEGREE_2_RAD;     l_side.phi1_w = +MotorA1_recv_left_id00.W;
@@ -64,4 +92,57 @@ void ParamAssemble()
     chassis.pitch = INS.Pitch * DEGREE_2_RAD;  chassis.pitch_w = INS.Gyro[0];  
     chassis.roll  = INS.Roll * DEGREE_2_RAD;   chassis.roll_w  = INS.Gyro[1];  
 
+}
+
+
+/**
+ * @brief 根据状态反馈计算当前腿长,查表获得LQR的反馈增益,并列式计算LQR的输出
+ * @note 得到的腿部力矩输出还要经过综合运动控制系统补偿后映射为两个关节电机输出
+ *
+ */
+static void CalcLQR(LinkNPodParam *p)
+{
+    static float k[12][3] = {60.071162, -57.303242, -8.802552, -0.219882, -1.390464, -0.951558, 32.409644, -23.635877, -9.253521, 12.436266, -10.318639, -7.529540, 135.956804, -124.044032, 36.093582, 13.977819, -12.325081, 3.766791, 32.632159, -39.012888, 14.483707, 7.204778, -5.973109, 1.551763, 78.723013, -73.096567, 21.701734, 63.798027, -55.564993, 15.318437, -195.813486, 140.134182, 60.699132, -18.357761, 13.165559, 2.581731};
+    float T[2] = {0}; // 0 T_wheel  1 T_hip
+    float l = p->leg_len;
+    float lsqr = l * l;
+    // float dist_limit = abs(chassis.target_dist - chassis.dist) > MAX_DIST_TRACK ? sign(chassis.target_dist - chassis.dist) * MAX_DIST_TRACK : (chassis.target_dist - chassis.dist); // todo设置值
+    // float vel_limit = abs(chassis.target_v - chassis.vel) > MAX_VEL_TRACK ? sign(chassis.target_v - chassis.vel) * MAX_VEL_TRACK : (chassis.target_v - chassis.vel);
+    for (uint8_t i = 0; i < 2; ++i)
+    {
+        uint8_t j = i * 6;
+        T[i] = (k[j + 0][0] * lsqr + k[j + 0][1] * l + k[j + 0][2]) * -p->theta +
+               (k[j + 1][0] * lsqr + k[j + 1][1] * l + k[j + 1][2]) * -p->theta_w +
+               (k[j + 2][0] * lsqr + k[j + 2][1] * l + k[j + 2][2]) * (chassis.target_dist - chassis.dist) +
+               (k[j + 3][0] * lsqr + k[j + 3][1] * l + k[j + 3][2]) * (chassis.target_v - chassis.vel) +
+               (k[j + 4][0] * lsqr + k[j + 4][1] * l + k[j + 4][2]) * -chassis.pitch +
+               (k[j + 5][0] * lsqr + k[j + 5][1] * l + k[j + 5][2]) * -chassis.pitch_w;
+    }
+    p->T_wheel = T[0];
+    p->T_hip = T[1];
+}
+
+//电机控制指令
+void MotorControl()
+{
+    // HTMotorSetRef(lf, 0.285f * l_side.T_front);   // 根据扭矩常数计算得到的系数
+    // HTMotorSetRef(lb, 0.285f * l_side.T_back);
+    // HTMotorSetRef(rf, 0.285f * -r_side.T_front);
+    // HTMotorSetRef(rb, 0.285f * -r_side.T_back);
+    // LKMotorSetRef(l_driven, 274.348 * l_side.T_wheel);
+    // LKMotorSetRef(r_driven, 274.348 * -r_side.T_wheel);
+
+    // 别急，先用Debug看看VMC会输出多少力矩，别寄了
+    modfiy_torque_cmd(&MotorA1_send_left,0,l_side.T_front);
+    modfiy_torque_cmd(&MotorA1_send_right,0,r_side.T_front);
+    unitreeA1_rxtx(&huart1); 
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+
+    modfiy_torque_cmd(&MotorA1_send_left,1,l_side.T_back);
+    modfiy_torque_cmd(&MotorA1_send_right,1,r_side.T_back);
+    unitreeA1_rxtx(&huart1); 
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+    // osDelay(10);
 }

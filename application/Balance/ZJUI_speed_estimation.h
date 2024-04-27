@@ -4,10 +4,8 @@
 #include "ZJUI_balance.h"
 #include "general_def.h"
 #include "user_lib.h"
-#include "INS_task.h"  // 注意
+#include "INS_task.h" 
 #include "kalman_filter.h"
-
-
 
 #define EST_FINAL_LPF 0.005f // 最终速度的低通滤波系数
 static KalmanFilter_t kf;
@@ -66,11 +64,12 @@ void SpeedEstimation(LinkNPodParam *lp, LinkNPodParam *rp, ChassisParam *cp, INS
     float *gyro = imu->Gyro, *dgyro = imu->dgyro;
     static float yaw_ddwrNwwr, yaw_p_ddwrNwwr, pitch_ddwrNwwr;
     static float macc_y, macc_z;                                // 补偿后的实际平动加速度,机体系前进方向和竖直方向
-    yaw_ddwrNwwr = powf(gyro[Z], 2) * CENTER_IMU_W - dgyro[Z] * CENTER_IMU_L;   // yaw旋转导致motion_acc[1]的额外加速度(机体前后方向)
-    yaw_p_ddwrNwwr = powf(gyro[X], 2) * CENTER_IMU_L + dgyro[X] * CENTER_IMU_H; // pitch旋转导致motion_acc[1]的额外加速度(机体前后方向)
-    pitch_ddwrNwwr = powf(gyro[X], 2) * CENTER_IMU_H + dgyro[X] * CENTER_IMU_L; // pitch旋转导致motion_acc[2]的额外加速度(机体竖直方向)
-    macc_y = -imu->MotionAccel_b[Y] - yaw_ddwrNwwr - yaw_p_ddwrNwwr;
-    macc_z = imu->MotionAccel_b[Z] - pitch_ddwrNwwr;
+    yaw_ddwrNwwr   = powf(gyro[Z0], 2) * CENTER_IMU_W - dgyro[Z0] * CENTER_IMU_L; // yaw旋转导致motion_acc[1]的额外加速度(机体前后方向)
+    yaw_p_ddwrNwwr = powf(gyro[X0], 2) * CENTER_IMU_L + dgyro[X0] * CENTER_IMU_H; // pitch旋转导致motion_acc[1]的额外加速度(机体前后方向)
+    pitch_ddwrNwwr = powf(gyro[X0], 2) * CENTER_IMU_H + dgyro[X0] * CENTER_IMU_L; // pitch旋转导致motion_acc[2]的额外加速度(机体竖直方向)
+
+    macc_y = -imu->MotionAccel_b[Y0] - yaw_ddwrNwwr - yaw_p_ddwrNwwr; // Y加速度修正
+    macc_z = +imu->MotionAccel_b[Z0] - pitch_ddwrNwwr;                // Z加速度修正
 
     float pitch = imu->Pitch * DEGREE_2_RAD;
     cp->acc_last = cp->acc_m; 
@@ -78,8 +77,8 @@ void SpeedEstimation(LinkNPodParam *lp, LinkNPodParam *rp, ChassisParam *cp, INS
 
     // for debug 对比修正前后的加速度
     static float ry, rz, rawaa; 
-    ry = -imu->MotionAccel_b[Y];
-    rz = imu->MotionAccel_b[Z];
+    ry = -imu->MotionAccel_b[Y0];
+    rz = imu->MotionAccel_b[Z0];
     rawaa = ry * mcos(pitch) + rz * msin(pitch);
 
     // 使用kf同时估计加速度和速度,滤波更新

@@ -121,9 +121,14 @@ int main(void)
   MX_USART3_UART_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
+  Buzzer_beep();
   HAL_GPIO_WritePin(GPIOH, GPIO_PIN_10, GPIO_PIN_SET); // 蓝灯开启
   HAL_Delay(500);
+  DWT_Init(168); // 初始化DWT定时器
+  
+  OLED_init();
   HAL_GPIO_WritePin(GPIOH, GPIO_PIN_10, GPIO_PIN_RESET); // 蓝灯关闭
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

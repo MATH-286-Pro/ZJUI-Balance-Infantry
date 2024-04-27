@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "joint.h"
+#include "cmsis_os.h"
+
 
 // 默认电机初始零点
 float zero_left_ID0  = 1000.0f;
@@ -8,6 +10,11 @@ float zero_left_ID1  = 1000.0f;
 float zero_right_ID0 = 1000.0f;
 float zero_right_ID1 = 1000.0f;
 
+uint8_t STOP = False;
+
+static float home_speed  = 1.1f;  // 减速后角速度 rad/s
+static float home_torque = 2.7f;  // 减速后力矩 Nm
+static float UP_LIMIT    = 21.9f; // 减速后角度 °
 
 // 电机零点自检
 int Joint_Zero_OK() {
@@ -62,10 +69,6 @@ void Joint_Zero_init_Type2()
 // 自检不通过 红灯亮起
 HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_SET); //
 
-float home_speed = 10.0f;
-float home_torque = 0.3f; 
-float UP_LIMIT = 21.9f;
-
 while (Joint_Zero_OK() == False) {
 
     modfiy_speed_cmd(&MotorA1_send_left,  0, -home_speed);    
@@ -84,4 +87,23 @@ while (Joint_Zero_OK() == False) {
     }
 HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
 
+}
+
+
+// 检测是否超过上限位
+void Joint_Monitor()
+{   
+    if ((MotorA1_recv_left_id00.Pos  - zero_left_ID0)  <= -UP_LIMIT-0.1 && zero_left_ID0 != 1000)
+        {STOP = True;}
+    if ((MotorA1_recv_left_id01.Pos  - zero_left_ID1)  >= +UP_LIMIT+0.1 && zero_left_ID1 != 1000)
+        {STOP = True;}
+    if ((MotorA1_recv_right_id00.Pos - zero_right_ID0) >= +UP_LIMIT+0.1 && zero_right_ID0 != 1000)
+        {STOP = True;}
+    if ((MotorA1_recv_right_id01.Pos - zero_right_ID1) <= -UP_LIMIT-0.1 && zero_right_ID1 != 1000)
+        {STOP = True;}
+
+    if(STOP==True)
+      {HAL_GPIO_TogglePin(GPIOH,GPIO_PIN_12); 
+       osDelay(500);
+      } // 红灯闪烁
 }

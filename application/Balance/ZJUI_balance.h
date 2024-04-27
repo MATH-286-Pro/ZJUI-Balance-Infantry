@@ -9,6 +9,15 @@
 #define LIMIT_LINK_RAD 0.15149458  // 初始限位角度,见ParamAssemble  //未修改
 #define WHEEL_DISTANCE 0.424f      // 轮子间距
 
+// C板距离中心距离，因为要计算机体中心的加速度，如果C板不在中心会产生额外加速度
+// IMU距离中心的距离
+#define CENTER_IMU_W 0.068f
+#define CENTER_IMU_L 0.070f
+#define CENTER_IMU_H 0.039f
+
+// 滤波参数
+#define VEL_PROCESS_NOISE 25  // 速度过程噪声
+#define VEL_MEASURE_NOISE 800 // 速度测量噪声
 
 // 腿结构体
 typedef struct
@@ -54,7 +63,8 @@ typedef struct
 
 
 void BalanceTask();
-void ParamAssemble();
-
+static void ParamAssemble();
+static void CalcLQR(LinkNPodParam *p);
+void MotorControl();
 
 #endif

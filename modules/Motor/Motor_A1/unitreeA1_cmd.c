@@ -77,7 +77,7 @@ void modfiy_speed_cmd(motor_send_t *send,uint8_t id, float Omega)
 	send->id   = id;
 
     send->Pos  = 0;
-    send->W    = Omega;
+    send->W    = Omega * 9.1f;
     send->T    = 0.0;
     send->K_P  = 0.0;
     send->K_W  = 3.0;
@@ -94,7 +94,7 @@ void modfiy_torque_cmd(motor_send_t *send,uint8_t id, float torque)
 
     send->Pos  = 0.0;
     send->W    = 0.0;
-    send->T    = torque;
+    send->T    = torque / 9.1f;
     send->K_P  = 0.0;
     send->K_W  = 0.0;
 }
@@ -165,9 +165,9 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             MotorA1_recv_left_id00.mode     = Date_left.mode; 
             MotorA1_recv_left_id00.Temp     = Date_left.Temp;
             MotorA1_recv_left_id00.MError   = Date_left.MError;
-            MotorA1_recv_left_id00.T        = Date_left.T;
-            MotorA1_recv_left_id00.W        = Date_left.W;   
-            MotorA1_recv_left_id00.Pos      = Date_left.Pos*(180/PI/9.1f); // 减速后的角度     Date_left.Pos = 减速前的弧度
+            MotorA1_recv_left_id00.T        = Date_left.T * 9.1f;            // 减速后的扭矩
+            MotorA1_recv_left_id00.W        = Date_left.W / 9.1f;            // 减速后的角速度
+            MotorA1_recv_left_id00.Pos      = Date_left.Pos * (180/PI/9.1f); // 减速后的角度     Date_left.Pos = 减速前的弧度
             MotorA1_recv_left_id00.Acc      = Date_left.Acc; 
         }
 
@@ -177,8 +177,8 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             MotorA1_recv_left_id01.mode     = Date_left.mode; 
             MotorA1_recv_left_id01.Temp     = Date_left.Temp;
             MotorA1_recv_left_id01.MError   = Date_left.MError;
-            MotorA1_recv_left_id01.T        = Date_left.T;
-            MotorA1_recv_left_id01.W        = Date_left.W;   
+            MotorA1_recv_left_id01.T        = Date_left.T * 9.1f;
+            MotorA1_recv_left_id01.W        = Date_left.W / 9.1f;   
             MotorA1_recv_left_id01.Pos      = Date_left.Pos*(180/PI/9.1f);
             MotorA1_recv_left_id01.Acc      = Date_left.Acc; 
 
@@ -190,8 +190,8 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             MotorA1_recv_left_id02.mode     = Date_left.mode; 
             MotorA1_recv_left_id02.Temp     = Date_left.Temp;
             MotorA1_recv_left_id02.MError   = Date_left.MError;
-            MotorA1_recv_left_id02.T        = Date_left.T;
-            MotorA1_recv_left_id02.W        = Date_left.W;  
+            MotorA1_recv_left_id02.T        = Date_left.T * 9.1f;
+            MotorA1_recv_left_id02.W        = Date_left.W / 9.1f;  
             MotorA1_recv_left_id02.Pos      = Date_left.Pos*(180/PI/9.1f);
             MotorA1_recv_left_id02.Acc      = Date_left.Acc; 
         }
@@ -257,8 +257,8 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             MotorA1_recv_right_id00.mode     = Date_right.mode; 
             MotorA1_recv_right_id00.Temp     = Date_right.Temp;
             MotorA1_recv_right_id00.MError   = Date_right.MError;
-            MotorA1_recv_right_id00.T        = Date_right.T;
-            MotorA1_recv_right_id00.W        = Date_right.W;   
+            MotorA1_recv_right_id00.T        = Date_right.T * 9.1f;
+            MotorA1_recv_right_id00.W        = Date_right.W / 9.1f;   
             MotorA1_recv_right_id00.Pos      = Date_right.Pos*(180/PI/9.1f);
             MotorA1_recv_right_id00.Acc      = Date_right.Acc; 
         }
@@ -269,8 +269,8 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             MotorA1_recv_right_id01.mode     = Date_right.mode; 
             MotorA1_recv_right_id01.Temp     = Date_right.Temp;
             MotorA1_recv_right_id01.MError   = Date_right.MError;
-            MotorA1_recv_right_id01.T        = Date_right.T;
-            MotorA1_recv_right_id01.W        = Date_right.W;   
+            MotorA1_recv_right_id01.T        = Date_right.T * 9.1f;
+            MotorA1_recv_right_id01.W        = Date_right.W / 9.1f;   
             MotorA1_recv_right_id01.Pos      = Date_right.Pos*(180/PI/9.1f);
             MotorA1_recv_right_id01.Acc      = Date_right.Acc; 
         }
@@ -281,8 +281,8 @@ void unitreeA1_rxtx(UART_HandleTypeDef *huart)
             MotorA1_recv_right_id02.mode     = Date_right.mode; 
             MotorA1_recv_right_id02.Temp     = Date_right.Temp;
             MotorA1_recv_right_id02.MError   = Date_right.MError;
-            MotorA1_recv_right_id02.T        = Date_right.T;
-            MotorA1_recv_right_id02.W        = Date_right.W;   
+            MotorA1_recv_right_id02.T        = Date_right.T * 9.1f;
+            MotorA1_recv_right_id02.W        = Date_right.W / 9.1f;   
             MotorA1_recv_right_id02.Pos      = Date_right.Pos*(180/PI/9.1f);
             MotorA1_recv_right_id02.Acc      = Date_right.Acc; 
         }

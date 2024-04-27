@@ -29,18 +29,22 @@
 
 #include "bsp_imu_pwm.h"
 #include "bsp_spi.h"
-#include "bmi088driver.h"
-#include "ist8310driver.h"
+#include "BMI088driver.h"
+#include "IST8310driver.h"
 #include "pid.h"
 
 #include "MahonyAHRS.h"
 #include "math.h"
+
+#include "bsp_dwt.h"
 
 
 #define IMU_temp_PWM(pwm)  imu_pwm_set(pwm)                    //pwm给定
 
 // 自定义INS数据
 INS_t INS;
+static float dt = 0, t = 0;
+static uint32_t INS_DWT_CNT = 0;
 
 /**
   * @brief          control the temperature of bmi088
@@ -139,22 +143,22 @@ void INS_task(void const *pvParameters)
     hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
     
     if (HAL_SPI_Init(&hspi1) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    {Error_Handler();}
 
 
     SPI1_DMA_init((uint32_t)gyro_dma_tx_buf, (uint32_t)gyro_dma_rx_buf, SPI_DMA_GYRO_LENGHT);
 
     imu_start_dma_flag = 1;
 
+    // 测试内容
+    INS.AccelLPF = 0.0085;
+    INS.DGyroLPF = 0.008;
+
     while (1)
     {
         //wait spi DMA tansmit done
         //等待SPI DMA传输
-        while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS)
-        {
-        }
+        while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS){}
 
 
         if(gyro_update_flag & (1 << IMU_NOTIFY_SHFITS))
@@ -181,15 +185,19 @@ void INS_task(void const *pvParameters)
         get_angle(INS_quat, INS_angle + INS_YAW_ADDRESS_OFFSET, INS_angle + INS_PITCH_ADDRESS_OFFSET, INS_angle + INS_ROLL_ADDRESS_OFFSET);
 
         // 添加用于获取数据
-        INS.Accel[XX] = bmi088_real_data.accel[XX];
-        INS.Accel[YY] = bmi088_real_data.accel[YY];
-        INS.Accel[ZZ] = bmi088_real_data.accel[ZZ];
-        INS.Gyro[XX]  = bmi088_real_data.gyro[XX];
-        INS.Gyro[YY]  = bmi088_real_data.gyro[YY];
-        INS.Gyro[ZZ]  = bmi088_real_data.gyro[ZZ];
-        INS.Yaw      = INS_angle[INS_YAW_ADDRESS_OFFSET];
-        INS.Pitch    = INS_angle[INS_PITCH_ADDRESS_OFFSET];
-        INS.Roll     = INS_angle[INS_ROLL_ADDRESS_OFFSET];
+        dt = DWT_GetDeltaT(&INS_DWT_CNT); // 获取时间间隔
+        INS.Accel[X0] = -bmi088_real_data.accel[Y0]; // 调整
+        INS.Accel[Y0] = bmi088_real_data.accel[X0];  // 调整
+        INS.Accel[Z0] = bmi088_real_data.accel[Z0];
+        INS.dgyro[X0] = (bmi088_real_data.gyro[X0] - INS.Gyro[X0])/ (INS.DGyroLPF + dt) + INS.dgyro[X0] * INS.DGyroLPF / (INS.DGyroLPF + dt);
+        INS.dgyro[Y0] = (bmi088_real_data.gyro[Y0] - INS.Gyro[Y0])/ (INS.DGyroLPF + dt) + INS.dgyro[Y0] * INS.DGyroLPF / (INS.DGyroLPF + dt);
+        INS.dgyro[Z0] = (bmi088_real_data.gyro[Z0] - INS.Gyro[Z0])/ (INS.DGyroLPF + dt) + INS.dgyro[Z0] * INS.DGyroLPF / (INS.DGyroLPF + dt);
+        INS.Gyro[X0]  = -bmi088_real_data.gyro[Y0];  // 调整
+        INS.Gyro[Y0]  = bmi088_real_data.gyro[X0];   // 调整
+        INS.Gyro[Z0]  = bmi088_real_data.gyro[Z0];
+        INS.Yaw       = INS_angle[INS_YAW_ADDRESS_OFFSET];
+        INS.Pitch     = INS_angle[INS_PITCH_ADDRESS_OFFSET];
+        INS.Roll      = INS_angle[INS_ROLL_ADDRESS_OFFSET];
 
     }
 }
@@ -205,7 +213,7 @@ void AHRS_init(fp32 quat[4], fp32 accel[3], fp32 mag[3])
 
 void AHRS_update(fp32 quat[4], fp32 time, fp32 gyro[3], fp32 accel[3], fp32 mag[3])
 {
-    MahonyAHRSupdate(quat, gyro[XX], gyro[YY], gyro[ZZ], accel[XX], accel[YY], accel[ZZ], mag[XX], mag[YY], mag[ZZ]);
+    MahonyAHRSupdate(quat, gyro[X0], gyro[Y0], gyro[Z0], accel[X0], accel[Y0], accel[Z0], mag[X0], mag[Y0], mag[Z0]);
 }
 void get_angle(fp32 q[4], fp32 *yaw, fp32 *pitch, fp32 *roll)
 {
