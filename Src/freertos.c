@@ -353,16 +353,16 @@ void Motor_A1_task(void const * argument)
 
     else if (rc.sw2 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*70 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      modfiy_pos_cmd(&MotorA1_send_right,0,(float) rc.RX*-70 + zero_right_ID0, 0.006,1.0); 
+      modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*120 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+      modfiy_pos_cmd(&MotorA1_send_right,0,(float) rc.RX*-120 + zero_right_ID0, 0.006,1.0); 
       unitreeA1_rxtx(&huart1); 
       unitreeA1_rxtx(&huart6);
-      osDelay(2);
-      modfiy_pos_cmd(&MotorA1_send_left,1,(float) rc.LX*70 + zero_left_ID1, 0.006, 1.0);   
-      modfiy_pos_cmd(&MotorA1_send_right,1,(float) rc.LX*-70 + zero_right_ID1, 0.006, 1.0);
+      osDelay(1);
+      modfiy_pos_cmd(&MotorA1_send_left,1,(float) rc.LX*120 + zero_left_ID1, 0.006, 1.0);   
+      modfiy_pos_cmd(&MotorA1_send_right,1,(float) rc.LX*-120 + zero_right_ID1, 0.006, 1.0);
       unitreeA1_rxtx(&huart1);
       unitreeA1_rxtx(&huart6);
-      osDelay(2);
+      osDelay(1);
     }
   }
   /* USER CODE END Motor_A1_task */
