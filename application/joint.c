@@ -14,9 +14,9 @@ uint8_t STOP = False;
 
 static float home_speed  = 1.1f;  // 减速后角速度 rad/s
 static float home_torque = 2.7f;  // 减速后力矩 Nm
- float UP_LIMIT    = 20.0f; // 减速后角度 °
- float DOWN_LIMIT  = 80.0f; // 减速后角度 °
- float TOLERANCE   = -1.0f;  // 容差 °
+static float UP_LIMIT    = 20.0f; // 减速后角度 °
+static float DOWN_LIMIT  = 80.0f; // 减速后角度 °
+static float TOLERANCE   = -5.0f;  // 容差 °
 
 // 电机零点自检
 int Joint_Zero_OK() {
@@ -92,7 +92,7 @@ HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
 }
 
 
-// 检测是否超过上限位 // right 转换器有问题
+// 检测是否超过上限位
 void Joint_Monitor()
 {   
     if (((MotorA1_recv_left_id00.Pos  - zero_left_ID0)  <= -(UP_LIMIT+TOLERANCE) || (MotorA1_recv_left_id00.Pos - zero_left_ID0) >= +(DOWN_LIMIT+TOLERANCE)) && zero_left_ID0 != 0)

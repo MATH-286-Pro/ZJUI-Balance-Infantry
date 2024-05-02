@@ -55,7 +55,7 @@ modules/IST8310/IST8310driver_middleware.c \
 modules/IST8310/IST8310driver.c \
 modules/OLED/OLED.c \
 modules/Buzzer/buzzer.c \
-modules/Motor/Motor_A1/unitreeA1_cmd.c \
+modules/Motor/Motor_A1/A1_motor_drive.c \
 modules/Motor/Motor_MI/Callback.c \
 modules/Motor/Motor_MI/MI_motor_drive.c \
 modules/RC/rc.c \

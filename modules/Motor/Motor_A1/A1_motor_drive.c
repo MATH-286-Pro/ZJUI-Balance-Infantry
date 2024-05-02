@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "usart.h"
-#include "unitreeA1_cmd.h"
+#include "A1_motor_drive.h"
 
 #define PI 3.14159
 
@@ -94,6 +94,7 @@ void modfiy_torque_cmd(motor_send_t *send,uint8_t id, float torque)
 
     send->Pos  = 0.0;
     send->W    = 0.0;
+    if (torque > 10.0f){torque = 0.0f;} // 限幅
     send->T    = torque / 9.1f;
     send->K_P  = 0.0;
     send->K_W  = 0.0;

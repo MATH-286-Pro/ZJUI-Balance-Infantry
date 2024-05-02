@@ -27,21 +27,16 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include "bsp_usart.h"
+#include "bsp_rc.h"
+#include "bsp_delay.h"
 #include "INS_task.h"
 #include "OLED.h"
 #include "buzzer.h"
 #include "rc.h"
-#include "bsp_usart.h"
-#include "bsp_rc.h"
-#include "bsp_delay.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-#include "i2c.h"
-#include "can.h"
 #include "can_test.h"
 #include "MI_motor_drive.h"
-#include "unitreeA1_cmd.h"
+#include "A1_motor_drive.h"
 #include "joint.h"
 #include "wheel.h"
 #include "ZJUI_balance.h"
@@ -164,17 +159,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-  HAL_GPIO_WritePin(GPIOH,GPIO_PIN_11,GPIO_PIN_SET); // 绿灯亮起
 
-  uint8_t i=0;
-  osDelay(500); // 延时防止CAN上电失败
-  delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
-  Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
-  CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1  // 这两段CAN配置程序
-  CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器    //
-  OLED_clear();
-  
-  HAL_GPIO_WritePin(GPIOH,GPIO_PIN_11,GPIO_PIN_RESET); // 绿灯关闭
 
   /* USER CODE END Init */
 
@@ -239,10 +224,10 @@ __weak void test_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_MID)
-      {STOP = False;
-      HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET);} // 复位
-    Joint_Monitor();
+    // if (rc.sw1 == SW_MID)
+    //   {STOP = False;
+    //   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET);} // 复位
+    // Joint_Monitor();
     osDelay(1);
   }
   /* USER CODE END test_task */
@@ -259,22 +244,22 @@ void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
   uint8_t i = 0;
-  OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,9,"Rol=");  i++;
+  OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
   OLED_show_string(i,0,"Pit=");   i++;
-  OLED_show_string(i,0,"RTB=");   OLED_show_string(i,9,"LTB=");  i++;
-  OLED_show_string(i,0,"RTF=");   OLED_show_string(i,9,"LTF=");  i++;
-  // OLED_show_string(i,0,"a_Z=");   OLED_show_string(i,9,"a_Y=");  i++;
+  OLED_show_string(i,0,"RTB=");   OLED_show_string(i,10,"LTB=");  i++;
+  OLED_show_string(i,0,"RTF=");   OLED_show_string(i,10,"LTF=");  i++;
+  OLED_show_string(i,0,"VEL=");   i++;
   OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
     i = 0;
-    OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,9+4,INS_angle[2]*DRG,3);   i++;
+    OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
     OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
-    OLED_show_signednum(i,4,r_side.T_back*100,3);   OLED_show_signednum(i,9+4,l_side.T_back*100,3);  i++;
-    OLED_show_signednum(i,4,r_side.T_front*100,3);  OLED_show_signednum(i,9+4,l_side.T_front*100,3); i++;
-    // OLED_show_signednum(i,4,INS.Acc[2],3);          OLED_show_signednum(i,9+4,INS.Acc[1],3);         i++;
+    OLED_show_signednum(i,4,r_side.T_back,4);   OLED_show_signednum(i,10+4,l_side.T_back,4);  i++;
+    OLED_show_signednum(i,4,r_side.T_front,4);  OLED_show_signednum(i,10+4,l_side.T_front,4); i++;
+    OLED_show_signednum(i,4,chassis.vel*100,4);   i++;
     OLED_refresh_gram();
     osDelay(2);
   }
@@ -383,7 +368,7 @@ void Robot_task(void const * argument)
   {
     if (rc.sw2 == SW_DOWN && STOP == False) //急停使用
     {
-      // BalanceTask(); 
+      BalanceTask(); 
       osDelay(1);
     }
   }

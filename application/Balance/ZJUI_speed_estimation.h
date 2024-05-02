@@ -101,7 +101,7 @@ void SpeedEstimation(LinkNPodParam *lp, LinkNPodParam *rp, ChassisParam *cp, INS
     cp->vel = prior + k * (measure - prior); // x^ = x'+K(z-x'),后验估计
     cp->vel_cov *= (1 - k);                  // P^ = (1-K)P',后验协方差
     VAL_LIMIT(cp->vel_cov, 0.01, 100);       // 协方差限幅
-    cp->dist = cp->dist + cp->vel * delta_t;
+    cp->dist = cp->dist + cp->vel * delta_t;  //--------------------------------里程计计算位移-----------------------------------------
 }
 
 #endif // __ZJUI_SPEED_ESTIMATION_H

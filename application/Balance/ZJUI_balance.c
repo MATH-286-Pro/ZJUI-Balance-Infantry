@@ -5,7 +5,7 @@
 // #include "ZJUI_LQR_calc.h"
 
 #include "bsp_dwt.h"
-#include "unitreeA1_cmd.h"
+#include "A1_motor_drive.h"
 #include "MI_motor_drive.h"
 #include "INS_task.h"
 #include "general_def.h" // 通用参数，比如pi
@@ -102,7 +102,8 @@ static void ParamAssemble()
  */
 static void CalcLQR(LinkNPodParam *p)
 {
-    static float k[12][3] = {60.071162, -57.303242, -8.802552, -0.219882, -1.390464, -0.951558, 32.409644, -23.635877, -9.253521, 12.436266, -10.318639, -7.529540, 135.956804, -124.044032, 36.093582, 13.977819, -12.325081, 3.766791, 32.632159, -39.012888, 14.483707, 7.204778, -5.973109, 1.551763, 78.723013, -73.096567, 21.701734, 63.798027, -55.564993, 15.318437, -195.813486, 140.134182, 60.699132, -18.357761, 13.165559, 2.581731};
+    // static float k[12][3] = {60.071162, -57.303242, -8.802552, -0.219882, -1.390464, -0.951558, 32.409644, -23.635877, -9.253521, 12.436266, -10.318639, -7.529540, 135.956804, -124.044032, 36.093582, 13.977819, -12.325081, 3.766791, 32.632159, -39.012888, 14.483707, 7.204778, -5.973109, 1.551763, 78.723013, -73.096567, 21.701734, 63.798027, -55.564993, 15.318437, -195.813486, 140.134182, 60.699132, -18.357761, 13.165559, 2.581731};
+    static float k[12][3] = {69.702762,-142.040660,-4.207897,-7.339029,-23.447057,0.722030,33.081397,-27.904707,-13.116724,27.721428,-32.372076,-8.152221,153.974674,-146.805480,46.407912,5.255443,-5.274444,1.490716,1.448103,-10.394075,20.866157,-5.077549,6.145159,2.063441,73.286899,-72.417205,24.880666,43.401631,-44.053902,17.217584,-122.870625,101.478137,107.736492,-3.391576,2.711421,2.517693};
     float T[2] = {0}; // 0 T_wheel  1 T_hip
     float l = p->leg_len;
     float lsqr = l * l;
@@ -118,7 +119,7 @@ static void CalcLQR(LinkNPodParam *p)
                (k[j + 4][0] * lsqr + k[j + 4][1] * l + k[j + 4][2]) * -chassis.pitch +
                (k[j + 5][0] * lsqr + k[j + 5][1] * l + k[j + 5][2]) * -chassis.pitch_w;
     }
-    p->T_wheel = T[0];
+    p->T_wheel = T[0]; // 输出简化髋关节数据
     p->T_hip = T[1];
 }
 
@@ -133,16 +134,17 @@ void MotorControl()
     // LKMotorSetRef(r_driven, 274.348 * -r_side.T_wheel);
 
     // 别急，先用Debug看看VMC会输出多少力矩，别寄了
-    modfiy_torque_cmd(&MotorA1_send_left,0,l_side.T_front);
-    modfiy_torque_cmd(&MotorA1_send_right,0,r_side.T_front);
-    unitreeA1_rxtx(&huart1); 
-    unitreeA1_rxtx(&huart6);
-    osDelay(1);
+    static float SCALE = 0.1f;
+    // modfiy_torque_cmd(&MotorA1_send_left,0,-l_side.T_front*SCALE);
+    // modfiy_torque_cmd(&MotorA1_send_right,0,r_side.T_front*SCALE);
+    // unitreeA1_rxtx(&huart1); 
+    // unitreeA1_rxtx(&huart6);
+    // osDelay(1);
 
-    modfiy_torque_cmd(&MotorA1_send_left,1,l_side.T_back);
-    modfiy_torque_cmd(&MotorA1_send_right,1,r_side.T_back);
-    unitreeA1_rxtx(&huart1); 
-    unitreeA1_rxtx(&huart6);
-    osDelay(1);
-    // osDelay(10);
+    // modfiy_torque_cmd(&MotorA1_send_left,1,-l_side.T_back*SCALE);
+    // modfiy_torque_cmd(&MotorA1_send_right,1,r_side.T_back*SCALE);
+    // unitreeA1_rxtx(&huart1); 
+    // unitreeA1_rxtx(&huart6);
+    // osDelay(1);
+    osDelay(2);
 }

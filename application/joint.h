@@ -2,7 +2,7 @@
 #define JOINT_H
 
 #include "main.h"
-#include "unitreeA1_cmd.h"
+#include "A1_motor_drive.h"
 
 // 宏定义
 #define PI 3.1415926535f
