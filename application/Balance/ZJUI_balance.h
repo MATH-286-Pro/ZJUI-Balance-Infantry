@@ -1,6 +1,8 @@
 #ifndef _ZJUI_BALANCE_
 #define _ZJUI_BALANCE_
 
+#include "INS_task.h"
+
 // 底盘参数 ZJUI
 #define THIGH_LEN 0.15f            // 上腿
 #define CALF_LEN 0.27f             // 下腿
@@ -66,5 +68,10 @@ void BalanceTask();
 static void ParamAssemble();
 static void CalcLQR(LinkNPodParam *p);
 void MotorControl();
+
+// 添加板凳模型函数
+void stand_task_init();
+void stand_task_start(INS_t *INS);
+
 
 #endif

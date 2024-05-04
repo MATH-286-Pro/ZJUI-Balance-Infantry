@@ -40,6 +40,8 @@ void Joint_Zero_init_Type1(void);
 // 电机零点获取 (零点位置 = 限位位置)
 void Joint_Zero_init_Type2(void);
 
+void Joint_GOTO_zero(void);
+
 // 监控电机位置与力矩状态
 void Joint_Monitor(void);
 

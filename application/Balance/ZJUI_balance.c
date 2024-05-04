@@ -10,6 +10,7 @@
 #include "INS_task.h"
 #include "general_def.h" // 通用参数，比如pi
 #include "joint.h"
+#include "Debug_Tool.h"
 
 // User define variables
 // 关节电机变量
@@ -53,7 +54,7 @@ void BalanceTask()
     Link2Leg(&r_side, &chassis);
 
     // Body 水平速度计算 (世界坐标)
-    SpeedEstimation(&l_side, &r_side, &chassis, &INS, delta_t); // 目前能运行，但是待验证
+    // SpeedEstimation(&l_side, &r_side, &chassis, &INS, delta_t); // 目前能运行，但是待验证
 
     // 根据单杆计算处的角度和杆长,计算反馈增益
     CalcLQR(&l_side);
@@ -74,7 +75,6 @@ void BalanceTask()
 
 }
 
-
 // 参数组装
 static void ParamAssemble()
 {
@@ -93,7 +93,6 @@ static void ParamAssemble()
     chassis.roll  = INS.Roll * DEGREE_2_RAD;   chassis.roll_w  = INS.Gyro[1];  
 
 }
-
 
 /**
  * @brief 根据状态反馈计算当前腿长,查表获得LQR的反馈增益,并列式计算LQR的输出
@@ -147,4 +146,36 @@ void MotorControl()
     // unitreeA1_rxtx(&huart6);
     // osDelay(1);
     osDelay(2);
+}
+
+
+
+
+
+// 板凳模型算法
+
+#include "pid.h"
+
+float target_pitch = -0.70f*DGR2RAD; // 测试实际数值角度
+// float target_pitch = 0.70f*DGR2RAD; // 测试实际数值角度
+// float target_pitch = 0.0f*DGR2RAD; // 测试实际数值角度
+
+pid_type_def PID_STANDE; // 直立环 PID 结构体
+
+void stand_task_init()
+{
+    static const float PID_ARG[3] = {12.0f, 0.02f, 0.0f}; 
+    static const float PID_MAX_OUT = 4.0f;
+    static const float PID_MAX_IOUT = 4.0f;
+    PID_init(&PID_STANDE, PID_POSITION, PID_ARG, PID_MAX_OUT, PID_MAX_IOUT); // 填装 PID 参数 
+}
+
+//, MI_Motor_s wheel_left, MI_Motor_s wheel_right
+void stand_task_start(INS_t *INS)
+{
+    PID_calc(&PID_STANDE, INS->Pitch, target_pitch);
+    // MI_motor_SpeedControl(&MI_Motor_ID1, (+1)*(PID_STANDE.out)*0.1,1);  // 左轮
+    // MI_motor_SpeedControl(&MI_Motor_ID2, (-1)*(PID_STANDE.out)*0.1,1);  // 右轮
+    MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_STANDE.out));
+    MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_STANDE.out));
 }

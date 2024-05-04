@@ -44,7 +44,7 @@
   * @brief          pid struct data init
   * @param[out]     pid: PID结构数据指针
   * @param[in]      mode: PID_POSITION:普通PID
-  *                 PID_DELTA: 差分PID
+  *                       PID_DELTA: 差分PID
   * @param[in]      PID: 0: kp, 1: ki, 2:kd
   * @param[in]      max_out: pid最大输出
   * @param[in]      max_iout: pid最大积分输出

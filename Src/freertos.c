@@ -40,6 +40,7 @@
 #include "joint.h"
 #include "wheel.h"
 #include "ZJUI_balance.h"
+#include "pid.h"
 
 
 /* USER CODE END Includes */
@@ -92,8 +93,6 @@ extern float zero_right_ID0;
 extern float zero_right_ID1;
 
 extern uint8_t STOP; // 急停状态
-
-float POS_BUF = 0.0f; 
 
 // 解算参数
 extern LinkNPodParam l_side, r_side;    
@@ -198,7 +197,7 @@ void MX_FREERTOS_Init(void) {
   Motor_A1Handle = osThreadCreate(osThread(Motor_A1), NULL);
 
   /* definition and creation of Robot */
-  osThreadDef(Robot, Robot_task, osPriorityIdle, 0, 128);
+  osThreadDef(Robot, Robot_task, osPriorityIdle, 0, 512);
   RobotHandle = osThreadCreate(osThread(Robot), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -246,28 +245,28 @@ __weak void test_task(void const * argument)
 void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
-  // uint8_t i = 0;
-  // OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
-  // OLED_show_string(i,0,"Pit=");   i++;
+  uint8_t i = 0;
+  OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
+  OLED_show_string(i,0,"Pit=");   i++;
   // OLED_show_string(i,0,"RTB=");   OLED_show_string(i,10,"LTB=");  i++;
   // OLED_show_string(i,0,"RTF=");   OLED_show_string(i,10,"LTF=");  i++;
   // OLED_show_string(i,0,"VEL=");   i++;
-  // OLED_refresh_gram();
+  OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
-    // i = 0;
-    // OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
-    // OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
+    i = 0;
+    OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
+    OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
     // OLED_show_signednum(i,4,r_side.T_back,4);   OLED_show_signednum(i,10+4,l_side.T_back,4);  i++;
     // OLED_show_signednum(i,4,r_side.T_front,4);  OLED_show_signednum(i,10+4,l_side.T_front,4); i++;
     // OLED_show_signednum(i,4,chassis.vel*100,4);   i++;
-    // OLED_refresh_gram();
-    // osDelay(2);
+    OLED_refresh_gram();
+    osDelay(2);
 
-    USB_printf("Test\n");
-    osDelay(20);
+    // USB_printf("Test\n");
+    // osDelay(20);
   }
   /* USER CODE END OLED_task */
 }
@@ -291,7 +290,7 @@ void Motor_MI_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_DOWN)
+    if (rc.sw1 == SW_MID)
     {
       MI_motor_SpeedControl(&MI_Motor_ID1, (+1)*(rc.LY-rc.RX)*20,1);  // 左轮
       MI_motor_SpeedControl(&MI_Motor_ID2, (-1)*(rc.LY+rc.RX)*20,1);  // 右轮
@@ -317,6 +316,21 @@ void Motor_A1_task(void const * argument)
   // 电机零位初始化
   // Joint_Zero_init_Type1(); // 上电原点
   Joint_Zero_init_Type2(); // 限位原点
+  osDelay(10);
+
+  // 回归零位
+  // Joint_GOTO_zero();
+  // osDelay(10);
+  modfiy_pos_cmd(&MotorA1_send_left,0,(float) zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+  modfiy_pos_cmd(&MotorA1_send_right,0,(float) zero_right_ID0, 0.006,1.0); 
+  unitreeA1_rxtx(&huart1); 
+  unitreeA1_rxtx(&huart6);
+  osDelay(2);
+  modfiy_pos_cmd(&MotorA1_send_left,1,(float) zero_left_ID1, 0.006, 1.0);   
+  modfiy_pos_cmd(&MotorA1_send_right,1,(float) zero_right_ID1, 0.006, 1.0);
+  unitreeA1_rxtx(&huart1);
+  unitreeA1_rxtx(&huart6);
+  osDelay(2);
 
   /* Infinite loop */
   for(;;)
@@ -369,12 +383,17 @@ void Motor_A1_task(void const * argument)
 void Robot_task(void const * argument)
 {
   /* USER CODE BEGIN Robot_task */
+  extern pid_type_def PID_STANDE; 
+
+  stand_task_init();
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw2 == SW_DOWN && STOP == False) //急停使用
+    if (rc.sw2 == SW_DOWN && rc.sw1 == SW_DOWN && STOP == False) //急停使用
     {
-      BalanceTask(); 
+      // BalanceTask(); 
+      stand_task_start(&INS);
+      USB_printf("Output:%d,%d\n", (int)(PID_STANDE.out),(int)(INS.Pitch*DRG*100));
       osDelay(1);
     }
   }

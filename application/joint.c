@@ -91,6 +91,20 @@ HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
 
 }
 
+// 回归零点
+void Joint_GOTO_zero()
+{
+    modfiy_pos_cmd(&MotorA1_send_left,0,(float) zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+    modfiy_pos_cmd(&MotorA1_send_right,0,(float) zero_right_ID0, 0.006,1.0); 
+    unitreeA1_rxtx(&huart1); 
+    unitreeA1_rxtx(&huart6);
+    osDelay(2);
+    modfiy_pos_cmd(&MotorA1_send_left,1,(float) zero_left_ID1, 0.006, 1.0);   
+    modfiy_pos_cmd(&MotorA1_send_right,1,(float) zero_right_ID1, 0.006, 1.0);
+    unitreeA1_rxtx(&huart1);
+    unitreeA1_rxtx(&huart6);
+    osDelay(2);
+}
 
 // 检测是否超过上限位
 void Joint_Monitor()
