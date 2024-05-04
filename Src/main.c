@@ -26,6 +26,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -124,7 +125,7 @@ int main(void)
   DWT_Init(168); // 初始化DWT定时器
   
   uint8_t i=0;
-  DWT_Delay(1.0f); // 延时单位 = s
+  DWT_Delay(1.0f); // 延时单位 = s 防止小米电机未上电
   OLED_init();
   delay_init();          OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 与BMI088_init()相关
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化

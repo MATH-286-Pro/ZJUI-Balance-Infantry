@@ -118,6 +118,7 @@ void Motor_MI_task(void const * argument);
 void Motor_A1_task(void const * argument);
 void Robot_task(void const * argument);
 
+extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
@@ -185,7 +186,7 @@ void MX_FREERTOS_Init(void) {
   testHandle = osThreadCreate(osThread(test), NULL);
 
   /* definition and creation of OLED */
-  osThreadDef(OLED, OLED_task, osPriorityIdle, 0, 128);
+  osThreadDef(OLED, OLED_task, osPriorityIdle, 0, 512);
   OLEDHandle = osThreadCreate(osThread(OLED), NULL);
 
   /* definition and creation of Motor_MI */
@@ -219,6 +220,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_test_task */
 __weak void test_task(void const * argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN test_task */
 
   /* Infinite loop */
@@ -243,25 +246,28 @@ __weak void test_task(void const * argument)
 void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
-  uint8_t i = 0;
-  OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
-  OLED_show_string(i,0,"Pit=");   i++;
-  OLED_show_string(i,0,"RTB=");   OLED_show_string(i,10,"LTB=");  i++;
-  OLED_show_string(i,0,"RTF=");   OLED_show_string(i,10,"LTF=");  i++;
-  OLED_show_string(i,0,"VEL=");   i++;
-  OLED_refresh_gram();
+  // uint8_t i = 0;
+  // OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
+  // OLED_show_string(i,0,"Pit=");   i++;
+  // OLED_show_string(i,0,"RTB=");   OLED_show_string(i,10,"LTB=");  i++;
+  // OLED_show_string(i,0,"RTF=");   OLED_show_string(i,10,"LTF=");  i++;
+  // OLED_show_string(i,0,"VEL=");   i++;
+  // OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
-    i = 0;
-    OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
-    OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
-    OLED_show_signednum(i,4,r_side.T_back,4);   OLED_show_signednum(i,10+4,l_side.T_back,4);  i++;
-    OLED_show_signednum(i,4,r_side.T_front,4);  OLED_show_signednum(i,10+4,l_side.T_front,4); i++;
-    OLED_show_signednum(i,4,chassis.vel*100,4);   i++;
-    OLED_refresh_gram();
-    osDelay(2);
+    // i = 0;
+    // OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
+    // OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
+    // OLED_show_signednum(i,4,r_side.T_back,4);   OLED_show_signednum(i,10+4,l_side.T_back,4);  i++;
+    // OLED_show_signednum(i,4,r_side.T_front,4);  OLED_show_signednum(i,10+4,l_side.T_front,4); i++;
+    // OLED_show_signednum(i,4,chassis.vel*100,4);   i++;
+    // OLED_refresh_gram();
+    // osDelay(2);
+
+    USB_printf("Test\n");
+    osDelay(20);
   }
   /* USER CODE END OLED_task */
 }
