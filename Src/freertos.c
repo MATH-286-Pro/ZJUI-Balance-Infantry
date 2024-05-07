@@ -97,7 +97,12 @@ extern uint8_t STOP; // 急停状态
 // 解算参数
 extern LinkNPodParam l_side, r_side;    
 extern ChassisParam chassis;
-// extern INS_t INS;
+
+// 平衡 PID 参数
+extern pid_type_def PID_L; 
+extern pid_type_def PID_R; 
+extern pid_type_def PID_VEL;
+
 
 /* USER CODE END Variables */
 osThreadId testHandle;
@@ -230,7 +235,8 @@ __weak void test_task(void const * argument)
     //   {STOP = False;
     //   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET);} // 复位
     // Joint_Monitor();
-    osDelay(1);
+    // USB_printf("Output:%d\n",(int)(INS.Pitch*DRG*100));  // Hard falut
+    osDelay(10);
   }
   /* USER CODE END test_task */
 }
@@ -245,25 +251,22 @@ __weak void test_task(void const * argument)
 void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
-  uint8_t i = 0;
-  OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
-  OLED_show_string(i,0,"Pit=");   i++;
-  // OLED_show_string(i,0,"RTB=");   OLED_show_string(i,10,"LTB=");  i++;
-  // OLED_show_string(i,0,"RTF=");   OLED_show_string(i,10,"LTF=");  i++;
-  // OLED_show_string(i,0,"VEL=");   i++;
-  OLED_refresh_gram();
+  // uint8_t i = 0;
+  // OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
+  // OLED_show_string(i,0,"Pit=");   i++;
+  // OLED_refresh_gram();
   /* Infinite loop */
   for(;;)
   {
     // 任务 OLED + 遥控器接收
-    i = 0;
-    OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
-    OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
-    // OLED_show_signednum(i,4,r_side.T_back,4);   OLED_show_signednum(i,10+4,l_side.T_back,4);  i++;
-    // OLED_show_signednum(i,4,r_side.T_front,4);  OLED_show_signednum(i,10+4,l_side.T_front,4); i++;
-    // OLED_show_signednum(i,4,chassis.vel*100,4);   i++;
-    OLED_refresh_gram();
-    osDelay(2);
+    // i = 0;
+    // OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
+    // OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
+    // OLED_refresh_gram();
+
+    USB_printf("Output:%d,%d,%d\n", (int)(PID_L.out*100),(int)(PID_L.out*100),(int)(INS.Pitch*DRG*100));
+
+    osDelay(10);
 
     // USB_printf("Test\n");
     // osDelay(20);
@@ -346,16 +349,6 @@ void Motor_A1_task(void const * argument)
       osDelay(2);
     }
 
-    // else if (rc.sw2 == SW_MID)  // 速度模式
-    // {
-    //   modfiy_speed_cmd(&MotorA1_send_left,0,(float) rc.RX*3.0f);   modfiy_speed_cmd(&MotorA1_send_right,0,(float) rc.RX*-3.0f);
-    //   unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
-    //   osDelay(2);
-    //   modfiy_speed_cmd(&MotorA1_send_left,1,(float) rc.LX*3.0f);   modfiy_speed_cmd(&MotorA1_send_right,1,(float) rc.LX*-3.0f);
-    //   unitreeA1_rxtx(&huart1);                                      unitreeA1_rxtx(&huart6);
-    //   osDelay(2);
-    // }
-
     else if (rc.sw2 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
       modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*120 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
@@ -383,9 +376,6 @@ void Motor_A1_task(void const * argument)
 void Robot_task(void const * argument)
 {
   /* USER CODE BEGIN Robot_task */
-  extern pid_type_def PID_STANDE; 
-
-  stand_task_init();
   /* Infinite loop */
   for(;;)
   {
@@ -393,7 +383,6 @@ void Robot_task(void const * argument)
     {
       // BalanceTask(); 
       stand_task_start(&INS);
-      USB_printf("Output:%d,%d\n", (int)(PID_STANDE.out),(int)(INS.Pitch*DRG*100));
       osDelay(1);
     }
   }

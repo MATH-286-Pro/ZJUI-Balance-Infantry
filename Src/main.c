@@ -43,6 +43,7 @@
 #include "can_test.h"
 #include "MI_motor_drive.h"
 #include "A1_motor_drive.h"
+#include "ZJUI_balance.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -131,6 +132,9 @@ int main(void)
   Dbus_Init();           OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 遥控器初始化
   CAN_Init(&hcan1);      OLED_printf(i/20,i%20,"#");  OLED_refresh_gram(); i++; // 初始化CAN1 + 打开中断FIFO0 FIFO1  // 这两段CAN配置程序
   CAN_Filter_Mask_Config(&hcan1, CAN_FILTER(0) | CAN_FIFO_0 | CAN_EXTID | CAN_DATA_TYPE, 0, 0); // 配置CAN1过滤器    //
+
+  stand_task_init(); // 平衡 初始化
+
   OLED_clear();
   
   HAL_GPIO_WritePin(GPIOH, GPIO_PIN_10, GPIO_PIN_RESET); // 蓝灯关闭
