@@ -190,6 +190,7 @@ void stand_task_init()
     // static const float PID_ARG[3] = {50.0f, 0.0f, 200.0f}; // 震荡较小，无法倒地自救
     // static const float PID_ARG[3] = {70.0f, 0.0f, 700.0f}; 
     static const float PID_ARG[3] = {50.0f, 0.0f, 1000.0f};   // 抗干扰较强
+    // static const float PID_ARG[3] = {50.0f, 0.0f, 10.0f};   // 抗干扰较强
     static const float PID_MAX_OUT  = 5.0f; // 小米电机输峰值扭矩为 12Nm
     static const float PID_MAX_IOUT = 4.0f; // 目前用不到
 

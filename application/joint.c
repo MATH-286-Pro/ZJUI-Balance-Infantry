@@ -35,10 +35,10 @@ Chassis_ME_t *Chassis_Init()
 int Joint_Zero_OK() {
     // 检查所有零位是否都在(-180, 180)范围内
     // 一般来说 left_ID0 零位不可能等于 right_ID0 零位
-    if ((zero_left_ID0 > -180 && zero_left_ID0 < 180) && zero_left_ID0 != 0 &&
+    if ((zero_left_ID0  > -180 && zero_left_ID0  < 180) && zero_left_ID0 != 0  &&
         (zero_right_ID0 > -180 && zero_right_ID0 < 180) && zero_right_ID0 != 0 &&
-        (zero_left_ID1 > -180 && zero_left_ID1 < 180) && zero_left_ID1 != 0 &&
-        (zero_right_ID1 > -180 && zero_right_ID1 < 180) && zero_left_ID0 != 0 &&
+        (zero_left_ID1  > -180 && zero_left_ID1  < 180) && zero_left_ID1 != 0  &&
+        (zero_right_ID1 > -180 && zero_right_ID1 < 180) && zero_right_ID1 != 0  &&
         (zero_left_ID0 != zero_right_ID0) &&
         (zero_left_ID1 != zero_right_ID1)) {
         return 1;  // 如果所有零位都在范围内，则返回 true
@@ -89,8 +89,11 @@ while (Joint_Zero_OK() == False) {
     modfiy_speed_cmd(&MotorA1_send_left,  0, -home_speed);    
     modfiy_speed_cmd(&MotorA1_send_right, 0, +home_speed);
     unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
-    if ((MotorA1_recv_left_id00.T)  <= -home_torque) {zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos + UP_LIMIT;} // zero_left_ID0 是减速后的角度 (不是弧度)
-    if ((MotorA1_recv_right_id00.T) >= +home_torque) {zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos - UP_LIMIT;}
+    if ((MotorA1_recv_left_id00.T)  <= -home_torque) {
+        zero_left_ID0  = (float) MotorA1_recv_left_id00.Pos + UP_LIMIT;} // zero_left_ID0 是减速后的角度 (不是弧度)
+    osDelay(1);
+    if ((MotorA1_recv_right_id00.T) >= +home_torque) {
+        zero_right_ID0 = (float) MotorA1_recv_right_id00.Pos - UP_LIMIT;}
     osDelay(1);
 
     modfiy_speed_cmd(&MotorA1_send_left,  1, +home_speed);    
@@ -98,6 +101,7 @@ while (Joint_Zero_OK() == False) {
     unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
     if ((MotorA1_recv_left_id01.T)  >= +home_torque) {
         zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos - UP_LIMIT;}
+    osDelay(1);
     if ((MotorA1_recv_right_id01.T) <= -home_torque) {
         zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos + UP_LIMIT;}
     osDelay(1);

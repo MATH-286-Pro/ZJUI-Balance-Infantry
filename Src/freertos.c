@@ -337,7 +337,8 @@ void Motor_A1_task(void const * argument)
     else if (rc.sw2 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
       //                       RX向右为正    LX向左为负
-      Joint_Position_Control(rc.RX*70.0f,-rc.LX*70.0f);
+      // Joint_Position_Control(rc.RX*70.0f,-rc.LX*70.0f);
+      Joint_Position_Control(0.0f,0.0f);
     }
   }
   /* USER CODE END Motor_A1_task */
