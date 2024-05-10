@@ -184,8 +184,8 @@ void stand_task_init()
     // static const float PID_VEL_ARG[3] = {0.8f, 0.1f, 0.0f};   // 速度环参数
     // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.5f, 0.1f); // 填装 PID 参数 (速度环参数
 
-    static const float PID_VEL_ARG[3] = {2.0f, 0.1f, 0.0f};   // 速度环参数
-    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.0f, 0.1f); // 填装 PID 参数 (速度环参数
+    static const float PID_VEL_ARG[3] = {1.0f, 0.1f, 0.0f};   // 速度环参数
+    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 1.0f, 0.5f); // 填装 PID 参数 (速度环参数
 
     // PID_init(&PID_VEL_L, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
     // PID_init(&PID_VEL_R, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
