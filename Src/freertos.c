@@ -86,7 +86,7 @@ extern motor_recv_t Date_right;               // 右腿电机接收数据体
 extern motor_recv_t MotorA1_recv_right_id00;  // 右腿00号电机接收数据体
 extern motor_recv_t MotorA1_recv_right_id01;  // 右腿01号电机接收数据体
 
-// 默认电机零位
+// 默认电机零位 角度制 减速后的角度
 extern float zero_left_ID0;
 extern float zero_left_ID1;
 extern float zero_right_ID0;
@@ -264,12 +264,9 @@ void OLED_task(void const * argument)
     // OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
     // OLED_refresh_gram();
 
-    USB_printf("Output:%d,%d,%d\n", (int)(PID_L.out*100),(int)(PID_L.out*100),(int)(INS.Pitch*DRG*100));
+    USB_printf("Output:%d,%d,%d,%d\n", (int)(PID_L.out*100),(int)(PID_L.out*100),(int)(INS.Pitch*DRG*100),(int)(-rc.RY*100*8));
 
     osDelay(10);
-
-    // USB_printf("Test\n");
-    // osDelay(20);
   }
   /* USER CODE END OLED_task */
 }
@@ -293,7 +290,12 @@ void Motor_MI_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_MID)
+    if (rc.sw1 == SW_UP)
+    {
+      MI_motor_SpeedControl(&MI_Motor_ID2, 0,1);  // 左轮
+      MI_motor_SpeedControl(&MI_Motor_ID1, 0,1);  // 右轮
+    }
+    else if (rc.sw1 == SW_MID)
     {
       MI_motor_SpeedControl(&MI_Motor_ID1, (+1)*(rc.LY-rc.RX)*20,1);  // 左轮
       MI_motor_SpeedControl(&MI_Motor_ID2, (-1)*(rc.LY+rc.RX)*20,1);  // 右轮
@@ -320,47 +322,22 @@ void Motor_A1_task(void const * argument)
   // Joint_Zero_init_Type1(); // 上电原点
   Joint_Zero_init_Type2(); // 限位原点
   osDelay(10);
+  Joint_Speed_Control(0.0f,0.0f);
 
-  // 回归零位
-  // Joint_GOTO_zero();
-  // osDelay(10);
-  modfiy_pos_cmd(&MotorA1_send_left,0,(float) zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-  modfiy_pos_cmd(&MotorA1_send_right,0,(float) zero_right_ID0, 0.006,1.0); 
-  unitreeA1_rxtx(&huart1); 
-  unitreeA1_rxtx(&huart6);
-  osDelay(2);
-  modfiy_pos_cmd(&MotorA1_send_left,1,(float) zero_left_ID1, 0.006, 1.0);   
-  modfiy_pos_cmd(&MotorA1_send_right,1,(float) zero_right_ID1, 0.006, 1.0);
-  unitreeA1_rxtx(&huart1);
-  unitreeA1_rxtx(&huart6);
-  osDelay(2);
 
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF || STOP == True) // 急停 0力矩模式
+    if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF || STOP == True) // 急停
     {
-      modfiy_speed_cmd(&MotorA1_send_left,0,0);      modfiy_speed_cmd(&MotorA1_send_right,0,0);
-      unitreeA1_rxtx(&huart1);                        unitreeA1_rxtx(&huart6);
-      osDelay(2);
-
-      modfiy_speed_cmd(&MotorA1_send_left,1,0);      modfiy_speed_cmd(&MotorA1_send_right,1,0);
-      unitreeA1_rxtx(&huart1);                        unitreeA1_rxtx(&huart6);
-      osDelay(2);
+      // Joint_Speed_Control(rc.RX*3.0f,-rc.LX*3.0f);
+      Joint_Speed_Control(0.0f,0.0f);
     }
 
     else if (rc.sw2 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      modfiy_pos_cmd(&MotorA1_send_left,0,(float) rc.RX*120 + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-      modfiy_pos_cmd(&MotorA1_send_right,0,(float) rc.RX*-120 + zero_right_ID0, 0.006,1.0); 
-      unitreeA1_rxtx(&huart1); 
-      unitreeA1_rxtx(&huart6);
-      osDelay(1);
-      modfiy_pos_cmd(&MotorA1_send_left,1,(float) rc.LX*120 + zero_left_ID1, 0.006, 1.0);   
-      modfiy_pos_cmd(&MotorA1_send_right,1,(float) rc.LX*-120 + zero_right_ID1, 0.006, 1.0);
-      unitreeA1_rxtx(&huart1);
-      unitreeA1_rxtx(&huart6);
-      osDelay(1);
+      //                       RX向右为正    LX向左为负
+      Joint_Position_Control(rc.RX*70.0f,-rc.LX*70.0f);
     }
   }
   /* USER CODE END Motor_A1_task */

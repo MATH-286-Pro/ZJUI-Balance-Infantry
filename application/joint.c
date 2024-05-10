@@ -10,6 +10,9 @@ float zero_left_ID1  = 0.0f;
 float zero_right_ID0 = 0.0f;
 float zero_right_ID1 = 0.0f;
 
+// 电机信息结构体
+Chassis_ME_t Chassis;
+
 uint8_t STOP = False;
 
 static float home_speed  = 1.1f;  // 减速后角速度 rad/s
@@ -17,6 +20,16 @@ static float home_torque = 2.7f;  // 减速后力矩 Nm
 static float UP_LIMIT    = 20.0f; // 减速后角度 °
 static float DOWN_LIMIT  = 80.0f; // 减速后角度 °
 static float TOLERANCE   = -5.0f;  // 容差 °
+
+// 创建底盘结构体
+Chassis_ME_t *Chassis_Init()
+{
+    Chassis.zero_l_ID0 = 0.0f;
+    Chassis.zero_l_ID1 = 0.0f;
+    Chassis.zero_r_ID0 = 0.0f;
+    Chassis.zero_r_ID1 = 0.0f;
+    return &Chassis;
+}
 
 // 电机零点自检
 int Joint_Zero_OK() {
@@ -83,8 +96,10 @@ while (Joint_Zero_OK() == False) {
     modfiy_speed_cmd(&MotorA1_send_left,  1, +home_speed);    
     modfiy_speed_cmd(&MotorA1_send_right, 1, -home_speed);
     unitreeA1_rxtx(&huart1);                           unitreeA1_rxtx(&huart6);
-    if ((MotorA1_recv_left_id01.T)  >= +home_torque) {zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos - UP_LIMIT;}
-    if ((MotorA1_recv_right_id01.T) <= -home_torque) {zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos + UP_LIMIT;}
+    if ((MotorA1_recv_left_id01.T)  >= +home_torque) {
+        zero_left_ID1  = (float) MotorA1_recv_left_id01.Pos - UP_LIMIT;}
+    if ((MotorA1_recv_right_id01.T) <= -home_torque) {
+        zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos + UP_LIMIT;}
     osDelay(1);
     }
 HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
@@ -106,7 +121,7 @@ void Joint_GOTO_zero()
     osDelay(2);
 }
 
-// 检测是否超过上限位
+// 检测是否超过上限位 因为转换器有问题，暂时不使用该函数
 void Joint_Monitor()
 {   
     if (((MotorA1_recv_left_id00.Pos  - zero_left_ID0)  <= -(UP_LIMIT+TOLERANCE) || (MotorA1_recv_left_id00.Pos - zero_left_ID0) >= +(DOWN_LIMIT+TOLERANCE)) && zero_left_ID0 != 0)
@@ -122,4 +137,46 @@ void Joint_Monitor()
       {HAL_GPIO_TogglePin(GPIOH,GPIO_PIN_12); 
        osDelay(300);
       } // 红灯闪烁
+}
+
+
+
+// 底盘关节电机 4个同时控制
+
+/**
+  * @brief          底盘关节位置控制
+  * @param[in]      Pos_Front: 减速后-角度制 正值前腿向下摆动
+  * @param[in]      Pos_Back: 减速后-角度制 正值后腿向下摆动
+  */
+void Joint_Position_Control(float Pos_Front, float Pos_Back)
+{
+    modfiy_pos_cmd(&MotorA1_send_left,0, (float) +Pos_Front + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+    modfiy_pos_cmd(&MotorA1_send_right,0,(float) -Pos_Front + zero_right_ID0, 0.006,1.0); 
+    unitreeA1_rxtx(&huart1); 
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+    modfiy_pos_cmd(&MotorA1_send_left,1, (float) -Pos_Back + zero_left_ID1, 0.006, 1.0);   
+    modfiy_pos_cmd(&MotorA1_send_right,1,(float) +Pos_Back + zero_right_ID1, 0.006, 1.0);
+    unitreeA1_rxtx(&huart1);
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+}
+
+/**
+  * @brief          底盘关节速度控制
+  * @param[in]      Speed_Front: 减速后-角度制 正值前腿向下摆动
+  * @param[in]      Speed_Back:  减速后-角度制 正值后腿向下摆动
+  */
+void Joint_Speed_Control(float Speed_Front, float Speed_Back)
+{
+    modfiy_speed_cmd(&MotorA1_send_left,0, (float) +Speed_Front);  
+    modfiy_speed_cmd(&MotorA1_send_right,0,(float) -Speed_Front); 
+    unitreeA1_rxtx(&huart1); 
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+    modfiy_speed_cmd(&MotorA1_send_left,1, (float) -Speed_Back);   
+    modfiy_speed_cmd(&MotorA1_send_right,1,(float) +Speed_Back);
+    unitreeA1_rxtx(&huart1);
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
 }

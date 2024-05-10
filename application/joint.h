@@ -31,6 +31,19 @@ extern motor_recv_t MotorA1_recv_right_id01;   // 右腿01号电机接收数据�
 
 extern uint8_t STOP; // 急停状态
 
+// 定义底盘参数
+// 记录电机零位
+typedef struct {
+    float zero_l_ID0; // 减速后的角度制 零点
+    float zero_l_ID1;
+    float zero_r_ID0;
+    float zero_r_ID1;
+
+} Chassis_ME_t;
+
+// 底盘初始化
+Chassis_ME_t *Chassis_Init();
+
 // 电机零点自检
 int Joint_Zero_OK(void);
 
@@ -40,9 +53,17 @@ void Joint_Zero_init_Type1(void);
 // 电机零点获取 (零点位置 = 限位位置)
 void Joint_Zero_init_Type2(void);
 
+// 存在问题
 void Joint_GOTO_zero(void);
 
 // 监控电机位置与力矩状态
 void Joint_Monitor(void);
+
+// 底盘位置控制
+void Joint_Position_Control(float Pos_Front, float Pos_Back);
+
+// 底盘速度控制
+void Joint_Speed_Control(float Speed_Front, float Speed_Back);
+
 
 #endif // !JOINT_H

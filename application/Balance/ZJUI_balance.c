@@ -161,49 +161,70 @@ void MotorControl()
 //  接下来要给 Target_pitch 做成速度环
 #include "pid.h"
 
+#define mm 0.001f
+#define R_Wheel  124*mm  // 轮子半径
+
 float target_pitch = -0.70f*DGR2RAD; // 测试实际数值角度
 
-pid_type_def PID_VEL; // 速度环 PID 结构体
-pid_type_def PID_L;   // 直立环 PID 结构体
-pid_type_def PID_R;   // 直立环 PID 结构体
+pid_type_def PID_VEL;   // 速度环 PID 结构体
+pid_type_def PID_VEL_L; // 速度环 PID 结构体
+pid_type_def PID_VEL_R; // 速度环 PID 结构体
+
+pid_type_def PID_L;     // 直立环 PID 结构体
+pid_type_def PID_R;     // 直立环 PID 结构体
 float Torque_L;
 float Torque_R;       // 轮电机输出力矩
+float Vel_meaure;       // 平均速度 = (左 + 右) / 2
+float Vel_L;
+float Vel_R;
 
 void stand_task_init()
 {   
     // 速度环参数 (测试)
-    static const float PID_VEL_ARG[3] = {30.0f, 1.0f, 0.0f};   // 速度环参数
-    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 5.0f, 0.5f); // 填装 PID 参数 (速度环参数
-                                        // 最大输出角度
+    static const float PID_VEL_ARG[3] = {1.0f, 1.0f/200, 0.0f};   // 速度环参数
+    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数
+    PID_init(&PID_VEL_L, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
+    PID_init(&PID_VEL_R, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
 
     // 直立环参数
     // static const float PID_ARG[3] = {50.0f, 0.0f, 200.0f}; // 震荡较小，无法倒地自救
-    static const float PID_ARG[3] = {50.0f, 0.0f, 500.0f}; 
-    static const float PID_MAX_OUT  = 4.0f;
+    // static const float PID_ARG[3] = {70.0f, 0.0f, 700.0f}; 
+    static const float PID_ARG[3] = {50.0f, 0.0f, 1000.0f};   // 抗干扰较强
+    static const float PID_MAX_OUT  = 5.0f; // 小米电机输峰值扭矩为 12Nm
     static const float PID_MAX_IOUT = 4.0f; // 目前用不到
 
     PID_init(&PID_L, PID_POSITION, PID_ARG, PID_MAX_OUT, PID_MAX_IOUT); // 填装 PID 参数 
     PID_init(&PID_R, PID_POSITION, PID_ARG, PID_MAX_OUT, PID_MAX_IOUT); // 填装 PID 参数 
 }
 
-//, MI_Motor_s wheel_left, MI_Motor_s wheel_right
 void stand_task_start(INS_t *INS)
 {   
-    // // 速度环
-    // PID_calc(&PID_VEL, INS->Pitch - target_pitch*DGR2RAD, rc.LY*5.0f*DGR2RAD); // 计算 速度环 输出
-
-    // 直立环
-    PID_calc(&PID_L, INS->Pitch, target_pitch - rc.LY*5.0f*DGR2RAD + rc.RX*1.0f*DGR2RAD); // 计算 PID 输出
-    PID_calc(&PID_R, INS->Pitch, target_pitch - rc.LY*5.0f*DGR2RAD - rc.RX*1.0f*DGR2RAD); // 计算 PID 输出   
+    // 直立环 ----------------------------------------------------------------------
+    PID_calc(&PID_L, INS->Pitch, target_pitch - rc.RY*8.0f*DGR2RAD + rc.RX*1.0f*DGR2RAD); // 计算 PID 输出
+    PID_calc(&PID_R, INS->Pitch, target_pitch - rc.RY*8.0f*DGR2RAD - rc.RX*1.0f*DGR2RAD); // 计算 PID 输出 
 
     MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out)); // 左轮
-    MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out)); // 右轮 
-
-    // PID_calc(&PID_L, INS->Pitch, target_pitch); // 计算 PID 输出
-    // PID_calc(&PID_R, INS->Pitch, target_pitch); // 计算 PID 输出
-    // Torque_L = PID_L.out + PID_VEL.out*0.1f; // 左轮输出力矩
-    // Torque_R = PID_R.out + PID_VEL.out*0.1f; // 左轮输出力矩
+    MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out)); // 右轮   
+    // 直立环 ----------------------------------------------------------------------
 
 
+    // // 直立环 + 速度环
 
+    //     // 直立环计算
+    //     PID_calc(&PID_L, INS->Pitch - target_pitch, 0.0f); // 计算 PID 输出
+    //     PID_calc(&PID_R, INS->Pitch - target_pitch, 0.0f); // 计算 PID 输出 
+
+    //     // 速度环计算
+    //     Vel_meaure = 0.5*(-MI_Motor_ID2.RxCAN_info.speed * R_Wheel + MI_Motor_ID1.RxCAN_info.speed * R_Wheel);
+    //     PID_calc(&PID_VEL, Vel_meaure, rc.LY*2.0f); // 计算 速度环 输出
+    //     // PID_calc(&PID_VEL_L, +MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
+    //     // PID_calc(&PID_VEL_R, -MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
+
+    //     // 力矩输出
+    //     MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out - PID_VEL.out)); // 左轮
+    //     MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out - PID_VEL.out)); // 右轮 
+
+    //     // 测试速度环 Kp 极性 极性正确
+    //     // MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(-PID_VEL.out)); // 左轮
+    //     // MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(-PID_VEL.out)); // 右轮 
 }
