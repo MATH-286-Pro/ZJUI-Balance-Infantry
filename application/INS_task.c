@@ -186,14 +186,14 @@ void INS_task(void const *pvParameters)
 
         // 添加用于获取数据
         dt = DWT_GetDeltaT(&INS_DWT_CNT); // 获取时间间隔
-        INS.Accel[X0] = -bmi088_real_data.accel[Y0]; // 调整
-        INS.Accel[Y0] = bmi088_real_data.accel[X0];  // 调整
+        INS.Accel[X0] = -bmi088_real_data.accel[X0]; // 调整
+        INS.Accel[Y0] = bmi088_real_data.accel[Y0];  // 调整
         INS.Accel[Z0] = bmi088_real_data.accel[Z0];
         // INS.dgyro[X0] = (bmi088_real_data.gyro[X0] - INS.Gyro[X0])/ (INS.DGyroLPF + dt) + INS.dgyro[X0] * INS.DGyroLPF / (INS.DGyroLPF + dt);
         // INS.dgyro[Y0] = (bmi088_real_data.gyro[Y0] - INS.Gyro[Y0])/ (INS.DGyroLPF + dt) + INS.dgyro[Y0] * INS.DGyroLPF / (INS.DGyroLPF + dt);
         // INS.dgyro[Z0] = (bmi088_real_data.gyro[Z0] - INS.Gyro[Z0])/ (INS.DGyroLPF + dt) + INS.dgyro[Z0] * INS.DGyroLPF / (INS.DGyroLPF + dt);
-        INS.Gyro[X0]  = -bmi088_real_data.gyro[Y0];  // 调整
-        INS.Gyro[Y0]  = bmi088_real_data.gyro[X0];   // 调整
+        INS.Gyro[X0]  = -bmi088_real_data.gyro[X0];  // 调整
+        INS.Gyro[Y0]  = bmi088_real_data.gyro[Y0];   // 调整
         INS.Gyro[Z0]  = bmi088_real_data.gyro[Z0];
         INS.Yaw       = INS_angle[INS_YAW_ADDRESS_OFFSET];
         INS.Pitch     = INS_angle[INS_PITCH_ADDRESS_OFFSET];

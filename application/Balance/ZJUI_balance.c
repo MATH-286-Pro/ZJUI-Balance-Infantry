@@ -174,15 +174,19 @@ pid_type_def PID_L;     // 直立环 PID 结构体
 pid_type_def PID_R;     // 直立环 PID 结构体
 float Torque_L;
 float Torque_R;         // 轮电机输出力矩
-float Vel_meaure;       // 平均速度 = (左 + 右) / 2
+float Vel_measure;       // 平均速度 = (左 + 右) / 2
 float Vel_L;
 float Vel_R;
 
 void stand_task_init()
 {   
     // 速度环参数 (测试)
-    static const float PID_VEL_ARG[3] = {1.5f, 0.000f, 0.0f};   // 速度环参数
-    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.0f, 0.02f); // 填装 PID 参数 (速度环参数
+    // static const float PID_VEL_ARG[3] = {0.8f, 0.1f, 0.0f};   // 速度环参数
+    // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.5f, 0.1f); // 填装 PID 参数 (速度环参数
+
+    static const float PID_VEL_ARG[3] = {2.0f, 0.1f, 0.0f};   // 速度环参数
+    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.0f, 0.1f); // 填装 PID 参数 (速度环参数
+
     // PID_init(&PID_VEL_L, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
     // PID_init(&PID_VEL_R, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
 
@@ -216,8 +220,9 @@ void stand_task_start(INS_t *INS)
         PID_calc(&PID_R, INS->Pitch, target_pitch); // 计算 PID 输出 
 
         // 速度环计算
-        Vel_meaure = 0.5*(-MI_Motor_ID2.RxCAN_info.speed * R_Wheel + MI_Motor_ID1.RxCAN_info.speed * R_Wheel);
-        PID_calc(&PID_VEL, Vel_meaure, rc.LY*2.0f); // 计算 速度环 输出
+        Vel_measure = 0.5*(-MI_Motor_ID2.RxCAN_info.speed * R_Wheel + MI_Motor_ID1.RxCAN_info.speed * R_Wheel);
+        Vel_measure = Vel_measure - INS->Gyro[Y0] * R_Wheel; // 轮速度修正
+        PID_calc(&PID_VEL, Vel_measure, rc.LY*3.0f); // 计算 速度环 输出
         // PID_calc(&PID_VEL_L, +MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
         // PID_calc(&PID_VEL_R, -MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
 
