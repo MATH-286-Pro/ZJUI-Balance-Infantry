@@ -177,24 +177,19 @@ float Torque_R;         // 轮电机输出力矩
 float Vel_measure;       // 平均速度 = (左 + 右) / 2
 float Vel_L;
 float Vel_R;
+float Vel_DeadZone = 0.2f; // 速度环死区
 
 void stand_task_init()
 {   
     // 速度环参数 (测试)
-    // static const float PID_VEL_ARG[3] = {0.8f, 0.1f, 0.0f};   // 速度环参数
-    // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.5f, 0.1f); // 填装 PID 参数 (速度环参数
-
-    static const float PID_VEL_ARG[3] = {1.0f, 0.1f, 0.0f};   // 速度环参数
-    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 1.0f, 0.5f); // 填装 PID 参数 (速度环参数
-
-    // PID_init(&PID_VEL_L, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
-    // PID_init(&PID_VEL_R, PID_POSITION, PID_VEL_ARG, 1.0f, 0.2f); // 填装 PID 参数 (速度环参数                                   
+    static const float PID_VEL_ARG[3] = {5.0f, 0.1f, 0.0f};   // 速度环参数
+    PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 1.5f, 0.4f); // 填装 PID 参数 (速度环参数                                  
 
     // 直立环参数
     // 当前task 2ms执行一次
     // INS task 1ms执行一次
     // static const float PID_ARG[3] = {50.0f, 0.0f, 1000.0f};   // 抗干扰较强
-    static const float PID_ARG[3] = {25.0f, 0.0f, 600.0f};   // 抗干扰较强
+    static const float PID_ARG[3] = {23.0f, 0.0f, 800.0f};   // 抗干扰较强
     static const float PID_MAX_OUT  = 3.0f; // 小米电机输峰值扭矩为 12Nm
     static const float PID_MAX_IOUT = 4.0f; // 目前用不到
 
@@ -221,7 +216,8 @@ void stand_task_start(INS_t *INS)
 
         // 速度环计算
         Vel_measure = 0.5*(-MI_Motor_ID2.RxCAN_info.speed * R_Wheel + MI_Motor_ID1.RxCAN_info.speed * R_Wheel);
-        Vel_measure = Vel_measure - INS->Gyro[Y0] * R_Wheel; // 轮速度修正
+        Vel_measure = Vel_measure - INS->Gyro[Y0] * R_Wheel;           // 轮速度修正
+        if (Vel_measure > -Vel_DeadZone && Vel_measure < Vel_DeadZone){Vel_measure = 0;} // 速度环死区
         PID_calc(&PID_VEL, Vel_measure, rc.LY*3.0f); // 计算 速度环 输出
         // PID_calc(&PID_VEL_L, +MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
         // PID_calc(&PID_VEL_R, -MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
@@ -229,6 +225,8 @@ void stand_task_start(INS_t *INS)
         // 力矩输出
         MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out - PID_VEL.out)); // 左轮
         MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out - PID_VEL.out)); // 右轮 
+        // MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out)); // 左轮
+        // MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out)); // 右轮 
 
         // 测试速度环 Kp 极性 极性正确
         // MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(-PID_VEL.out)); // 左轮

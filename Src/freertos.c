@@ -323,6 +323,7 @@ void Motor_A1_task(void const * argument)
   Joint_Zero_init_Type2(); // 限位原点
   osDelay(10);
   Joint_Speed_Control(0.0f,0.0f);
+  // Joint_Position_Control(0.0f,0.0f);
 
 
   /* Infinite loop */
