@@ -361,7 +361,7 @@ void Robot_task(void const * argument)
     {
       // BalanceTask(); 
       stand_task_start(&INS);
-      osDelay(1);
+      osDelay(2);
     }
   }
   /* USER CODE END Robot_task */
