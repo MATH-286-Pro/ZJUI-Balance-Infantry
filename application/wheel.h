@@ -17,6 +17,8 @@ extern MI_Motor_s MI_Motor_ID2;              // 定义小米电机结构体2
 // 定义函数
 uint8_t Wheel_Init_OK();
 void Wheel_Init();
+void Wheel_Torque_Control(float Torque_L, float Torque_R);
+void Wheel_Speed_Control(float Speed_L, float Speed_R);
 
 
 #endif

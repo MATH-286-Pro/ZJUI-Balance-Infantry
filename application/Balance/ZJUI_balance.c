@@ -5,13 +5,15 @@
 // #include "ZJUI_LQR_calc.h"
 
 #include "bsp_dwt.h"
-#include "A1_motor_drive.h"
-#include "MI_motor_drive.h"
 #include "INS_task.h"
 #include "general_def.h" // 通用参数，比如pi
-#include "joint.h"
 #include "Debug_Tool.h"
 #include "rc.h"
+#include "A1_motor_drive.h"
+#include "MI_motor_drive.h"
+#include "wheel.h"
+#include "joint.h"
+
 
 // User define variables
 // 关节电机变量
@@ -157,27 +159,17 @@ void MotorControl()
 
 
 // 板凳模型算法
-// 任务清单
-//  接下来要给 Target_pitch 做成速度环
 #include "pid.h"
 
 #define mm 0.001f
 #define R_Wheel  124*mm  // 轮子半径
 
 float target_pitch = -0.70f*DGR2RAD; // 测试实际数值角度
-
-pid_type_def PID_VEL;   // 速度环 PID 结构体
-pid_type_def PID_VEL_L; // 速度环 PID 结构体
-pid_type_def PID_VEL_R; // 速度环 PID 结构体
-
-pid_type_def PID_L;     // 直立环 PID 结构体
-pid_type_def PID_R;     // 直立环 PID 结构体
-float Torque_L;
-float Torque_R;         // 轮电机输出力矩
 float Vel_measure;       // 平均速度 = (左 + 右) / 2
-float Vel_L;
-float Vel_R;
 float Vel_DeadZone = 0.2f; // 速度环死区
+
+pid_type_def PID_Balance; // 直立环 PID 结构体
+pid_type_def PID_VEL;     // 速度环 PID 结构体
 
 void stand_task_init()
 {   
@@ -192,43 +184,22 @@ void stand_task_init()
     static const float PID_ARG[3] = {23.0f, 0.0f, 800.0f};   // 抗干扰较强
     static const float PID_MAX_OUT  = 3.0f; // 小米电机输峰值扭矩为 12Nm
     static const float PID_MAX_IOUT = 4.0f; // 目前用不到
-
-    PID_init(&PID_L, PID_POSITION, PID_ARG, PID_MAX_OUT, PID_MAX_IOUT); // 填装 PID 参数 
-    PID_init(&PID_R, PID_POSITION, PID_ARG, PID_MAX_OUT, PID_MAX_IOUT); // 填装 PID 参数 
+    PID_init(&PID_Balance, PID_POSITION, PID_ARG, PID_MAX_OUT, PID_MAX_IOUT); // 填装 PID 参数
 }
 
 void stand_task_start(INS_t *INS)
 {   
-    // // 直立环 ----------------------------------------------------------------------
-    // PID_calc(&PID_L, INS->Pitch, target_pitch - rc.RY*8.0f*DGR2RAD + rc.RX*1.0f*DGR2RAD); // 计算 PID 输出
-    // PID_calc(&PID_R, INS->Pitch, target_pitch - rc.RY*8.0f*DGR2RAD - rc.RX*1.0f*DGR2RAD); // 计算 PID 输出 
-
-    // MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out)); // 左轮
-    // MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out)); // 右轮   
-    // // 直立环 ----------------------------------------------------------------------
-
-
     // 直立环 + 速度环
 
-        // 直立环计算
-        PID_calc(&PID_L, INS->Pitch, target_pitch); // 计算 PID 输出
-        PID_calc(&PID_R, INS->Pitch, target_pitch); // 计算 PID 输出 
+    // 直立环计算
+    PID_calc(&PID_Balance, INS->Pitch, target_pitch); // 计算 PID 输出
 
-        // 速度环计算
-        Vel_measure = 0.5*(-MI_Motor_ID2.RxCAN_info.speed * R_Wheel + MI_Motor_ID1.RxCAN_info.speed * R_Wheel);
-        Vel_measure = Vel_measure - INS->Gyro[Y0] * R_Wheel;           // 轮速度修正
-        if (Vel_measure > -Vel_DeadZone && Vel_measure < Vel_DeadZone){Vel_measure = 0;} // 速度环死区
-        PID_calc(&PID_VEL, Vel_measure, rc.LY*3.0f); // 计算 速度环 输出
-        // PID_calc(&PID_VEL_L, +MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
-        // PID_calc(&PID_VEL_R, -MI_Motor_ID2.RxCAN_info.speed * R_Wheel, rc.RY*2.0f); // 计算 速度环 输出
+    // 速度环计算
+    Vel_measure = 0.5*(-MI_Motor_ID2.RxCAN_info.speed * R_Wheel + MI_Motor_ID1.RxCAN_info.speed * R_Wheel);
+    Vel_measure = Vel_measure - INS->Gyro[Y0] * R_Wheel;                             // 轮速度修正
+    if (Vel_measure > -Vel_DeadZone && Vel_measure < Vel_DeadZone){Vel_measure = 0;} // 速度环死区
+    PID_calc(&PID_VEL, Vel_measure, rc.LY*3.0f);      // 计算 速度环 输出
 
-        // 力矩输出
-        MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out - PID_VEL.out)); // 左轮
-        MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out - PID_VEL.out)); // 右轮 
-        // MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(PID_L.out)); // 左轮
-        // MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(PID_R.out)); // 右轮 
-
-        // 测试速度环 Kp 极性 极性正确
-        // MI_motor_TorqueControl(&MI_Motor_ID2, (-1)*(-PID_VEL.out)); // 左轮
-        // MI_motor_TorqueControl(&MI_Motor_ID1, (+1)*(-PID_VEL.out)); // 右轮 
+    // 力矩输出
+    Wheel_Torque_Control(PID_Balance.out - PID_VEL.out, PID_Balance.out - PID_VEL.out);
 }
