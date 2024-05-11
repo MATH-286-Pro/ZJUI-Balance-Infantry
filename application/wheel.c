@@ -42,3 +42,9 @@ void Wheel_Torque_Control(float Torque_L, float Torque_R)
     MI_motor_SpeedControl(&MI_Motor_ID1, +Speed_R,1); // 右轮
 }
 
+// 返回轮电机速度向前为正
+void Wheel_Speed_Read(float* VEL_L, float* VEL_R)
+{
+    *VEL_L = -MI_Motor_ID2.RxCAN_info.speed;
+    *VEL_R = +MI_Motor_ID1.RxCAN_info.speed;
+}

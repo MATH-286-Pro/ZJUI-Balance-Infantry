@@ -19,6 +19,6 @@ uint8_t Wheel_Init_OK();
 void Wheel_Init();
 void Wheel_Torque_Control(float Torque_L, float Torque_R);
 void Wheel_Speed_Control(float Speed_L, float Speed_R);
-
+void Wheel_Speed_Read(float* VEL_L, float* VEL_R);
 
 #endif
