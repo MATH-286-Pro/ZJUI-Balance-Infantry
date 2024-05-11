@@ -229,7 +229,8 @@ void stand_task_init()
     // static const float PID_VEL_UP_ARG[3] = {1.5f, 0.5f, 0.0f};    
     // PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.3f);
 
-    static const float PID_VEL_UP_ARG[3] = {2.5f, 0.5f, 0.0f};    
+    // static const float PID_VEL_UP_ARG[3] = {2.5f, 0.5f, 0.0f};    
+    static const float PID_VEL_UP_ARG[3] = {2.5f, 0.12f, 0.0f};    
     PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.3f); 
 
     // 转向环

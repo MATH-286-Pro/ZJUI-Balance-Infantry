@@ -44,6 +44,7 @@
 #include "MI_motor_drive.h"
 #include "A1_motor_drive.h"
 #include "ZJUI_balance.h"
+#include "OLED_BMP.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -136,6 +137,7 @@ int main(void)
   stand_task_init(); // 平衡 初始化
 
   OLED_clear();
+  OLED_showBMP_gram(BMP_GENSHIN_GRAM);
   
   HAL_GPIO_WritePin(GPIOH, GPIO_PIN_10, GPIO_PIN_RESET); // 蓝灯关闭
 
