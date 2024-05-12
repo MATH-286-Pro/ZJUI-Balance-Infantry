@@ -71,7 +71,7 @@ void MotorControl();
 
 // 添加板凳模型函数
 void stand_task_init();
-void stand_task_start(INS_t *INS);
+void stand_task_start(INS_t *INS, float Vel_Forward, float Vel_Turn);
 
 
 #endif

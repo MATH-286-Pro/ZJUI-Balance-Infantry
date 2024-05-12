@@ -360,7 +360,7 @@ void Robot_task(void const * argument)
     if (rc.sw2 == SW_DOWN && rc.sw1 == SW_DOWN && STOP == False) //急停使用
     {
       // BalanceTask(); 
-      stand_task_start(&INS);
+      stand_task_start(&INS, rc.LY, rc.RX);
       osDelay(2);
     }
   }

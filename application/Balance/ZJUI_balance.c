@@ -240,7 +240,7 @@ void stand_task_init()
     Vel_measure = 0.0;
 }
 
-void stand_task_start(INS_t *INS)
+void stand_task_start(INS_t *INS, float RC_Forward, float RC_Turn)
 {   
     // 直立环计算
     PID_calc(&PID_Balance, INS->Pitch, target_pitch);        // 计算 PID 输出
@@ -252,15 +252,15 @@ void stand_task_start(INS_t *INS)
     Vel_measure     = Vel_measure - INS->Gyro[Y0] * R_Wheel;                // 轮速度修正
 
     Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;             // 速度滤波
-    Vel_measure_mod = IsInDeadZone(Vel_measure,rc.LY*2.0f, DeadZone_Vel);       // 速度环死区
-    DZ_SIGN_VEL = IsInDeadZoneSign(Vel_measure,rc.LY*2.0f, DeadZone_Vel);       // 速度环死区标志
-    PID_calc(&PID_VEL_UP,   Vel_measure_mod, rc.LY*2.0f);                       // 计算 平衡 速度环 输出
-    PID_calc(&PID_VEL_DOWN, Vel_measure_mod, rc.LY*2.0f);                       // 计算 倒地 速度环 输出
+    Vel_measure_mod = IsInDeadZone(Vel_measure,RC_Forward*2.0f, DeadZone_Vel);       // 速度环死区
+    DZ_SIGN_VEL = IsInDeadZoneSign(Vel_measure,RC_Forward*2.0f, DeadZone_Vel);       // 速度环死区标志
+    PID_calc(&PID_VEL_UP,   Vel_measure_mod, RC_Forward*2.0f);                       // 计算 平衡 速度环 输出
+    PID_calc(&PID_VEL_DOWN, Vel_measure_mod, RC_Forward*2.0f);                       // 计算 倒地 速度环 输出
 
     // 转向环计算
     Vel_Diff = Vel_L - Vel_R;                                // 左右轮速差
     Vel_Diff = IsInDeadZone(Vel_Diff, 0.0f, DeadZone_TURN);  // 转向环死区
-    PID_calc(&PID_TURN, Vel_Diff, rc.RX*20.0f);              // 计算 转向环 输出
+    PID_calc(&PID_TURN, Vel_Diff, RC_Turn*20.0f);              // 计算 转向环 输出
 
 
 
