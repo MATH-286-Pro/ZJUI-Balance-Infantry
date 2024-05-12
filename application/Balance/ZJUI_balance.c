@@ -229,8 +229,8 @@ void stand_task_init()
     // static const float PID_VEL_UP_ARG[3] = {5.0f, 0.025f, 0.0f};    
     // PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.2f, 0.5f);   
 
-    static const float PID_VEL_UP_ARG[3] = {2.0f, 0.01f, 0.0f};    
-    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.5f, 0.5f); 
+    static const float PID_VEL_UP_ARG[3] = {2.5f, 0.01f, 0.0f};    
+    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 3.0f, 0.5f); 
 
     // 转向环
     static const float PID_TURN_ARG[3] = {5.0f, 0.0f, 1.0f};      
@@ -265,7 +265,7 @@ void stand_task_start(INS_t *INS)
 
 
     // 力矩输出
-    static float Critical_Angle = 12.0f*DGR2RAD; // 临界角度
+    static float Critical_Angle = 8.0f*DGR2RAD; // 临界角度
     if (INS->Pitch > -Critical_Angle && INS->Pitch < Critical_Angle)
     {Wheel_Torque_Control(PID_Balance.out - DZ_SIGN_VEL*PID_VEL_UP.out + PID_TURN.out,   // 左轮
                           PID_Balance.out - DZ_SIGN_VEL*PID_VEL_UP.out - PID_TURN.out);} // 右轮
