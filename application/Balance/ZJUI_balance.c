@@ -171,6 +171,8 @@ float Vel_L = 0.0f;
 float Vel_R = 0.0f;
 float Vel_Diff = 0.0f;
 float Vel_measure;            // 平均速度 = (左 + 右) / 2
+float Vel_measure_last;       // 上一次速度
+float Vel_measure_mod;        // 速度修正
 float DeadZone_Vel  = 0.15f;  // 速度环死区
 float DeadZone_TURN = 0.5f;   // 转向环死区
 
@@ -230,12 +232,15 @@ void stand_task_init()
     // PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.3f);
 
     // static const float PID_VEL_UP_ARG[3] = {2.5f, 0.5f, 0.0f};    
-    static const float PID_VEL_UP_ARG[3] = {2.5f, 0.12f, 0.0f};    
-    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.3f); 
+    static const float PID_VEL_UP_ARG[3] = {4.0f, 0.02f, 0.0f};    
+    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.5f); 
 
     // 转向环
     static const float PID_TURN_ARG[3] = {5.0f, 0.0f, 1.0f};      
     PID_init(&PID_TURN, PID_POSITION, PID_TURN_ARG, 1.0f, 0.0f);  
+
+    Vel_measure_last = 0.0;
+    Vel_measure = 0.0;
 }
 
 void stand_task_start(INS_t *INS)
@@ -244,30 +249,29 @@ void stand_task_start(INS_t *INS)
     PID_calc(&PID_Balance, INS->Pitch, target_pitch);        // 计算 PID 输出
 
     // 速度环计算
-    Wheel_Speed_Read(&Vel_L, &Vel_R);                                   // 读取轮速
-    Vel_measure = 0.5*(Vel_L * R_Wheel + Vel_R * R_Wheel);              // 车速 = (左轮速 + 右轮速) / 2
-    Vel_measure = Vel_measure - INS->Gyro[Y0] * R_Wheel;                // 轮速度修正
-    Vel_measure = IsInDeadZone(Vel_measure,rc.LY*2.0f, DeadZone_Vel);   // 速度环死区
-    PID_calc(&PID_VEL_UP,   Vel_measure, rc.LY*2.0f);                     // 计算 平衡 速度环 输出
-    PID_calc(&PID_VEL_DOWN, Vel_measure, rc.LY*2.0f);                   // 计算 倒地 速度环 输出
+    Vel_measure_last = Vel_measure; // 用于滤波
+    Wheel_Speed_Read(&Vel_L, &Vel_R);                                       // 读取轮速
+    Vel_measure     = 0.5*(Vel_L * R_Wheel + Vel_R * R_Wheel);              // 车速 = (左轮速 + 右轮速) / 2
+    Vel_measure     = Vel_measure - INS->Gyro[Y0] * R_Wheel;                // 轮速度修正
+
+    Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;         // 速度滤波
+    Vel_measure_mod = IsInDeadZone(Vel_measure,rc.LY*2.0f, DeadZone_Vel);   // 速度环死区
+    PID_calc(&PID_VEL_UP,   Vel_measure_mod, rc.LY*2.0f);                     // 计算 平衡 速度环 输出
+    PID_calc(&PID_VEL_DOWN, Vel_measure_mod, rc.LY*2.0f);                   // 计算 倒地 速度环 输出
 
     // 转向环计算
     Vel_Diff = Vel_L - Vel_R;                                // 左右轮速差
-    Vel_Diff = IsInDeadZone(Vel_Diff, 0.0f, DeadZone_TURN);        // 转向环死区
+    Vel_Diff = IsInDeadZone(Vel_Diff, 0.0f, DeadZone_TURN);  // 转向环死区
     PID_calc(&PID_TURN, Vel_Diff, rc.RX*20.0f);              // 计算 转向环 输出
 
 
 
     // 力矩输出
-    if (INS->Pitch > -15.0f*DGR2RAD && INS->Pitch < 15.0f*DGR2RAD)
+    static float Critical_Angle = 12.0f*DGR2RAD; // 临界角度
+    if (INS->Pitch > -Critical_Angle && INS->Pitch < Critical_Angle)
     {Wheel_Torque_Control(PID_Balance.out - PID_VEL_UP.out + PID_TURN.out,   // 左轮
                           PID_Balance.out - PID_VEL_UP.out - PID_TURN.out);} // 右轮
     else
     {Wheel_Torque_Control(PID_Balance.out - PID_VEL_DOWN.out + PID_TURN.out,   // 左轮
                           PID_Balance.out - PID_VEL_DOWN.out - PID_TURN.out);}
-
-    // Wheel_Torque_Control(PID_Balance.out - PID_VEL.out + PID_TURN.out,  // 左轮
-    //                      PID_Balance.out - PID_VEL.out - PID_TURN.out); // 右轮
-    // Wheel_Torque_Control(PID_Balance.out + PID_TURN.out,  // 左轮
-    //                      PID_Balance.out - PID_TURN.out); // 右轮
 }

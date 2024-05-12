@@ -102,7 +102,8 @@ extern ChassisParam chassis;
 extern pid_type_def PID_L; 
 extern pid_type_def PID_R; 
 extern pid_type_def PID_VEL;
-
+extern Vel_measure;
+extern Vel_measure_mod;
 
 /* USER CODE END Variables */
 osThreadId testHandle;
@@ -255,6 +256,8 @@ void OLED_task(void const * argument)
   // OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
   // OLED_show_string(i,0,"Pit=");   i++;
   // OLED_refresh_gram();
+  float speed_print = 0.0f;
+  float speed_print_last = 0.0f;
   /* Infinite loop */
   for(;;)
   {
@@ -263,8 +266,10 @@ void OLED_task(void const * argument)
     // OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
     // OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
     // OLED_refresh_gram();
-
-    USB_printf("Output:%d,%d\n", (int)(INS.Pitch*DRG*100),(int)(-rc.RY*100*8));
+    speed_print_last = speed_print;
+    speed_print = (-MI_Motor_ID2.RxCAN_info.speed + MI_Motor_ID1.RxCAN_info.speed)/2*62*0.001;
+    speed_print = speed_print*0.3 + speed_print_last*0.7;
+    USB_printf("Output:%d,%d,%d\n", (int)(INS.Pitch*DRG*100),(int)(speed_print*1000),(int)(rc.LY*2.0f*1000));
 
     osDelay(10);
   }
@@ -290,8 +295,8 @@ void Motor_MI_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_UP){Wheel_Speed_Control(0.0f,0.0f);}          // 轮电机停转
-    if (rc.sw1 == SW_MID){Wheel_Speed_Control(rc.LY*20 + rc.RX*20, rc.LY*20 - rc.RX*20);} // 轮速度控制，正值前进，负值后退
+    if (rc.sw1 == SW_UP){Wheel_Speed_Control(rc.LY*20 + rc.RX*20, rc.LY*20 - rc.RX*20);} // 轮速度控制，正值前进，负值后退
+    if (rc.sw1 == SW_MID){Wheel_Speed_Control(0.0f,0.0f);}          // 轮电机停转
     osDelay(1);
   }
   /* USER CODE END Motor_MI_task */
