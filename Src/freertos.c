@@ -69,9 +69,6 @@ osThreadId led_RGB_flow_handle;
 //定义全局变量
 extern RC_Type rc;        // 遥控器数据
 
-extern fp32 INS_angle[3]; // 陀螺仪角度
-extern fp32 temp;         // BMI088温度
-
 extern MI_Motor_s MI_Motor_ID1;               // 定义小米电机结构体1
 extern MI_Motor_s MI_Motor_ID2;               // 定义小米电机结构体2
 
@@ -94,10 +91,6 @@ extern float zero_right_ID1;
 
 extern uint8_t STOP; // 急停状态
 
-// 解算参数
-extern LinkNPodParam l_side, r_side;    
-extern ChassisParam chassis;
-
 // 平衡 PID 参数
 extern pid_type_def PID_L; 
 extern pid_type_def PID_R; 
@@ -105,6 +98,9 @@ extern pid_type_def PID_VEL;
 extern Vel_measure;
 extern Vel_measure_mod;
 extern pid_type_def PID_VEL_UP;   // 速度环 PID 结构体 (±10°都非常稳定)
+
+// 测试参数
+float BUF = 0.0f; // 用于轮腿升降测试
 
 /* USER CODE END Variables */
 osThreadId testHandle;
@@ -238,7 +234,7 @@ __weak void test_task(void const * argument)
     //   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET);} // 复位
     // Joint_Monitor();
     // USB_printf("Output:%d\n",(int)(INS.Pitch*DRG*100));  // Hard falut
-    osDelay(10);
+    osDelay(100);
   }
   /* USER CODE END test_task */
 }
@@ -288,18 +284,18 @@ void OLED_task(void const * argument)
 void Motor_MI_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_MI_task */
-  MI_motor_Init(&MI_Motor_ID1,&MI_CAN_1,1); // 将MI_CAN_1，ID=1传入小米结构体 
-  MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_1，ID=2传入小米结构体 
-  MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
-  MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
-  osDelay(100);
+  // MI_motor_Init(&MI_Motor_ID1,&MI_CAN_1,1); // 将MI_CAN_1，ID=1传入小米结构体 
+  // MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_1，ID=2传入小米结构体 
+  // MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
+  // MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
+  // osDelay(100);
 
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_UP){Wheel_Speed_Control(rc.LY*20 + rc.RX*20, rc.LY*20 - rc.RX*20);} // 轮速度控制，正值前进，负值后退
-    if (rc.sw1 == SW_MID){Wheel_Speed_Control(0.0f,0.0f);}          // 轮电机停转
-    osDelay(1);
+    // if (rc.sw1 == SW_UP){Wheel_Speed_Control(rc.LY*20 + rc.RX*20, rc.LY*20 - rc.RX*20);} // 轮速度控制，正值前进，负值后退
+    // if (rc.sw1 == SW_MID){Wheel_Speed_Control(0.0f,0.0f);}          // 轮电机停转
+    osDelay(10);
   }
   /* USER CODE END Motor_MI_task */
 }
@@ -338,7 +334,8 @@ void Motor_A1_task(void const * argument)
     {
       //                       RX向右为正    LX向左为负
       // Joint_Position_Control(rc.RX*70.0f,-rc.LX*70.0f);
-      Joint_Position_Control(0.0f,0.0f);
+      // Joint_Position_Control(0.0f,0.0f);
+      Joint_Position_Control(rc.LY*60.0f,rc.LY*60.0f);
     }
   }
   /* USER CODE END Motor_A1_task */
@@ -354,13 +351,27 @@ void Motor_A1_task(void const * argument)
 void Robot_task(void const * argument)
 {
   /* USER CODE BEGIN Robot_task */
+  MI_motor_Init(&MI_Motor_ID1,&MI_CAN_1,1); // 将MI_CAN_1，ID=1传入小米结构体 
+  MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_1，ID=2传入小米结构体 
+  MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
+  MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
+  osDelay(100);
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw2 == SW_DOWN && rc.sw1 == SW_DOWN && STOP == False) //急停使用
+    if (rc.sw1 == SW_UP && STOP == False)   //倒地-遥控模式
     {
-      // BalanceTask(); 
-      stand_task_start(&INS, rc.LY, rc.RX);
+      Wheel_Speed_Control(rc.RY*20 + rc.RX*20, rc.RY*20 - rc.RX*20);
+      osDelay(2);
+    }
+    if (rc.sw1 == SW_MID && STOP == False)  //平衡-遥控模式
+    {
+      stand_task_start(&INS, rc.RY, rc.RX);
+      osDelay(2);
+    }
+    if (rc.sw1 == SW_DOWN && STOP == False) //平衡-跟踪模式
+    {
+      stand_task_start(&INS, rc.RY, rc.RX);
       osDelay(2);
     }
   }

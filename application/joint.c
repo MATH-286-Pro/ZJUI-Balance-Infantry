@@ -149,18 +149,23 @@ void Joint_Monitor()
 
 /**
   * @brief          底盘关节位置控制
-  * @param[in]      Pos_Front: 减速后-角度制 正值前腿向下摆动
-  * @param[in]      Pos_Back: 减速后-角度制 正值后腿向下摆动
+  * @param[in]      Pos_Front: 减速后-角度制 正值前腿向上摆动
+  * @param[in]      Pos_Back: 减速后-角度制 正值后腿向上摆动
   */
 void Joint_Position_Control(float Pos_Front, float Pos_Back)
-{
-    modfiy_pos_cmd(&MotorA1_send_left,0, (float) +Pos_Front + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
-    modfiy_pos_cmd(&MotorA1_send_right,0,(float) -Pos_Front + zero_right_ID0, 0.006,1.0); 
+{   
+    // 角度 限幅处理
+    if(Pos_Front >= +19){Pos_Front = +19;}
+    if(Pos_Front <= -79){Pos_Front = -79;}
+    if(Pos_Back  >= +19){Pos_Back  = +19;}
+    if(Pos_Back  <= -79){Pos_Back  = -79;}
+    modfiy_pos_cmd(&MotorA1_send_left,0, (float) -Pos_Front + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+    modfiy_pos_cmd(&MotorA1_send_right,0,(float) +Pos_Front + zero_right_ID0, 0.006,1.0); 
     unitreeA1_rxtx(&huart1); 
     unitreeA1_rxtx(&huart6);
     osDelay(1);
-    modfiy_pos_cmd(&MotorA1_send_left,1, (float) -Pos_Back + zero_left_ID1, 0.006, 1.0);   
-    modfiy_pos_cmd(&MotorA1_send_right,1,(float) +Pos_Back + zero_right_ID1, 0.006, 1.0);
+    modfiy_pos_cmd(&MotorA1_send_left,1, (float) +Pos_Back + zero_left_ID1, 0.006, 1.0);   
+    modfiy_pos_cmd(&MotorA1_send_right,1,(float) -Pos_Back + zero_right_ID1, 0.006, 1.0);
     unitreeA1_rxtx(&huart1);
     unitreeA1_rxtx(&huart6);
     osDelay(1);
