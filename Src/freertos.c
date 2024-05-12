@@ -104,6 +104,7 @@ extern pid_type_def PID_R;
 extern pid_type_def PID_VEL;
 extern Vel_measure;
 extern Vel_measure_mod;
+extern pid_type_def PID_VEL_UP;   // 速度环 PID 结构体 (±10°都非常稳定)
 
 /* USER CODE END Variables */
 osThreadId testHandle;
@@ -269,7 +270,8 @@ void OLED_task(void const * argument)
     speed_print_last = speed_print;
     speed_print = (-MI_Motor_ID2.RxCAN_info.speed + MI_Motor_ID1.RxCAN_info.speed)/2*62*0.001;
     speed_print = speed_print*0.3 + speed_print_last*0.7;
-    USB_printf("Output:%d,%d,%d\n", (int)(INS.Pitch*DRG*100),(int)(speed_print*1000),(int)(rc.LY*2.0f*1000));
+    USB_printf("Output:%d,%d,%d,%d\n", (int)(INS.Pitch*DRG*100),(int)(speed_print*1000),
+                                       (int)(rc.LY*2.0f*1000),(int)(PID_VEL_UP.out*1000));
 
     osDelay(10);
   }

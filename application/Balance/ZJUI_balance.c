@@ -165,6 +165,7 @@ void MotorControl()
 #define R_Wheel  124*mm  // 轮子半径
 
 #define IsInDeadZone(measure, target, DeadZone) (((measure - target)> -DeadZone && (measure - target) < DeadZone) ? target : measure)
+#define IsInDeadZoneSign(measure, target, DeadZone) (((measure - target)> -DeadZone && (measure - target) < DeadZone) ? 0 : 1)
 
 float target_pitch = -0.70f*DGR2RAD; // 测试实际数值角度
 float Vel_L = 0.0f;
@@ -173,7 +174,8 @@ float Vel_Diff = 0.0f;
 float Vel_measure;            // 平均速度 = (左 + 右) / 2
 float Vel_measure_last;       // 上一次速度
 float Vel_measure_mod;        // 速度修正
-float DeadZone_Vel  = 0.15f;  // 速度环死区
+uint8_t DZ_SIGN_VEL = 1;// 速度环死区标志
+float DeadZone_Vel  = 0.18f;  // 速度环死区
 float DeadZone_TURN = 0.5f;   // 转向环死区
 
 pid_type_def PID_Balance;  // 直立环 PID 结构体
@@ -193,18 +195,10 @@ void stand_task_init()
     PID_init(&PID_Balance, PID_POSITION, PID_ARG, PID_MAX_OUT, 4.0f);
 
     // 速度环参数
-    // static const float PID_VEL_ARG[3] = {5.0f, 0.1f, 0.0f};    
-    // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 1.5f, 0.4f);   
-    // static const float PID_VEL_ARG[3] = {1.0f, 0.3f, 0.0f};    
-    // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.0f, 0.5f);  
 
     // 无法倒地自救
     // static const float PID_VEL_ARG[3] = {2.0f, 0.3f, 0.0f};    
     // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.0f, 0.8f); 
-
-    // 可以稳定(无震荡) 无法倒地自救
-    // static const float PID_VEL_ARG[3] = {4.0f, 0.3f, 0.0f};    
-    // PID_init(&PID_VEL, PID_POSITION, PID_VEL_ARG, 2.0f, 0.0f);  
 
     // 可以稳定(无震荡) 勉强倒地自救
     // static const float PID_VEL_ARG[3] = {1.0f, 0.3f, 0.0f};    
@@ -232,8 +226,11 @@ void stand_task_init()
     // PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.3f);
 
     // static const float PID_VEL_UP_ARG[3] = {2.5f, 0.5f, 0.0f};    
-    static const float PID_VEL_UP_ARG[3] = {4.0f, 0.02f, 0.0f};    
-    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.0f, 0.5f); 
+    // static const float PID_VEL_UP_ARG[3] = {5.0f, 0.025f, 0.0f};    
+    // PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.2f, 0.5f);   
+
+    static const float PID_VEL_UP_ARG[3] = {2.0f, 0.01f, 0.0f};    
+    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.5f, 0.5f); 
 
     // 转向环
     static const float PID_TURN_ARG[3] = {5.0f, 0.0f, 1.0f};      
@@ -254,10 +251,11 @@ void stand_task_start(INS_t *INS)
     Vel_measure     = 0.5*(Vel_L * R_Wheel + Vel_R * R_Wheel);              // 车速 = (左轮速 + 右轮速) / 2
     Vel_measure     = Vel_measure - INS->Gyro[Y0] * R_Wheel;                // 轮速度修正
 
-    Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;         // 速度滤波
-    Vel_measure_mod = IsInDeadZone(Vel_measure,rc.LY*2.0f, DeadZone_Vel);   // 速度环死区
-    PID_calc(&PID_VEL_UP,   Vel_measure_mod, rc.LY*2.0f);                     // 计算 平衡 速度环 输出
-    PID_calc(&PID_VEL_DOWN, Vel_measure_mod, rc.LY*2.0f);                   // 计算 倒地 速度环 输出
+    Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;             // 速度滤波
+    Vel_measure_mod = IsInDeadZone(Vel_measure,rc.LY*2.0f, DeadZone_Vel);       // 速度环死区
+    DZ_SIGN_VEL = IsInDeadZoneSign(Vel_measure,rc.LY*2.0f, DeadZone_Vel);       // 速度环死区标志
+    PID_calc(&PID_VEL_UP,   Vel_measure_mod, rc.LY*2.0f);                       // 计算 平衡 速度环 输出
+    PID_calc(&PID_VEL_DOWN, Vel_measure_mod, rc.LY*2.0f);                       // 计算 倒地 速度环 输出
 
     // 转向环计算
     Vel_Diff = Vel_L - Vel_R;                                // 左右轮速差
@@ -269,8 +267,8 @@ void stand_task_start(INS_t *INS)
     // 力矩输出
     static float Critical_Angle = 12.0f*DGR2RAD; // 临界角度
     if (INS->Pitch > -Critical_Angle && INS->Pitch < Critical_Angle)
-    {Wheel_Torque_Control(PID_Balance.out - PID_VEL_UP.out + PID_TURN.out,   // 左轮
-                          PID_Balance.out - PID_VEL_UP.out - PID_TURN.out);} // 右轮
+    {Wheel_Torque_Control(PID_Balance.out - DZ_SIGN_VEL*PID_VEL_UP.out + PID_TURN.out,   // 左轮
+                          PID_Balance.out - DZ_SIGN_VEL*PID_VEL_UP.out - PID_TURN.out);} // 右轮
     else
     {Wheel_Torque_Control(PID_Balance.out - PID_VEL_DOWN.out + PID_TURN.out,   // 左轮
                           PID_Balance.out - PID_VEL_DOWN.out - PID_TURN.out);}
