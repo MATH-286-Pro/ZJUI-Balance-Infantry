@@ -9,7 +9,7 @@
             "command": "make",
             "args": [
                 // Ask msbuild to generate full paths for file names.
-                "-j16"
+                "-j"
             ],
             "group": "build",
         },

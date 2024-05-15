@@ -3,7 +3,7 @@
     {
       "showDevDebugOutput": "parsed",
       "cwd": "${workspaceRoot}",
-      "executable": "./build/ZJUI-Infantry.elf",
+      "executable": "./build/ZJUI-Balance.elf",
       "name": "STM32 Debug",
       "request": "launch",
       "preLaunchTask": "buildEmbeddedTargets",
@@ -13,7 +13,8 @@
       "configFiles": [
         "interface/stlink-v2.cfg",
         "target/stm32f4x.cfg"
-      ]
+      ],
+      "armToolchainPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2021.10/bin"
     },
     {
       "name": "C/C++ Runner: Debug Session",
@@ -22,8 +23,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/Src",
-      "program": "d:/DeskTop/Embedded/Infantry_test/0Test/0.ZJUI-Balance-Infantry/Src/build/Debug/outDebug",
+      "cwd": "d:/DeskTop/Embedded/Infantry_test/Code_HNU_INS/Core/Src",
+      "program": "d:/DeskTop/Embedded/Infantry_test/Code_HNU_INS/Core/Src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
