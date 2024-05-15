@@ -40,25 +40,25 @@ typedef struct {
 		uint16_t key_code;
 /**********************************************************************************
  * keyboard: 15   14   13   12   11   10   9   8   7   6     5     4   3   2   1
- *            V    C    X	 Z    G    F   R   E   Q  CTRL SHIFT   D   A   S   W
+ *            key_V    key_C    key_X	 key_Z    key_G    key_F   key_R   key_E   key_Q  key_CTRL key_SHIFT   key_D   key_A   key_S   key_W
  ************************************************************************************/
 		struct {
-			uint16_t W: 1;
-			uint16_t S: 1;
-			uint16_t A: 1;
-			uint16_t D: 1;
-			uint16_t SHIFT: 1;
-			uint16_t CTRL: 1;
-			uint16_t Q: 1;
-			uint16_t E: 1;
-			uint16_t R: 1;
-			uint16_t F: 1;
-			uint16_t G: 1;
-			uint16_t Z: 1;
-			uint16_t X: 1;
-			uint16_t C: 1;
-			uint16_t V: 1;
-			uint16_t B: 1;
+			uint16_t key_W: 1;
+			uint16_t key_S: 1;
+			uint16_t key_A: 1;
+			uint16_t key_D: 1;
+			uint16_t key_SHIFT: 1;
+			uint16_t key_CTRL: 1;
+			uint16_t key_Q: 1;
+			uint16_t key_E: 1;
+			uint16_t key_R: 1;
+			uint16_t key_F: 1;
+			uint16_t key_G: 1;
+			uint16_t key_Z: 1;
+			uint16_t key_X: 1;
+			uint16_t key_C: 1;
+			uint16_t key_V: 1;
+			uint16_t key_B: 1;
 		} bit;
 	} kb;
     

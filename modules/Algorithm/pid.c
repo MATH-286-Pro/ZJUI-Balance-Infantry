@@ -50,7 +50,7 @@
   * @param[in]      max_iout: pid最大积分输出
   * @retval         none
   */
-void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, fp32 max_iout)
+void PID_init(pid_type_def *pid, uint8_t mode, const float PID[3], float max_out, float max_iout)
 {
     if (pid == NULL || PID == NULL)
     {
@@ -80,7 +80,7 @@ void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, 
   * @param[in]      set: 设定值
   * @retval         pid输出
   */
-fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set)
+float PID_calc(pid_type_def *pid, float ref, float set)
 {
     if (pid == NULL)
     {

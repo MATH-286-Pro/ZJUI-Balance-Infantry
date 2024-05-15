@@ -21,7 +21,7 @@
 
 #ifndef OLED_H
 #define OLED_H
-#include "struct_typedef.h"
+// #include "struct_typedef.h"
 #include <stdint.h>
 
 
@@ -41,6 +41,7 @@
 #define CHAR_SIZE_WIDTH 6
 #define CHAR_SIZE_HIGHT 12
 
+typedef unsigned char bool_t; // 临时定义
 
 typedef enum
 {
