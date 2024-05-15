@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -64,7 +64,7 @@
   */
 
 /* USER CODE BEGIN EXPORTED_TYPES */
-typedef void (*USBCallback)(uint16_t); // USB事件回调函数类型
+
 /* USER CODE END EXPORTED_TYPES */
 
 /**
@@ -93,7 +93,7 @@ typedef void (*USBCallback)(uint16_t); // USB事件回调函数类型
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
-
+typedef void (*USBCallback)(uint16_t); // USB事件回调函数类型
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**
@@ -108,7 +108,27 @@ extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
+typedef struct 
+{
+  float LY; //[-1,1]
+	float LX; //[-1,1]
+	float RY; //[-1,1]
+	float RX; //[-1,1]
+	// ch value: -660 ~ 660
+	int16_t ch1;	
+	int16_t ch2;
+	int16_t ch3;
+	int16_t ch4;
+	
+	// switch value: 1 3 2
+	uint8_t sw1;	
+	uint8_t sw2;
+} RC_ctrl_t;
+
 uint8_t* CDCInitRxbufferNcallback(USBCallback transmit_cbk,USBCallback recv_cbk);
+extern const RC_ctrl_t *get_remote_control_point(void);
+/* USER CODE END EXPORTED_FUNCTIONS */
+extern void rc_init(RC_ctrl_t *rc_ctrl);
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**

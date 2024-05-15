@@ -41,6 +41,7 @@
 #include "Balance.h"
 #include "pid.h"
 
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,6 +68,7 @@ extern INS_t *INS_DATA;
 extern pid_type_def PID_Balance;
 extern pid_type_def PID_VEL_UP;
 
+const RC_ctrl_t* DT7_pram; //遥控器控制结构体
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -166,7 +168,8 @@ void StartDefaultTask(void const * argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-
+  DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
+  rc_init(DT7_pram);
   /* Infinite loop */
   for(;;)
   {
@@ -174,12 +177,12 @@ void StartDefaultTask(void const * argument)
     //                                     (int)(INS_DATA->MotionAccel_b[0]*100),(int)(INS_DATA->MotionAccel_b[1]*100),(int)(INS_DATA->MotionAccel_b[2]*100),
     //                                     (int)(INS_DATA->Vel[0]*100),(int)(INS_DATA->Vel[1]*100),(int)(INS_DATA->Vel[2]*100));
     // USB_printf("Velocity.Dist.motionN:%d,%d\n",(int)(chassis.dist*100),(int)(chassis.vel_m*100));
-
+    DT7_pram = get_remote_control_point(); // 获取遥控器控制结构体
     // 湖南大学 Pitch Roll 需要互换 
-    USB_printf("Yaw.Roll.Pitch:%d,%d,%d,%d,%d,%d\n",(int)(INS_DATA->Yaw),(int)(INS_DATA->Pitch),
-                                              (int)(INS_DATA->Roll),(int)(INS_DATA->Gyro[Y]*180/3.14),
-                                              (int)(PID_VEL_UP.out*100)),(int)(PID_Balance.out*100);
-    osDelay(10);
+    // USB_printf("Yaw.Roll.Pitch:%d,%d,%d,%d,%d,%d\n",(int)(INS_DATA->Yaw),(int)(INS_DATA->Pitch),
+    //                                           (int)(INS_DATA->Roll),(int)(INS_DATA->Gyro[Y]*180/3.14),
+    //                                           (int)(PID_VEL_UP.out*100)),(int)(PID_Balance.out*100);
+    osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -250,7 +253,7 @@ void StartROBOTTASK(void const *argument)
     }
     if (rc.sw2 == SW_DOWN) //平衡-跟踪模式
     {
-      stand_task_start(INS_DATA, rc.RY, rc.RX);
+      stand_task_start(INS_DATA, DT7_pram->LY, DT7_pram->RX);
       osDelay(2);
     }
   }
