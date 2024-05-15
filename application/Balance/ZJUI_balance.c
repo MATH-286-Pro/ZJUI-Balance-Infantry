@@ -175,7 +175,8 @@ float Vel_measure;            // 平均速度 = (左 + 右) / 2
 float Vel_measure_last;       // 上一次速度
 float Vel_measure_mod;        // 速度修正
 uint8_t DZ_SIGN_VEL = 1;// 速度环死区标志
-float DeadZone_Vel  = 0.18f;  // 速度环死区
+// float DeadZone_Vel  = 0.16f;  // 速度环死区
+float DeadZone_Vel  = 0.10f;  // 速度环死区
 float DeadZone_TURN = 0.5f;   // 转向环死区
 
 pid_type_def PID_Balance;  // 直立环 PID 结构体
@@ -230,7 +231,7 @@ void stand_task_init()
     // PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 2.2f, 0.5f);   
 
     static const float PID_VEL_UP_ARG[3] = {2.5f, 0.01f, 0.0f};    
-    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 3.0f, 0.5f); 
+    PID_init(&PID_VEL_UP, PID_POSITION, PID_VEL_UP_ARG, 3.0f, 0.3f);  // MAX_IOUT = 0.3f
 
     // 转向环
     static const float PID_TURN_ARG[3] = {5.0f, 0.0f, 1.0f};      
@@ -251,7 +252,7 @@ void stand_task_start(INS_t *INS, float RC_Forward, float RC_Turn)
     Vel_measure     = 0.5*(Vel_L * R_Wheel + Vel_R * R_Wheel);              // 车速 = (左轮速 + 右轮速) / 2
     Vel_measure     = Vel_measure - INS->Gyro[Y0] * R_Wheel;                // 轮速度修正
 
-    Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;             // 速度滤波
+    Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;                  // 速度滤波
     Vel_measure_mod = IsInDeadZone(Vel_measure,RC_Forward*2.0f, DeadZone_Vel);       // 速度环死区
     DZ_SIGN_VEL = IsInDeadZoneSign(Vel_measure,RC_Forward*2.0f, DeadZone_Vel);       // 速度环死区标志
     PID_calc(&PID_VEL_UP,   Vel_measure_mod, RC_Forward*2.0f);                       // 计算 平衡 速度环 输出

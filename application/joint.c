@@ -3,6 +3,7 @@
 #include "joint.h"
 #include "cmsis_os.h"
 
+#define LIMIT_RANGE(Pos, Min, Max) ((Pos) = ((Pos) > (Max) ? (Max) : (Pos) < (Min) ? (Min) : (Pos)))
 
 // 默认电机初始零点
 float zero_left_ID0  = 0.0f;
@@ -155,10 +156,8 @@ void Joint_Monitor()
 void Joint_Position_Control(float Pos_Front, float Pos_Back)
 {   
     // 角度 限幅处理
-    if(Pos_Front >= +19){Pos_Front = +19;}
-    if(Pos_Front <= -79){Pos_Front = -79;}
-    if(Pos_Back  >= +19){Pos_Back  = +19;}
-    if(Pos_Back  <= -79){Pos_Back  = -79;}
+    LIMIT_RANGE(Pos_Front, -79, +19);
+    LIMIT_RANGE(Pos_Back,  -79, +19);
     modfiy_pos_cmd(&MotorA1_send_left,0, (float) -Pos_Front + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
     modfiy_pos_cmd(&MotorA1_send_right,0,(float) +Pos_Front + zero_right_ID0, 0.006,1.0); 
     unitreeA1_rxtx(&huart1); 
@@ -170,6 +169,25 @@ void Joint_Position_Control(float Pos_Front, float Pos_Back)
     unitreeA1_rxtx(&huart6);
     osDelay(1);
 }
+
+void Joint_Full_Position_Control(float Pos_Front_L, float Pos_Front_R, float Pos_Back_L, float Pos_Back_R)
+{
+    LIMIT_RANGE(Pos_Front_L, -79, +19);
+    LIMIT_RANGE(Pos_Front_R,  -79, +19);
+    LIMIT_RANGE(Pos_Back_L, -79, +19);
+    LIMIT_RANGE(Pos_Back_R,  -79, +19);
+    modfiy_pos_cmd(&MotorA1_send_left,0, (float) -Pos_Front_L + zero_left_ID0, 0.006, 1.0);  // 0.005 0.5  
+    modfiy_pos_cmd(&MotorA1_send_right,0,(float) +Pos_Front_R + zero_right_ID0, 0.006,1.0); 
+    unitreeA1_rxtx(&huart1); 
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+    modfiy_pos_cmd(&MotorA1_send_left,1, (float) +Pos_Back_L + zero_left_ID1, 0.006, 1.0);   
+    modfiy_pos_cmd(&MotorA1_send_right,1,(float) -Pos_Back_R + zero_right_ID1, 0.006, 1.0);
+    unitreeA1_rxtx(&huart1);
+    unitreeA1_rxtx(&huart6);
+    osDelay(1);
+}
+
 
 /**
   * @brief          底盘关节速度控制
@@ -189,3 +207,18 @@ void Joint_Speed_Control(float Speed_Front, float Speed_Back)
     unitreeA1_rxtx(&huart6);
     osDelay(1);
 }
+
+
+// // 离地检测
+// uint8_t Joint_IsOn_Ground()
+// {
+//     if (MotorA1_recv_right_id01.T < 0 && MotorA1_recv_right_id00.T > 0 )
+//     {
+//         return 0;
+//     }
+//     if (MotorA1_recv_left_id00.T < 0 && MotorA1_recv_left_id01.T > 0 )
+//     {
+//         return 0;
+//     }
+//     return 1;
+// }

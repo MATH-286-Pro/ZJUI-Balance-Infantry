@@ -250,24 +250,26 @@ void OLED_task(void const * argument)
 {
   /* USER CODE BEGIN OLED_task */
   // uint8_t i = 0;
-  // OLED_show_string(i,0,"Yaw=");   OLED_show_string(i,10,"Rol=");  i++;
-  // OLED_show_string(i,0,"Pit=");   i++;
+  // OLED_clear();
+  // OLED_show_string(i,0,"RB =");   OLED_show_string(i,10,"LB =");  i++;
+  // OLED_show_string(i,0,"RF =");   OLED_show_string(i,10,"LF =");  i++;
   // OLED_refresh_gram();
   float speed_print = 0.0f;
   float speed_print_last = 0.0f;
+  extern fp32 INS_angle[3]; // 用于测试INS角度，存在上电回归非常慢的现象
   /* Infinite loop */
   for(;;)
   {
-    // 任务 OLED + 遥控器接收
+    // 任务 OLED
     // i = 0;
-    // OLED_show_signednum(i,4,INS_angle[0]*DRG,3);    OLED_show_signednum(i,10+4,INS_angle[2]*DRG,3);   i++;
-    // OLED_show_signednum(i,4,INS_angle[1]*DRG,3);    i++;
+    // OLED_show_signednum(i,4,MotorA1_recv_right_id01.T*10,3);    OLED_show_signednum(i,14,MotorA1_recv_left_id01.T*10,3);   i++;
+    // OLED_show_signednum(i,4,MotorA1_recv_right_id00.T*10,3);    OLED_show_signednum(i,14,MotorA1_recv_left_id00.T*10,3);   i++;
     // OLED_refresh_gram();
     speed_print_last = speed_print;
     speed_print = (-MI_Motor_ID2.RxCAN_info.speed + MI_Motor_ID1.RxCAN_info.speed)/2*62*0.001;
     speed_print = speed_print*0.3 + speed_print_last*0.7;
     USB_printf("Output:%d,%d,%d,%d\n", (int)(INS.Pitch*DRG*100),(int)(speed_print*1000),
-                                       (int)(rc.LY*2.0f*1000),(int)(PID_VEL_UP.out*1000));
+                                       (int)(rc.RY*2.0f*1000),(int)(PID_VEL_UP.out*1000));
 
     osDelay(10);
   }
@@ -284,17 +286,10 @@ void OLED_task(void const * argument)
 void Motor_MI_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_MI_task */
-  // MI_motor_Init(&MI_Motor_ID1,&MI_CAN_1,1); // 将MI_CAN_1，ID=1传入小米结构体 
-  // MI_motor_Init(&MI_Motor_ID2,&MI_CAN_1,2); // 将MI_CAN_1，ID=2传入小米结构体 
-  // MI_motor_Enable(&MI_Motor_ID1);           // 通过发送小米结构体 data=00000000 电机使能
-  // MI_motor_Enable(&MI_Motor_ID2);           // 通过发送小米结构体 data=00000000 电机使能
-  // osDelay(100);
 
   /* Infinite loop */
   for(;;)
   {
-    // if (rc.sw1 == SW_UP){Wheel_Speed_Control(rc.LY*20 + rc.RX*20, rc.LY*20 - rc.RX*20);} // 轮速度控制，正值前进，负值后退
-    // if (rc.sw1 == SW_MID){Wheel_Speed_Control(0.0f,0.0f);}          // 轮电机停转
     osDelay(10);
   }
   /* USER CODE END Motor_MI_task */
@@ -318,24 +313,24 @@ void Motor_A1_task(void const * argument)
   Joint_Zero_init_Type2(); // 限位原点
   osDelay(10);
   Joint_Speed_Control(0.0f,0.0f);
-  // Joint_Position_Control(0.0f,0.0f);
 
 
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw2 == SW_UP || rc.sw2 == SW_POWER_OFF || STOP == True) // 急停
+    if (rc.sw1 == SW_UP || rc.sw2 == SW_POWER_OFF || STOP == True) // 急停
     {
       // Joint_Speed_Control(rc.RX*3.0f,-rc.LX*3.0f);
-      Joint_Speed_Control(0.0f,0.0f);
+      Joint_Position_Control(0.0f,0.0f);
     }
 
-    else if (rc.sw2 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
+    else if (rc.sw1 == SW_MID && STOP == False) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      //                       RX向右为正    LX向左为负
-      // Joint_Position_Control(rc.RX*70.0f,-rc.LX*70.0f);
-      // Joint_Position_Control(0.0f,0.0f);
-      Joint_Position_Control(rc.LY*60.0f,rc.LY*60.0f);
+      // Joint_Position_Control(rc.LY*60.0f,rc.LY*60.0f);
+      Joint_Full_Position_Control(rc.LY*60.0f - rc.LX*20.0f,
+                                  rc.LY*60.0f + rc.LX*20.0f,
+                                  rc.LY*60.0f - rc.LX*20.0f,
+                                  rc.LY*60.0f + rc.LX*20.0f);
     }
   }
   /* USER CODE END Motor_A1_task */
@@ -359,17 +354,17 @@ void Robot_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (rc.sw1 == SW_UP && STOP == False)   //倒地-遥控模式
+    if (rc.sw2 == SW_UP && STOP == False)   //倒地-遥控模式
     {
       Wheel_Speed_Control(rc.RY*20 + rc.RX*20, rc.RY*20 - rc.RX*20);
       osDelay(2);
     }
-    if (rc.sw1 == SW_MID && STOP == False)  //平衡-遥控模式
+    if (rc.sw2 == SW_MID && STOP == False)  //平衡-遥控模式
     {
       stand_task_start(&INS, rc.RY, rc.RX);
       osDelay(2);
     }
-    if (rc.sw1 == SW_DOWN && STOP == False) //平衡-跟踪模式
+    if (rc.sw2 == SW_DOWN && STOP == False) //平衡-跟踪模式
     {
       stand_task_start(&INS, rc.RY, rc.RX);
       osDelay(2);

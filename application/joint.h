@@ -65,5 +65,10 @@ void Joint_Position_Control(float Pos_Front, float Pos_Back);
 // 底盘速度控制
 void Joint_Speed_Control(float Speed_Front, float Speed_Back);
 
+void Joint_Full_Position_Control(float Pos_Front_Left, float Pos_Front_Right, float Pos_Back_Left, float Pos_Back_Right);
+
+// 离地检测 (测试)
+// uint8_t Joint_IsOn_Ground();
+
 
 #endif // !JOINT_H
