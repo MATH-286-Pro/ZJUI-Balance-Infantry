@@ -203,7 +203,8 @@ void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
   osDelay(100);
-  Joint_Zero_init_Type1(); // 上电原点
+  // Joint_Zero_init_Type1(); // 上电原点
+  Joint_Zero_init_Type2(); // 限位原点
   osDelay(10);
   Joint_Speed_Control(0.0f,0.0f);
   /* Infinite loop */
@@ -217,11 +218,11 @@ void Motor_A1_task(void const * argument)
 
     else if (rc.sw1 == SW_MID) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      Joint_Position_Control(0.0f,0.0f);
-      // Joint_Full_Position_Control(rc.LY*60.0f - rc.LX*20.0f,
-      //                             rc.LY*60.0f + rc.LX*20.0f,
-      //                             rc.LY*60.0f - rc.LX*20.0f,
-      //                             rc.LY*60.0f + rc.LX*20.0f);
+      // Joint_Position_Control(0.0f,0.0f);
+      Joint_Full_Position_Control(rc.LY*60.0f - rc.LX*20.0f,
+                                  rc.LY*60.0f + rc.LX*20.0f,
+                                  rc.LY*60.0f - rc.LX*20.0f,
+                                  rc.LY*60.0f + rc.LX*20.0f);
     }
   }
   /* USER CODE END Motor_A1_task */
