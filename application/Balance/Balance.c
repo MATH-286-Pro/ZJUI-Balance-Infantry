@@ -53,6 +53,7 @@ float Vel_Diff = 0.0f;
 float Vel_measure;              // 平均速度 = (左 + 右) / 2
 float Vel_measure_last;         // 上一次速度
 float Vel_measure_mod;          // 速度修正
+float Vel_print = 0.0f;         // 用于打印
 uint8_t DZ_SIGN_VEL = 1;        // 速度环死区标志
 float DeadZone_Vel  = 0.16f;    // 速度环死区
 float DeadZone_TURN = 0.5f;     // 转向环死区
@@ -91,6 +92,7 @@ void stand_task_start(INS_t *INS, float RC_Forward, float RC_Turn)
     Vel_measure     = Vel_measure - INS->Gyro[X] * R_Wheel;                 // 轮速度修正
 
     Vel_measure     = Vel_measure * 0.3f + Vel_measure_last * 0.7f;                  // 速度滤波
+    Vel_print       = Vel_measure;                                                  // 用于打印
     DZ_SIGN_VEL = IsInDeadZoneSign(Vel_measure,RC_Forward*4.0f, DeadZone_Vel);       // 速度环死区标志
     PID_calc(&PID_VEL_UP,   Vel_measure, RC_Forward*4.0f);                       // 计算 平衡 速度环 输出
 

@@ -66,6 +66,7 @@ extern RC_Type rc;        // 遥控器数据
 extern INS_t *INS_DATA;
 extern pid_type_def PID_Balance;
 extern pid_type_def PID_VEL_UP;
+extern float Vel_print;
 
 /* USER CODE END PM */
 
@@ -176,8 +177,7 @@ void StartDefaultTask(void const * argument)
     // USB_printf("Velocity.Dist.motionN:%d,%d\n",(int)(chassis.dist*100),(int)(chassis.vel_m*100));
 
     // 湖南大学 Pitch Roll 需要互换 
-    USB_printf("Yaw.Roll.Pitch:%d,%d,%d,%d,%d,%d\n",(int)(INS_DATA->Yaw),(int)(INS_DATA->Pitch),
-                                              (int)(INS_DATA->Roll),(int)(INS_DATA->Gyro[Y]*180/3.14),
+    USB_printf("Yaw.Roll.Pitch:%d,%d,%d,%d,%d,%d\n",(int)(INS_DATA->Pitch),(int)(Vel_print*100),
                                               (int)(PID_VEL_UP.out*100)),(int)(PID_Balance.out*100);
     osDelay(10);
   }
@@ -200,7 +200,7 @@ void Motor_A1_task(void const * argument)
 {
   /* USER CODE BEGIN Motor_A1_task */
   osDelay(100);
-  Joint_Zero_init_Type1(); // 上电原点
+  Joint_Zero_init_Type2(); // 限位原点
   osDelay(10);
   Joint_Speed_Control(0.0f,0.0f);
   /* Infinite loop */
@@ -208,17 +208,15 @@ void Motor_A1_task(void const * argument)
   {
     if (rc.sw1 == SW_UP) // 急停
     {
-      // Joint_Speed_Control(rc.RX*3.0f,-rc.LX*3.0f);
       Joint_Position_Control(0.0f,0.0f);
     }
 
     else if (rc.sw1 == SW_MID) // 位置模式 (现在的位置模式为减速后的转子角度-角度制)
     {
-      Joint_Position_Control(0.0f,0.0f);
-      // Joint_Full_Position_Control(rc.LY*60.0f - rc.LX*20.0f,
-      //                             rc.LY*60.0f + rc.LX*20.0f,
-      //                             rc.LY*60.0f - rc.LX*20.0f,
-      //                             rc.LY*60.0f + rc.LX*20.0f);
+      Joint_Full_Position_Control(rc.LY*60.0f - rc.LX*20.0f,
+                                  rc.LY*60.0f + rc.LX*20.0f,
+                                  rc.LY*60.0f - rc.LX*20.0f,
+                                  rc.LY*60.0f + rc.LX*20.0f);
     }
   }
   /* USER CODE END Motor_A1_task */
