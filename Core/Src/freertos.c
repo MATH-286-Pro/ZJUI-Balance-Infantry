@@ -177,7 +177,7 @@ void StartDefaultTask(void const * argument)
     // USB_printf("Velocity.Dist.motionN:%d,%d\n",(int)(chassis.dist*100),(int)(chassis.vel_m*100));
 
     // 湖南大学 Pitch Roll 需要互换 
-    USB_printf("Yaw.Roll.Pitch:%d,%d,%d,%d,%d,%d\n",(int)(INS_DATA->Pitch),(int)(Vel_print*100),
+    USB_printf("Yaw.Roll.Pitch:%d,%d,%d,%d,%d\n",(int)(INS_DATA->Roll*10),(int)(Vel_print*10*10),(int)(rc.RY*4*10*10),
                                               (int)(PID_VEL_UP.out*100)),(int)(PID_Balance.out*100);
     osDelay(10);
   }
