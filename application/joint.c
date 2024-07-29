@@ -75,6 +75,12 @@ void Joint_Zero_init_Type1()
       }
 
   // 自检成功 红灯熄灭
+  modfiy_speed_cmd(&MotorA1_send_left,  0, 0);    
+  modfiy_speed_cmd(&MotorA1_send_right, 0, 0);
+  osDelay(1);
+  modfiy_speed_cmd(&MotorA1_send_left,  1, 0);    
+  modfiy_speed_cmd(&MotorA1_send_right, 1, 0);
+  osDelay(1);
   HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
 
 }
@@ -107,8 +113,13 @@ while (Joint_Zero_OK() == False) {
         zero_right_ID1 = (float) MotorA1_recv_right_id01.Pos + UP_LIMIT;}
     osDelay(1);
     }
-HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
-
+  modfiy_speed_cmd(&MotorA1_send_left,  0, 0);    
+  modfiy_speed_cmd(&MotorA1_send_right, 0, 0);
+  osDelay(1);
+  modfiy_speed_cmd(&MotorA1_send_left,  1, 0);    
+  modfiy_speed_cmd(&MotorA1_send_right, 1, 0);
+  osDelay(1);
+  HAL_GPIO_WritePin(GPIOH,GPIO_PIN_12,GPIO_PIN_RESET); //
 }
 
 // 回归零点
