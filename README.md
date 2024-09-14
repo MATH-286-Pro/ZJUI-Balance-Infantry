@@ -8,6 +8,11 @@
 - 平衡算法：使用串级 PID，板凳模型
 
 ## 2.机械部分 (机体参数)
+
+<div align="center">
+  <img src="Picture/CAD-model.png" width="80%" height="auto">
+</div>
+
 - 关节电机 上摆角度 = +20.0°
 - 关节电机 下摆角度 = -80.0°
 - C板距离Body中心距离 (用于加速度修正 **代码未用到**)
