@@ -3,7 +3,7 @@
 ## 1.文件说明
 - 机械：`平衡步兵-原型机-总装 v17.f3z` 文件为机器人3D模型，使用 Fusion 建模
 
-- 电控：工具链为 `STM32CubeMX` + `arm-none-eabi-gcc` + `OpenOCD` + `VSCode`
+- 电控：工具链为 `STM32CubeMX` + `arm-none-eabi-gcc` + `OpenOCD` + `VSCode` + `Makefile`
 
 - 平衡算法：使用串级 PID，板凳模型
 
