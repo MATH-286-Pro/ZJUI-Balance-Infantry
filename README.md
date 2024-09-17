@@ -74,6 +74,10 @@
 |Robot_task    |平衡控制算法|
 
 ### 3.4 电机接线 与 ID
+- **关于A1电机信号线**
+  - 把XT30的口朝上后，从左往右依次是 GND A B
+  - RS485接线逻辑为：A接A B接B GND接GND (测试过A1电机GND不接也可以驱动)
+  
 <div align="center">
   <img src="Picture/Motor_ID.png" width="100%" height="auto">
 </div>
