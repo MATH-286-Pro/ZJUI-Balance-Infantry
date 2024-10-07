@@ -1,4 +1,4 @@
-[中文版](./README.zh-CN.md) | [English Version](./README.en.md) 
+[中文版](./README.md) | [English Version](./README.en.md) 
 
 # Project Introduction
 
