@@ -1,4 +1,9 @@
+[中文版](./README.md) | [English Version](./README.en.md) 
+
 # 项目简介
+
+## 0.效果展示
+  [B站 视频链接](https://www.bilibili.com/video/BV1Zm421P7HA/?spm_id_from=333.999.0.0&vd_source=4c878cdda4a827e2590557bcbb57b3e5)
 
 ## 1.文件说明
 - 机械：`平衡步兵-原型机-总装 v17.f3z` 文件为机器人3D模型，使用 Fusion 建模
