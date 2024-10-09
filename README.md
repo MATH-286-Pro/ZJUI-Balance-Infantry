@@ -4,11 +4,9 @@
 
 ## 0.效果展示
   [B站 视频链接](https://www.bilibili.com/video/BV1Zm421P7HA/?spm_id_from=333.999.0.0&vd_source=4c878cdda4a827e2590557bcbb57b3e5)
-  
-<video width="320" height="240" controls muted>
-  <source src="./Picture/Show-Off.mp4" type="video/mp4">
-  您的浏览器不支持 video 标签。
-</video>
+
+https://github.com/user-attachments/assets/e1de1149-ea43-45fc-aef2-61397b0e1dc5
+
 
 ## 1.文件说明
 - 机械：`平衡步兵-原型机-总装 v17.f3z` 文件为机器人3D模型，使用 Fusion 建模
