@@ -5,6 +5,11 @@
 ## 0. Robot Display
   [Bilibili Video Link](https://www.bilibili.com/video/BV1Zm421P7HA/?spm_id_from=333.999.0.0&vd_source=4c878cdda4a827e2590557bcbb57b3e5)
 
+<video width="320" height="240" controls muted>
+  <source src="./Picture/Show-Off.mp4" type="video/mp4">
+  Your browser does not support this video type.
+</video>
+
 
 ## 1. File Description
 - Mechanical: The file `平衡步兵-原型机-总装 v17.f3z` is the 3D model of the robot, modeled using Fusion
